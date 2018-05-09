@@ -178,7 +178,7 @@ class GeneralManager:
         """
         Creates exit points as defined in the Strategy at 'self._strategy'.
 
-        Saves exits on 'data/liquidation'
+        Saves exits on 'data/exits'
         """
 
         for asset_id in self._list_of_asset_ids:
@@ -230,8 +230,19 @@ class GeneralManager:
 
 
 def valid_date(s):
+    """
+    This is a method to check a valid date for the argparse.
+
+    :param s: (str) String that comprises date in format YYYY-MM-DD
+
+    :return: Input date in datetime.datetime format
+    :rtype: datetime.datetime
+    """
+    # Tries converting the date
     try:
         return datetime.datetime.strptime(s, "%Y-%m-%d")
+
+    # If it fails, raise error
     except ValueError:
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
@@ -243,7 +254,8 @@ parser.add_argument('-s', '--strategy', type=str, metavar='', help='Strategy to 
 parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
 parser.add_argument('-b', '--broker', type=str, metavar='', help='Broker name')
 parser.add_argument('-d', '--database', type=str, metavar='', help='Storage name')
-parser.add_argument('-l', '--liquidation', action='store_true', help='Liquidation')
+parser.add_argument('-l', '--live', action='store_true', help='Build Exits')
+parser.add_argument('-e', '--exits', action='store_true', help='Build Exits')
 parser.add_argument('-i', '--ai', action='store_true', help='Artificial Intelligence')
 parser.add_argument("-sd", "--startdate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
 parser.add_argument("-ed", "--enddate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
@@ -267,7 +279,7 @@ if __name__ == '__main__':
     n_assets = args.assets if args.assets is not None else 1
     asset_list = ref.cur_ordered_by_spread[0:n_assets]
 
-    liquidation = args.liquidation
+    exits = args.exits
     ai = args.ai
 
     # Sets backtesting start date
