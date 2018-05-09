@@ -53,7 +53,7 @@ def get_package_data(package):
     return {package: filepaths}
 
 
-version = get_version('src')
+version = get_version('aquitania')
 
 setup(
     name='aquitania',
@@ -62,6 +62,7 @@ setup(
     license='MIT',
     description='Aquitania',
     author='Howard Roark',
+    author_email='hroark.aquitania@gmail.com',
     packages=get_packages(''),
     package_data=get_package_data(''),
     install_requires=['scikit-learn', 'numpy', 'pandas', 'oandapyV20', 'fxcmpy', 'requests', 'scipy', 'tables',

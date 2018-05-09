@@ -158,8 +158,6 @@ class BuildExit:
         Calculate exit datetime for each possible exit point.
 
         :param df_line: Input df_line
-        :param candles_df: candles DataFrame
-        :param exit_point: string that represents 'Exit Point'
 
         :return: pd.Series([Hora da Saida, Saldo])
         """
