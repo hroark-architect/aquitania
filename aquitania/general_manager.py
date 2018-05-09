@@ -26,6 +26,8 @@ will make it pip installable soon.
 """
 import cProfile
 import datetime
+import importlib
+import re
 
 from brains.brains_manager import BrainsManager
 from brains.models.random_forest import RandomForestClf
@@ -35,7 +37,6 @@ from execution.live_management.live_environment import LiveEnvironment
 from indicator.management.indicator_manager import *
 from liquidation.build_exit import BuildExit
 from resources.no_deamon_pool import MyPool
-from strategies.example import ExampleStrategy
 import _pickle
 import resources.references as ref
 import argparse
@@ -61,7 +62,7 @@ class GeneralManager:
         :param broker: Object of type 'broker_instance' from 'data_source' module
         :param list_of_asset_ids: (list of str) Asset ids to be processed
         :param strategy_: Strategy to be used
-        :param test: if True will only ran backtest and reset all historical data
+        :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations
         """
 
@@ -285,7 +286,7 @@ def arg_parser():
     parser.add_argument("-ed", "--enddate", type=valid_date, metavar='', help="The Start Date - format YYYY-MM-DD")
 
     # Selects trading strategy
-    parser.add_argument('-t', '--trade', type=str, metavar='', help='Trading strategy to be used')
+    parser.add_argument('-t', '--trade', type=str, metavar='', help='Trading strategy to be used (CamelCase)')
 
     # Returns argument parser
     return parser.parse_args()
@@ -351,21 +352,46 @@ def select_execution_mode(gm, args):
         gm.run(True, True)
 
 
+def get_strategy(strategy_name):
+    """
+    Class name is camel case.
+    Filename is all lower and words are separated by underline('_')
+    :param strategy_name:
+    :return:
+    """
+    # Converts Strategy name to file name
+    filename = camel_to_underline(strategy_name)
+
+    # Imports and instantiates strategy
+    return getattr(importlib.import_module('strategies.{}'.format(filename)), strategy_name)()
+
+
+def camel_to_underline(name):
+    """
+    Converts CamelCase to underline. As for example CamelCase --> camel_case.
+
+    :param name: (str) Name to be converted
+    :return: Converted name in lower caps and underline
+    :rtype: str
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
     # Gets ArgumentParser settings
     args = arg_parser()
 
-    # TODO currently for Aquitania to work perfectly, the computer TimeZone needs to be UTC = 0 | NEED TO FIX THIS
-    # Instantiate broker_instance
+    # Gets broker instance arguments
     broker = args.source if args.source is not None else 'test'
     storage = args.database if args.database is not None else 'pandas_hdf5'
 
+    # Instantiate broker_instance
     broker_instance = select_broker(broker, storage)
 
     # Initializes Strategy
-    # TODO make working version of strategy in argparse (needs some kind of selector between all possible strategies)
-    strategy = ExampleStrategy()
+    strategy = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
 
     # Gets number of assets
     n_assets = args.assets if args.assets is not None else 1
