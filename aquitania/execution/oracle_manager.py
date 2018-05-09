@@ -16,7 +16,7 @@
 import os
 import pandas as pd
 
-from aquitania.data_processing import generate_folder
+from data_processing.util import generate_folder
 
 
 class OracleManager:

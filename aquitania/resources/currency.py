@@ -17,10 +17,10 @@
 import datetime
 import os
 import _pickle as cPickle
-import aquitania.resources.references as ref
+import resources.references as ref
 import pandas as pd
 
-from aquitania.data_source.broker import AbstractDataSource
+from data_source.broker.abstract_data_source import AbstractDataSource
 
 
 class Currencies:

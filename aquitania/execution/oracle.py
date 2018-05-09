@@ -14,7 +14,7 @@
 .. moduleauthor:: H Roark
 """
 import numpy as np
-from aquitania.execution.oracle_criteria import OracleCriteria
+from execution.oracle_criteria import OracleCriteria
 
 
 class Oracle:

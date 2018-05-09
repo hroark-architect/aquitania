@@ -22,11 +22,14 @@ simpler model_manager would on its outside world methods.
 I will also create the possibility to work with splitting into Train, Test, and Validation Data, and working to make a
 automatic grid search for it.
 """
-from aquitania.execution.oracle import Oracle
+import _pickle
+import pandas as pd
+
+from data_processing.analytics_loader import build_ai_df
+from data_processing.indicator_transformer import IndicatorTransformer
+from execution.oracle import Oracle
 from brains.is_oos_split.train_test_split import TrainTestSplit
 from brains.model_manager import ModelManager
-from aquitania.data_processing import IndicatorTransformer
-import _pickle as cPickle
 
 
 class BrainsManager:
@@ -94,4 +97,4 @@ class BrainsManager:
 
         # Saves Oracle into Disk
         with open('data/model_manager/{}.pkl'.format(self.strategy.__class__.__name__), 'wb') as f:
-            cPickle.dump(oracle, f)
+            _pickle.dump(oracle, f)

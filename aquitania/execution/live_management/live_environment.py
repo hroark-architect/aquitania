@@ -19,9 +19,10 @@ import datetime
 import numpy as np
 import os
 
-from aquitania.resources.currency import Currencies
-from aquitania.execution.order_manager import OrderManager
-from aquitania.execution.oracle_manager import OracleManager
+from execution.live_management.display import full_line, centered_line, indented_line, double_indented_line, blank_line
+from resources.currency import Currencies
+from execution.order_manager import OrderManager
+from execution.oracle_manager import OracleManager
 import multiprocessing as mp
 import _pickle as cPickle
 

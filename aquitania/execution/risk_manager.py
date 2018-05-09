@@ -15,7 +15,7 @@
 
 """
 
-from aquitania.execution.order_size import OrderSize
+from execution.order_size import OrderSize
 
 
 class RiskManager:

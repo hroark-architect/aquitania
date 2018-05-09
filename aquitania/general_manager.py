@@ -24,17 +24,17 @@ make it understandable to others.
 
 import datetime
 
-from aquitania.brains.brains_manager import BrainsManager
-from aquitania.brains.models.random_forest import RandomForestClf
-from aquitania.data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
-from aquitania.data_source.broker.broker_selection import select_broker
-from aquitania.execution.live_management.live_environment import LiveEnvironment
-from aquitania.indicator.management.indicator_manager import *
-from aquitania.liquidation.build_exit import BuildExit
-from aquitania.resources.no_deamon_pool import MyPool
-from aquitania.strategies.example import ExampleStrategy
+from brains.brains_manager import BrainsManager
+from brains.models.random_forest import RandomForestClf
+from data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
+from data_source.broker.broker_selection import select_broker
+from execution.live_management.live_environment import LiveEnvironment
+from indicator.management.indicator_manager import *
+from liquidation.build_exit import BuildExit
+from resources.no_deamon_pool import MyPool
+from strategies.example import ExampleStrategy
 import _pickle
-import aquitania.resources.references as ref
+import resources.references as ref
 import argparse
 
 

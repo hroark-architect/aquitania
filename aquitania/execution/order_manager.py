@@ -17,10 +17,10 @@
 
 import pandas as pd
 
-from aquitania.execution import MarginManager
-from aquitania.execution.order import Order
-from aquitania.execution.risk_manager import RiskManager
-import aquitania.resources.references as ref
+from execution.margin_manager import MarginManager
+from execution.order import Order
+from execution.risk_manager import RiskManager
+import resources.references as ref
 
 
 class OrderManager:

@@ -17,7 +17,7 @@
 from indicator.workers.rsi import RSI
 from indicator.workers.bollinger_bands import BollingerBands
 from indicator.signal.doji import Doji
-from aquitania.strategies import Strategy
+from strategies.strategies_abc import Strategy
 from indicator.workers.volume import Volume
 
 

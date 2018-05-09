@@ -32,7 +32,7 @@ are only going to process things like SMAs and Bollinger Bands, it is quite easy
 directly on Numpy.
 """
 
-from aquitania.resources.candle import Candle
+from resources.candle import Candle
 import datetime
 
 

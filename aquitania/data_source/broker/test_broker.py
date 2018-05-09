@@ -17,8 +17,9 @@ Repository of code related to broker test module.
 
 20/04/2018 - Created TestBroker class already utilizing the AbstractDataSource architecture.
 """
-from aquitania.data_source.broker import AbstractDataSource
 from six.moves import urllib
+
+from data_source.broker.abstract_data_source import AbstractDataSource
 
 
 class TestBroker(AbstractDataSource):

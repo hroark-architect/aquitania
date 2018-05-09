@@ -18,6 +18,8 @@ import numpy as np
 import os
 import multiprocessing
 
+from data_processing.analytics_loader import build_liquidation_dfs
+
 
 class BuildExit:
     def __init__(self, broker_instance, currency, signal, max_candles):

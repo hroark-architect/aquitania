@@ -33,7 +33,7 @@ indicator movement.
 
 import datetime
 
-from aquitania import resources as dtfx
+import resources.datetimefx as dtfx
 from copy import copy
 
 

@@ -19,11 +19,11 @@ import bisect
 
 import numpy as np
 import pandas as pd
-import aquitania.resources.references as ref
+import resources.references as ref
 
-from aquitania.data_processing import IndicatorPipeLine
-from aquitania.resources.currency import Currencies
-from aquitania.liquidation import ratio_with_spreads
+from data_processing.indicator_pipeline import IndicatorPipeLine
+from liquidation.spreads import ratio_with_spreads
+from resources.currency import Currencies
 
 
 class IndicatorTransformer:

@@ -23,23 +23,24 @@ abstract DataSource class. I will implement an abstract class for Storage as wel
 import os
 import time
 import datetime
-
-import pandas as pd
-import numpy as np
-from oandapyV20 import API, oandapyV20
-from dateutil import parser
-
-from aquitania.data_processing import generate_folder
-from aquitania.data_source.broker import AbstractDataSource
-from aquitania.resources import datetimefx
-from aquitania.resources import references
-from oandapyV20.endpoints import instruments
-from aquitania.resources import next_candle_datetime
-from oandapyV20.endpoints import pricing
 import oandapyV20.endpoints.accounts as accounts
 import json
 import oandapyV20.endpoints.orders as orders
+import pandas as pd
+import numpy as np
+
+from oandapyV20 import API, oandapyV20
+from dateutil import parser
+
+from data_processing.util import generate_folder
+from data_source.broker.abstract_data_source import AbstractDataSource
+from resources import datetimefx
+from resources import references
+from oandapyV20.endpoints import instruments
+from oandapyV20.endpoints import pricing
 from oandapyV20.exceptions import V20Error
+
+from resources.datetimefx import next_candle_datetime
 
 
 class Oanda(AbstractDataSource):

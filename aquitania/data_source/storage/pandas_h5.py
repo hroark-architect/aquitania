@@ -17,11 +17,12 @@
 """
 import os
 
-from aquitania.data_processing import generate_folder
-from aquitania.data_source.storage import AbstractStorageSystem
-import aquitania.resources.references as references
+import resources.references as references
 import pandas as pd
 import numpy as np
+
+from data_processing.util import generate_folder
+from data_source.storage.abstract_storage_system import AbstractStorageSystem
 
 
 class PandasHDF5(AbstractStorageSystem):
