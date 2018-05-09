@@ -24,22 +24,21 @@ make it understandable to others.
 
 import datetime
 
-from brains.brains_manager import BrainsManager
-from brains.models.random_forest import RandomForestClf
-from aquitania.data_processing import clean_indicator_data, clean_ai_data, generate_folder
-from aquitania.data_source.broker import select_broker
-from aquitania.execution.live_management import LiveEnvironment
-from indicator.management.indicator_manager import *
-from aquitania.liquidation import BuildExit
+from aquitania.brains.brains_manager import BrainsManager
+from aquitania.brains.models.random_forest import RandomForestClf
+from aquitania.data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
+from aquitania.data_source.broker.broker_selection import select_broker
+from aquitania.execution.live_management.live_environment import LiveEnvironment
+from aquitania.indicator.management.indicator_manager import *
+from aquitania.liquidation.build_exit import BuildExit
 from aquitania.resources.no_deamon_pool import MyPool
-from aquitania.strategies import ExampleStrategy
+from aquitania.strategies.example import ExampleStrategy
 import _pickle
 import aquitania.resources.references as ref
 import argparse
 
 
 # TODO create architecture to make indicator managers talk with themselves. Use cross-security output, correlations, etc
-
 class GeneralManager:
     """
     This class starts the indicators and load them with data:
