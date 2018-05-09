@@ -20,8 +20,11 @@ process is on asset. (This could be improved in the future to work with multi-as
 
 12/04/2018 - I've opened the code to the core of Aquitania, and I have started refactoring the most basic classes to
 make it understandable to others.
-"""
 
+09/05/2018 - I've added Aquitania to github, on its final repository. I am currently working on a ArgumentParser and I
+will make it pip installable soon.
+"""
+import cProfile
 import datetime
 
 from brains.brains_manager import BrainsManager
@@ -50,7 +53,7 @@ class GeneralManager:
         6. Run a Live Feed and trade the AI Strategy on Real Time
     """
 
-    def __init__(self, broker, list_of_asset_ids, strategy_, test, start_dt):
+    def __init__(self, broker, list_of_asset_ids, strategy_, is_clean, start_dt):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
         run them through indicators, as well as to create exit points and an AI strategy.
@@ -67,15 +70,14 @@ class GeneralManager:
         self._list_of_asset_ids = list_of_asset_ids
         self._live_feed_status = True
         self._strategy = strategy_
-        self._is_test = test
         self._start_date = start_dt
 
         # Generates data folders if they are non-existent
         for folder in ref.data_folders:
             generate_folder(folder)
 
-        # Cleans data in case it is test
-        if self._is_test:
+        # Cleans data in case it was set to reset stored simulations data
+        if is_clean:
             clean_indicator_data()
             clean_ai_data()
 
@@ -150,26 +152,27 @@ class GeneralManager:
         # Instantiates a new IndicatorManager in case it didn't return the function previously
         return IndicatorManager(self._broker_instance, asset_id, self._strategy, self._start_date)
 
-    def run(self):
+    def run(self, is_complete, is_live):
         """
         Execute the following steps:
         1. Run multiple process, one for each IndicatorManager, on all the historic data.
-        2. Creates exit points for a given strategy.
-        3. Creates an automated AI strategy
-        4. Executes strategy on Live Data if 'self.is_test' is False
+        2. Creates exit points for a given strategy if 'is_complete' is True
+        3. Creates an automated AI strategy if 'is_complete' is True
+        4. Executes strategy on Live Data if 'is_live' is True
         """
 
         # Instantiates list of IndicatorManagers
         list_of_indicator_managers = self.load_all_indicator_managers()
 
-        # Execute exit points creation
-        self.run_liquidation()
+        if is_complete:
+            # Execute exit points creation
+            self.run_liquidation()
 
-        # Execute creation of automated AI strategy
-        self.run_brains()
+            # Execute creation of automated AI strategy
+            self.run_brains()
 
         # Run only if it is not a test, and executes the strategy on Live Data
-        if not self._is_test:
+        if is_live:
             le = LiveEnvironment(broker_instance, self._strategy, list_of_indicator_managers, True)
             le.process_manager()
 
@@ -232,28 +235,59 @@ def arg_parser():
     """
     Generates the arg parser for the main file.
 
-    :return:
+    :return: ArgParser with following options:
+        optional arguments:
+          -h, --help           show this help message and exit
+          -b, --backtest       Backtest mode
+          -bo, --backtestonly  Backtest only mode
+          -e, --exits          Build Exits only mode
+          -i, --ai             Artificial Intelligence only mode
+          -ei, --exitsai       Build Exits and Artificial Intelligence only
+          -d, --debug          Debug mode (Single Process)
+          -a , --assets        Number of assets
+          -s , --source        Data Source name
+          -db , --database     DataBase name
+          -c, --clean          Deletes all stored data
+          -sd , --startdate    The Start Date - format YYYY-MM-DD
+          -ed , --enddate      The Start Date - format YYYY-MM-DD
+          -t , --trade         Trading strategy to be used
     :rtype: argparse.Namespace
     """
+    # Creates parser
     parser = argparse.ArgumentParser(description='Running Aquitania')
 
-    parser.add_argument('-l', '--live', action='store_true', help='Live Environment mode')
-    parser.add_argument('-b', '--backtest', action='store_true', help='Backtest mode')
-    parser.add_argument('-bo', '--backtestonly', action='store_true', help='Backtest only mode')
-    parser.add_argument('-e', '--exits', action='store_true', help='Build Exits only mode')
-    parser.add_argument('-i', '--ai', action='store_true', help='Artificial Intelligence only mode')
-    parser.add_argument('-ei', '--exitsai', action='store_true', help='Build Exits and Artificial Intelligence only')
+    # Creates group to select mode that Aquitania will run
+    mode = parser.add_mutually_exclusive_group()
 
+    # Mode Selection options
+    mode.add_argument('-b', '--backtest', action='store_true', help='Backtest mode')
+    mode.add_argument('-bo', '--backtestonly', action='store_true', help='Backtest only mode')
+    mode.add_argument('-e', '--exits', action='store_true', help='Build Exits only mode')
+    mode.add_argument('-i', '--ai', action='store_true', help='Artificial Intelligence only mode')
+    mode.add_argument('-ei', '--exitsai', action='store_true', help='Build Exits and Artificial Intelligence only')
+    mode.add_argument('-d', '--debug', action='store_true', help='Debug mode (Single Process)')
+    mode.add_argument('-cp', '--cprofile', action='store_true', help='CProfile Code (Evaluate Performance)')
+
+    # Selects number of assets
     parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
+
+    # Selects DataSource name
     parser.add_argument('-s', '--source', type=str, metavar='', help='Data Source name')
+
+    # Selects DataBase name
+    parser.add_argument('-db', '--database', type=str, metavar='', help='DataBase name')
+
+    # Selects if all stored data from simulations should be reseted
     parser.add_argument('-c', '--clean', action='store_true', help='Deletes all stored data')
-    parser.add_argument('-d', '--database', type=str, metavar='', help='Storage name')
 
-    parser.add_argument("-sd", "--startdate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
-    parser.add_argument("-ed", "--enddate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
+    # Selects start and end dates
+    parser.add_argument("-sd", "--startdate", type=valid_date, metavar='', help="The Start Date - format YYYY-MM-DD")
+    parser.add_argument("-ed", "--enddate", type=valid_date, metavar='', help="The Start Date - format YYYY-MM-DD")
 
+    # Selects trading strategy
     parser.add_argument('-t', '--trade', type=str, metavar='', help='Trading strategy to be used')
 
+    # Returns argument parser
     return parser.parse_args()
 
 
@@ -274,6 +308,47 @@ def valid_date(s):
     except ValueError:
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
+
+
+def select_execution_mode(gm, args):
+    """
+    Executes the GeneralManager accordingly to what was set in the ArgumentParser.
+
+    :param gm: (GeneralManager) instantiated GeneralManager object
+    :param args: (ArgumentParser) instantiated ArgumentParser
+    """
+    # Backtest mode (runs exits and brains)
+    if args.backtest:
+        gm.run(True, False)
+
+    # Backtest mode (does NOT run exits and brains)
+    elif args.backtestonly:
+        gm.run(False, False)
+
+    # Exits only mode
+    elif args.exits:
+        gm.run_liquidation()
+
+    # Brains only mode
+    elif args.ai:
+        gm.run_brains()
+
+    # Exits and brains only mode
+    elif args.exitsai:
+        gm.run_liquidation()
+        gm.run_brains()
+
+    # Debug mode (single process and it doesn't run exits and brains)
+    elif args.debug:
+        gm.debug_single_process()
+
+    # Performance evaluator mode (single process and it doesn't run exits and brains)
+    elif args.cprofile:
+        cProfile.run('gm.debug_single_process()')
+
+    # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
+    else:
+        gm.run(True, True)
 
 
 # General Manager - Runs simulations and live feeds from here
@@ -298,28 +373,14 @@ if __name__ == '__main__':
     # Generates list of assets
     asset_list = ref.cur_ordered_by_spread[0:n_assets]
 
-    exits = args.exits
-    ai = args.ai
-
     # Sets backtesting start date
     start_date = args.startdate if args.startdate is not None else datetime.datetime(1971, 4, 1)
-    end_date = args.enddate
 
     # Set if this will be a new backtest, or if it should use data/states from previous simulations
     clean_data = args.clean
 
     # Initialize General Manager
     gm = GeneralManager(broker_instance, asset_list, strategy, clean_data, start_date)
-    gm.run()
 
-    # Run Only Liquidation Routine (comment out gm.run())
-    # gm.run_liquidation()
-
-    # Run Only AI Routine (comment out gm.run())
-    # gm.run_brains()
-
-    # Debug Routine
-    # gm.debug_single_process()
-
-    # Debug Performance Routine - This will print the time each method takes to run
-    # cProfile.run('gm.run_sp()')
+    # Selects execution mode accordingly to the ArgumentParser
+    select_execution_mode(gm, args)
