@@ -68,10 +68,13 @@ setup(
     install_requires=['scikit-learn', 'numpy', 'pandas', 'oandapyV20', 'fxcmpy', 'requests', 'scipy', 'tables',
                       'matplotlib', 'jupyter', 'jupyterlab', 'memory_profiler', 'pytz', 'statsmodels'],
     classifiers=[
-        'Environment :: Finance',
-        'Intended Audience :: Algorithmic Traders',
-        'License :: OSI Approved :: Public',
+        'Development Status :: 2 - Pre-Alpha'
+        'Environment :: Console',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Natural Language :: English',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence'
     ],
 )
