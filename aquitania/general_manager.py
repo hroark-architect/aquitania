@@ -26,15 +26,15 @@ import datetime
 
 from brains.brains_manager import BrainsManager
 from brains.models.random_forest import RandomForestClf
-from data_processing.util import clean_indicator_data, clean_ai_data, generate_folder
-from data_source.broker.broker_selection import select_broker
-from execution.live_management.live_environment import LiveEnvironment
+from aquitania.data_processing import clean_indicator_data, clean_ai_data, generate_folder
+from aquitania.data_source.broker import select_broker
+from aquitania.execution.live_management import LiveEnvironment
 from indicator.management.indicator_manager import *
-from liquidation.build_exit import BuildExit
-from resources.no_deamon_pool import MyPool
-from strategies.example import ExampleStrategy
+from aquitania.liquidation import BuildExit
+from aquitania.resources.no_deamon_pool import MyPool
+from aquitania.strategies import ExampleStrategy
 import _pickle
-import resources.references as ref
+import aquitania.resources.references as ref
 import argparse
 
 
@@ -229,6 +229,35 @@ class GeneralManager:
             self.load_indicator_manager(asset)
 
 
+def arg_parser():
+    """
+    Generates the arg parser for the main file.
+
+    :return:
+    :rtype: argparse.Namespace
+    """
+    parser = argparse.ArgumentParser(description='Running Aquitania')
+
+    parser.add_argument('-l', '--live', action='store_true', help='Live Environment mode')
+    parser.add_argument('-b', '--backtest', action='store_true', help='Backtest mode')
+    parser.add_argument('-bo', '--backtestonly', action='store_true', help='Backtest only mode')
+    parser.add_argument('-e', '--exits', action='store_true', help='Build Exits only mode')
+    parser.add_argument('-i', '--ai', action='store_true', help='Artificial Intelligence only mode')
+    parser.add_argument('-ei', '--exitsai', action='store_true', help='Build Exits and Artificial Intelligence only')
+
+    parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
+    parser.add_argument('-s', '--source', type=str, metavar='', help='Data Source name')
+    parser.add_argument('-c', '--clean', action='store_true', help='Deletes all stored data')
+    parser.add_argument('-d', '--database', type=str, metavar='', help='Storage name')
+
+    parser.add_argument("-sd", "--startdate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
+    parser.add_argument("-ed", "--enddate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
+
+    parser.add_argument('-t', '--trade', type=str, metavar='', help='Trading strategy to be used')
+
+    return parser.parse_args()
+
+
 def valid_date(s):
     """
     This is a method to check a valid date for the argparse.
@@ -248,25 +277,14 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 
-parser = argparse.ArgumentParser(description='Running Aquitania')
-parser.add_argument('-t', '--test', action='store_true', help='Deletes all data and runs again')
-parser.add_argument('-s', '--strategy', type=str, metavar='', help='Strategy to be used')
-parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
-parser.add_argument('-b', '--broker', type=str, metavar='', help='Broker name')
-parser.add_argument('-d', '--database', type=str, metavar='', help='Storage name')
-parser.add_argument('-l', '--live', action='store_true', help='Build Exits')
-parser.add_argument('-e', '--exits', action='store_true', help='Build Exits')
-parser.add_argument('-i', '--ai', action='store_true', help='Artificial Intelligence')
-parser.add_argument("-sd", "--startdate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
-parser.add_argument("-ed", "--enddate", type=valid_date, help="The Start Date - format YYYY-MM-DD")
-
-args = parser.parse_args()
-
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
+    # Gets ArgumentParser settings
+    args = arg_parser()
+
     # TODO currently for Aquitania to work perfectly, the computer TimeZone needs to be UTC = 0 | NEED TO FIX THIS
     # Instantiate broker_instance
-    broker = args.broker if args.broker is not None else 'test'
+    broker = args.source if args.source is not None else 'test'
     storage = args.database if args.database is not None else 'pandas_hdf5'
 
     broker_instance = select_broker(broker, storage)
@@ -275,8 +293,10 @@ if __name__ == '__main__':
     # TODO make working version of strategy in argparse (needs some kind of selector between all possible strategies)
     strategy = ExampleStrategy()
 
-    # List of assets
+    # Gets number of assets
     n_assets = args.assets if args.assets is not None else 1
+
+    # Generates list of assets
     asset_list = ref.cur_ordered_by_spread[0:n_assets]
 
     exits = args.exits
@@ -287,7 +307,7 @@ if __name__ == '__main__':
     end_date = args.enddate
 
     # Set if this will be a new backtest, or if it should use data/states from previous simulations
-    clean_data = args.test
+    clean_data = args.clean
 
     # Initialize General Manager
     gm = GeneralManager(broker_instance, asset_list, strategy, clean_data, start_date)
