@@ -477,7 +477,7 @@ class Evaluator:
                     'prec_20': precision_metric(pred, y, 0.2, True), 'prec_25': precision_metric(pred, y, 0.25, True),
                     'prec_30': precision_metric(pred, y, 0.3, True), 'prec_35': precision_metric(pred, y, 0.35, True),
                     'prec_40': precision_metric(pred, y, 0.4, True), 'prec_45': precision_metric(pred, y, 0.45, True),
-                    'prec_<50': precision_metric(pred, y, 0.5, True), 'prec_>50': precision_metric(pred, y, 0.5, True),
+                    'prec_50<': precision_metric(pred, y, 0.5, True), 'prec_50>': precision_metric(pred, y, 0.5, True),
                     'prec_55': precision_metric(pred, y, 0.55, True), 'prec_60': precision_metric(pred, y, 0.6, True),
                     'prec_65': precision_metric(pred, y, 0.65, True), 'prec_70': precision_metric(pred, y, 0.7, True),
                     'prec_75': precision_metric(pred, y, 0.75, True), 'prec_80': precision_metric(pred, y, 0.8, True)}
