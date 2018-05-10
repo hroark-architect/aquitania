@@ -70,6 +70,7 @@ setup(
     package_data=get_package_data(''),
     install_requires=['scikit-learn', 'numpy', 'pandas', 'oandapyV20', 'fxcmpy', 'requests', 'scipy', 'tables',
                       'matplotlib', 'jupyter', 'jupyterlab', 'memory_profiler', 'pytz', 'statsmodels'],
+    python_requires='>=3',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',

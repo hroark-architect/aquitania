@@ -58,7 +58,7 @@ class Aquitania:
         6. Run a Live Feed and trade the AI Strategy on Real Time
     """
 
-    def __init__(self, broker='test', storage='pandas_hdf5', list_of_asset_ids=ref.cur_ordered_by_spread,
+    def __init__(self, broker='test', storage='pandas_hdf5', list_of_asset_ids=ref.cur_ordered_by_spread[0:1],
                  strategy_=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
@@ -168,7 +168,7 @@ class Aquitania:
         # Instantiates a new IndicatorManager in case it didn't return the function previously
         return IndicatorManager(self._broker_instance, asset_id, self._strategy, self._start_date)
 
-    def run(self, is_complete=True, is_live=True):
+    def run(self, is_complete=True, is_live=False):
         """
         Execute the following steps:
         1. Run multiple process, one for each IndicatorManager, on all the historic data.
