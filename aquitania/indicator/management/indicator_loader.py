@@ -17,7 +17,7 @@
 
 import numpy as np
 import pandas as pd
-from indicator.management.indicator_data import *
+from aquitania.indicator.management.indicator_data import *
 import copy
 
 

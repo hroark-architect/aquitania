@@ -18,7 +18,7 @@ import numpy as np
 import os
 import multiprocessing
 
-from data_processing.analytics_loader import build_liquidation_dfs
+from aquitania.data_processing.analytics_loader import build_liquidation_dfs
 
 
 class BuildExit:

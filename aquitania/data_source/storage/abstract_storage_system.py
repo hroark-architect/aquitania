@@ -18,8 +18,8 @@
 
 import abc
 
-from data_processing.util import generate_folder
-from data_source.storage.sanity_check import basic_sanitizer
+from aquitania.data_processing.util import generate_folder
+from aquitania.data_source.storage.sanity_check import basic_sanitizer
 
 
 class AbstractStorageSystem:

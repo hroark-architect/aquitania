@@ -17,7 +17,7 @@
 import abc
 from sklearn.model_selection import train_test_split
 
-from brains.is_oos_split.abstract_is_oos_split import SplitABC
+from aquitania.brains.is_oos_split.abstract_is_oos_split import SplitABC
 
 
 class TrainTestSplit(SplitABC):

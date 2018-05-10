@@ -27,13 +27,13 @@ sharing variables. I had a lot of trouble implementing this before, but a Queue 
 import time
 import os
 
-from data_processing.util import add_asset_columns_to_df
-from data_source.feeder import Feeder
-from data_source.historic_data_manager import HistoricDataManager
-from indicator.management.indicator_loader import IndicatorLoader
-from resources.candle import Candle
-import resources.references as ref
-import resources.datetimefx as dtfx
+from aquitania.data_processing.util import add_asset_columns_to_df
+from aquitania.data_source.feeder import Feeder
+from aquitania.data_source.historic_data_manager import HistoricDataManager
+from aquitania.indicator.management.indicator_loader import IndicatorLoader
+from aquitania.resources.candle import Candle
+import aquitania.resources.references as ref
+import aquitania.resources.datetimefx as dtfx
 import _pickle
 import pandas as pd
 

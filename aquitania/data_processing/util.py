@@ -18,7 +18,7 @@ File to hold utility functions related to data processing.
 
 import os
 import shutil
-import resources.references as ref
+import aquitania.resources.references as ref
 import pandas as pd
 
 

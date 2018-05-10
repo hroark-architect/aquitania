@@ -15,6 +15,8 @@
 """
 import time
 
+from aquitania.liquidation.build_exit import BuildExit
+
 
 class LiquidationManager:
     def __init__(self, broker_instance, currencies):

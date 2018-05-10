@@ -25,11 +25,11 @@ automatic grid search for it.
 import _pickle
 import pandas as pd
 
-from data_processing.analytics_loader import build_ai_df
-from data_processing.indicator_transformer import IndicatorTransformer
-from execution.oracle import Oracle
-from brains.is_oos_split.train_test_split import TrainTestSplit
-from brains.model_manager import ModelManager
+from aquitania.data_processing.analytics_loader import build_ai_df
+from aquitania.data_processing.indicator_transformer import IndicatorTransformer
+from aquitania.execution.oracle import Oracle
+from aquitania.brains.is_oos_split.train_test_split import TrainTestSplit
+from aquitania.brains.model_manager import ModelManager
 
 
 class BrainsManager:

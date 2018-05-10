@@ -19,7 +19,7 @@ Repository of code related to broker test module.
 """
 from six.moves import urllib
 
-from data_source.broker.abstract_data_source import AbstractDataSource
+from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
 
 
 class TestBroker(AbstractDataSource):

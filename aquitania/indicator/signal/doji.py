@@ -13,7 +13,7 @@
 """
 .. moduleauthor:: H Roark
 """
-from indicator.signal.abstract_signal import AbstractSignal
+from aquitania.indicator.signal.abstract_signal import AbstractSignal
 
 
 class Doji(AbstractSignal):

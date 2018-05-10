@@ -14,7 +14,7 @@
 .. moduleauthor:: H Roark
 """
 
-import resources.references as ref
+import aquitania.resources.references as ref
 
 
 class OrderSize:

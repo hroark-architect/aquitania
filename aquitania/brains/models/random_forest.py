@@ -22,7 +22,7 @@ a piece of a whole system of models and predictors.
 """
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from brains.models.abstract_model import AbstractModel
+from aquitania.brains.models.abstract_model import AbstractModel
 
 
 class RandomForestClf(AbstractModel):

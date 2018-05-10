@@ -15,7 +15,7 @@
 """
 
 from sklearn.svm import SVC
-from brains.models.abstract_model import AbstractModel
+from aquitania.brains.models.abstract_model import AbstractModel
 
 
 class SVCRBF(AbstractModel):

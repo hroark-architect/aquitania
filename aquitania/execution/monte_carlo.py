@@ -18,7 +18,7 @@ import random
 
 import pandas as pd
 
-from brains.statistics.util import trade_sequence_returns
+from aquitania.brains.statistics.util import trade_sequence_returns
 
 
 def monte_carlo_bets(proba_win, bet_sizing, ratio, sample_size, number_of_trials):

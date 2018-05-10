@@ -16,9 +16,9 @@
 12/04/2018 - Created a simple selector instead of a complicated structure I used before.
 """
 
-from data_source.broker.oanda import Oanda
-from data_source.broker.fxcm import FXCM
-from data_source.broker.test_broker import TestBroker
+from aquitania.data_source.broker.oanda import Oanda
+from aquitania.data_source.broker.fxcm import FXCM
+from aquitania.data_source.broker.test_broker import TestBroker
 
 
 def select_broker(broker_name, data_storage_name):

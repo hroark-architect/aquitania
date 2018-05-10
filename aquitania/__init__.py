@@ -14,4 +14,6 @@
 .. moduleauthor:: H Roark
 """
 
-__version__ = '0.0.4'
+from aquitania.general_manager import GeneralManager
+
+__version__ = '0.0.4.2'

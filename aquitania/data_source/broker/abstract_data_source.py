@@ -20,7 +20,7 @@ to force implementation of certain methods and etc.
 
 import abc
 
-from data_source.storage.pandas_h5 import PandasHDF5
+from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 
 
 class AbstractDataSource:

@@ -15,7 +15,7 @@
 
 03/05/2018 - Added to project. Playing around with technical indicators.
 """
-from indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
+from aquitania.indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
 from collections import *
 from statistics import *
 

@@ -32,15 +32,15 @@ import numpy as np
 from oandapyV20 import API, oandapyV20
 from dateutil import parser
 
-from data_processing.util import generate_folder
-from data_source.broker.abstract_data_source import AbstractDataSource
-from resources import datetimefx
-from resources import references
+from aquitania.data_processing.util import generate_folder
+from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
+from aquitania.resources import datetimefx
+from aquitania.resources import references
 from oandapyV20.endpoints import instruments
 from oandapyV20.endpoints import pricing
 from oandapyV20.exceptions import V20Error
 
-from resources.datetimefx import next_candle_datetime
+from aquitania.resources.datetimefx import next_candle_datetime
 
 
 class Oanda(AbstractDataSource):
@@ -65,6 +65,10 @@ class Oanda(AbstractDataSource):
         :param broker_name (str): Broker Name (Ex.: 'oanda')
         :param data_storage_type (str): ata Storage Type (Ex.: 'pandas_hdf5')
         """
+        # Sets file paths
+        self.folder_path = '../../data/broker/'
+        self.file_path = self.folder_path + 'oanda_data.txt'
+
         # Loads attributes
         self.account_id, self.token = self.get_trading_data()
 
@@ -76,10 +80,6 @@ class Oanda(AbstractDataSource):
 
         # Configures API access
         self.api = API(access_token=self.token)
-
-        # Sets file paths
-        self.folder_path = '../../data/broker/'
-        self.file_path = self.folder_path + 'oanda_data.txt'
 
     def get_trading_data(self):
         """

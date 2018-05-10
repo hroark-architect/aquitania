@@ -29,16 +29,16 @@ import datetime
 import importlib
 import re
 
-from brains.brains_manager import BrainsManager
-from brains.models.random_forest import RandomForestClf
-from data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
-from data_source.broker.broker_selection import select_broker
-from execution.live_management.live_environment import LiveEnvironment
-from indicator.management.indicator_manager import *
-from liquidation.build_exit import BuildExit
-from resources.no_deamon_pool import MyPool
+from aquitania.brains.brains_manager import BrainsManager
+from aquitania.brains.models.random_forest import RandomForestClf
+from aquitania.data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
+from aquitania.data_source.broker.broker_selection import select_broker
+from aquitania.execution.live_management.live_environment import LiveEnvironment
+from aquitania.indicator.management.indicator_manager import *
+from aquitania.liquidation.build_exit import BuildExit
+from aquitania.resources.no_deamon_pool import MyPool
 import _pickle
-import resources.references as ref
+import aquitania.resources.references as ref
 import argparse
 
 
@@ -384,7 +384,7 @@ if __name__ == '__main__':
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker = args.source if args.source is not None else 'test'
+    broker = args.source if args.source is not None else 'oanda'
     storage = args.database if args.database is not None else 'pandas_hdf5'
 
     # Instantiate broker_instance

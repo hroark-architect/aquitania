@@ -17,7 +17,7 @@
 import datetime
 import os
 import _pickle as cPickle
-import resources.references as ref
+import aquitania.resources.references as ref
 import pandas as pd
 
 from data_source.broker.abstract_data_source import AbstractDataSource

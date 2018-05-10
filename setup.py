@@ -32,9 +32,7 @@ def get_packages(package):
     """
     Return root package and all sub-packages.
     """
-    return [dirpath
-            for dirpath, dirnames, filenames in os.walk(package)
-            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
+    return [dirpath for dirpath, _, __ in os.walk(package) if os.path.exists(os.path.join(dirpath, '__init__.py'))]
 
 
 def get_package_data(package):
@@ -55,12 +53,18 @@ def get_package_data(package):
 
 version = get_version('aquitania')
 
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
     name='aquitania',
     version=version,
     url='https://github.com/hroark-architect/aquitania',
     license='MIT',
-    description='Aquitania',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    description='Algorithmic Trading with Artificial Intelligence',
+    keywords='finance algorithmic trading ai artificial intelligence',
     author='Howard Roark',
     author_email='hroark.aquitania@gmail.com',
     packages=get_packages(''),

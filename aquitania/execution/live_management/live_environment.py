@@ -19,10 +19,10 @@ import datetime
 import numpy as np
 import os
 
-from execution.live_management.display import full_line, centered_line, indented_line, double_indented_line, blank_line
-from resources.currency import Currencies
-from execution.order_manager import OrderManager
-from execution.oracle_manager import OracleManager
+from aquitania.execution.live_management.display import *
+from aquitania.resources.currency import Currencies
+from aquitania.execution.order_manager import OrderManager
+from aquitania.execution.oracle_manager import OracleManager
 import multiprocessing as mp
 import _pickle as cPickle
 
@@ -138,6 +138,7 @@ class LiveEnvironment:
     def disp_exposure(self):
         centered_line('EXPOSURE ON {}'.format(self.broker_instance.broker_name.upper()))
         full_line()
+
 
 def display_individual_trade(i, trade):
     asset = trade['instrument']

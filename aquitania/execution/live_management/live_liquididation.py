@@ -15,7 +15,7 @@
 """
 import datetime
 
-from oanda import OandaStream
+from aquitania.data_source.broker.oanda import OandaStream
 
 
 class LiveLiquidation:

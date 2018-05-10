@@ -22,9 +22,9 @@ doing at least a minimally informative version of strategy results.
 
 import pandas as pd
 
-from brains.statistics.util import *
-from execution.kelly import *
-from execution.monte_carlo import monte_carlo_bets
+from aquitania.brains.statistics.util import *
+from aquitania.execution.kelly import *
+from aquitania.execution.monte_carlo import monte_carlo_bets
 
 
 # TODO evaluate the possibility of not doing this as a class

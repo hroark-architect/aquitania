@@ -22,7 +22,7 @@ It was conceived on 27/11/2017.
 """
 
 import abc
-from indicator.abstract.indicator_abc import AbstractIndicator
+from aquitania.indicator.abstract.indicator_abc import AbstractIndicator
 
 
 class AbstractIndicatorOutput(AbstractIndicator):

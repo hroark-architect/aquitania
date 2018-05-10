@@ -16,7 +16,7 @@
 These was one of the first indicators ever to be evaluated. At some point I was getting too much overfitting in the AI
 models, that I've decided to turn this indicator into a categorical one instead of a continuous one.
 """
-from indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
+from aquitania.indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
 from collections import *
 
 

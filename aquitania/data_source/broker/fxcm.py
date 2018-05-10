@@ -19,12 +19,12 @@
 import datetime
 import pandas as pd
 import numpy as np
-import resources.references as references
+import aquitania.resources.references as references
 
 import fxcmpy
 
-from data_source.broker.abstract_data_source import AbstractDataSource
-from resources.datetimefx import next_candle_datetime
+from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
+from aquitania.resources.datetimefx import next_candle_datetime
 
 
 class FXCM(AbstractDataSource):

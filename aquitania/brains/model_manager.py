@@ -17,7 +17,7 @@
 import pandas as pd
 import numpy as np
 
-from brains.evaluator import Evaluator
+from aquitania.brains.evaluator import Evaluator
 
 
 class ModelManager:

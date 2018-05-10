@@ -15,7 +15,7 @@
 """
 
 from sklearn.ensemble import ExtraTreesClassifier
-from brains.models.abstract_model import AbstractModel
+from aquitania.brains.models.abstract_model import AbstractModel
 
 
 class ExtraTrees(AbstractModel):

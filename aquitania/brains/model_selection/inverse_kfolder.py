@@ -14,7 +14,7 @@
 .. moduleauthor:: H Roark
 """
 from sklearn.model_selection import StratifiedKFold
-from brains.model_selection.abstract_model_selection import AbstractModelSelection
+from aquitania.brains.model_selection.abstract_model_selection import AbstractModelSelection
 
 
 class InverseKFolder(AbstractModelSelection):

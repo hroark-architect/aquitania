@@ -13,7 +13,7 @@
 """
 .. moduleauthor:: H Roark
 """
-from indicator.abstract.indicator_abc import AbstractIndicator
+from aquitania.indicator.abstract.indicator_abc import AbstractIndicator
 
 
 class Empty(AbstractIndicator):

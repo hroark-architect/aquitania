@@ -15,7 +15,7 @@
 """
 from collections import deque
 
-from indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
+from aquitania.indicator.abstract.indicator_output_abc import AbstractIndicatorOutput
 
 
 class RSI(AbstractIndicatorOutput):
