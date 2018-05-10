@@ -23,6 +23,8 @@ make it understandable to others.
 
 09/05/2018 - I've added Aquitania to github, on its final repository. I am currently working on a ArgumentParser and I
 will make it pip installable soon.
+
+10/05/2018 - Changed name from GeneralManager to Aquitania.
 """
 import cProfile
 import datetime
@@ -166,7 +168,7 @@ class Aquitania:
         # Instantiates a new IndicatorManager in case it didn't return the function previously
         return IndicatorManager(self._broker_instance, asset_id, self._strategy, self._start_date)
 
-    def run(self, is_complete, is_live):
+    def run(self, is_complete=True, is_live=True):
         """
         Execute the following steps:
         1. Run multiple process, one for each IndicatorManager, on all the historic data.
@@ -258,13 +260,13 @@ def arg_parser():
           -i, --ai             Artificial Intelligence only mode
           -ei, --exitsai       Build Exits and Artificial Intelligence only
           -d, --debug          Debug mode (Single Process)
-          -a , --assets        Number of assets
-          -s , --source        Data Source name
-          -db , --database     DataBase name
+          -a, --assets         Number of assets
+          -s, --source         Data Source name
+          -db, --database      DataBase name
           -c, --clean          Deletes all stored data
-          -sd , --startdate    The Start Date - format YYYY-MM-DD
-          -ed , --enddate      The Start Date - format YYYY-MM-DD
-          -t , --trade         Trading strategy to be used
+          -sd, --startdate     The Start Date - format YYYY-MM-DD
+          -ed, --enddate       The End Date - format YYYY-MM-DD
+          -t, --trade          Trading strategy to be used
     :rtype: argparse.Namespace
     """
     # Creates parser
@@ -296,7 +298,7 @@ def arg_parser():
 
     # Selects start and end dates
     parser.add_argument("-sd", "--startdate", type=valid_date, metavar='', help="The Start Date - format YYYY-MM-DD")
-    parser.add_argument("-ed", "--enddate", type=valid_date, metavar='', help="The Start Date - format YYYY-MM-DD")
+    parser.add_argument("-ed", "--enddate", type=valid_date, metavar='', help="The End Date - format YYYY-MM-DD")
 
     # Selects trading strategy
     parser.add_argument('-t', '--trade', type=str, metavar='', help='Trading strategy to be used (CamelCase)')

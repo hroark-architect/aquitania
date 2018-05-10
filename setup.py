@@ -46,8 +46,7 @@ def get_package_data(package):
 
     filepaths = []
     for base, filenames in walk:
-        filepaths.extend([os.path.join(base, filename)
-                          for filename in filenames])
+        filepaths.extend([os.path.join(base, filename) for filename in filenames])
     return {package: filepaths}
 
 
@@ -75,10 +74,16 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
         'Intended Audience :: Financial and Insurance Industry',
+        'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
+        'Operating System :: POSIX',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: MacOS :: MacOS X',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence'
+        'Programming Language :: Python :: 3.6'
     ],
 )
