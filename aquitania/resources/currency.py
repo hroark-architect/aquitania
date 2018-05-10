@@ -20,7 +20,7 @@ import _pickle as cPickle
 import aquitania.resources.references as ref
 import pandas as pd
 
-from data_source.broker.abstract_data_source import AbstractDataSource
+from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
 
 
 class Currencies:

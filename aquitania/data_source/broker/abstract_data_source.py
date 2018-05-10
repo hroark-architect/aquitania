@@ -32,6 +32,7 @@ class AbstractDataSource:
         self.ds = self.get_dss(data_storage_type)
 
     def get_dss(self, data_storage_type):
+        data_storage_type = data_storage_type.lower()
         if data_storage_type == 'pandas_hdf5':
             return PandasHDF5(self.broker_name)
         else:

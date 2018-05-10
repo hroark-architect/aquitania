@@ -41,9 +41,11 @@ import _pickle
 import aquitania.resources.references as ref
 import argparse
 
-
 # TODO create architecture to make indicator managers talk with themselves. Use cross-security output, correlations, etc
-class GeneralManager:
+from aquitania.strategies.example_strategy import ExampleStrategy
+
+
+class Aquitania:
     """
     This class starts the indicators and load them with data:
         1. Download all necessary historic data.
@@ -54,20 +56,22 @@ class GeneralManager:
         6. Run a Live Feed and trade the AI Strategy on Real Time
     """
 
-    def __init__(self, broker, list_of_asset_ids, strategy_, is_clean, start_dt):
+    def __init__(self, broker='test', storage='pandas_hdf5', list_of_asset_ids=ref.cur_ordered_by_spread,
+                 strategy_=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
         run them through indicators, as well as to create exit points and an AI strategy.
 
-        :param broker: Object of type 'broker_instance' from 'data_source' module
+        :param broker: (str) Broker Name (ex.: 'test, 'oanda', 'fxcm')
+        :param storage: (str) Database Name (ex.: 'pandas_hdf5')
         :param list_of_asset_ids: (list of str) Asset ids to be processed
         :param strategy_: Strategy to be used
         :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations
         """
 
-        # Initialize variables
-        self._broker_instance = broker
+        # Instantiate broker_instance
+        self._broker_instance = select_broker(broker, storage)
         self._list_of_asset_ids = list_of_asset_ids
         self._live_feed_status = True
         self._strategy = strategy_
@@ -79,8 +83,17 @@ class GeneralManager:
 
         # Cleans data in case it was set to reset stored simulations data
         if is_clean:
-            clean_indicator_data()
-            clean_ai_data()
+            self.clean_data()
+
+    def clean_data(self):
+        """
+        Clean simulation Data.
+        """
+        # Cleans data relative to indicators
+        clean_indicator_data()
+
+        # Cleans data relative to AI
+        clean_ai_data()
 
     def load_all_indicator_managers(self):
         """
@@ -174,7 +187,7 @@ class GeneralManager:
 
         # Run only if it is not a test, and executes the strategy on Live Data
         if is_live:
-            le = LiveEnvironment(broker_instance, self._strategy, list_of_indicator_managers, True)
+            le = LiveEnvironment(self._broker_instance, self._strategy, list_of_indicator_managers, True)
             le.process_manager()
 
     def run_liquidation(self):
@@ -193,7 +206,7 @@ class GeneralManager:
             signal = self._strategy.signal
 
             # Generate all possible exits according to possible Exit points
-            be = BuildExit(broker_instance, asset_id, signal, 14400)
+            be = BuildExit(self._broker_instance, asset_id, signal, 14400)
 
             # Consolidate Exists Routine (it gets all possible exits and finds the earliest one)
             be.consolidate_exits()
@@ -207,7 +220,7 @@ class GeneralManager:
         time_a = time.time()
 
         # Initializes object that manages AI Strategy creation
-        bm = BrainsManager(broker_instance, self._list_of_asset_ids, self._strategy)
+        bm = BrainsManager(self._broker_instance, self._list_of_asset_ids, self._strategy)
 
         # Initializes list of AI models that will be used (in case of ensemble)
         strategy_models = RandomForestClf
@@ -384,11 +397,8 @@ if __name__ == '__main__':
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker = args.source if args.source is not None else 'oanda'
-    storage = args.database if args.database is not None else 'pandas_hdf5'
-
-    # Instantiate broker_instance
-    broker_instance = select_broker(broker, storage)
+    broker_ = args.source if args.source is not None else 'oanda'
+    storage_ = args.database if args.database is not None else 'pandas_hdf5'
 
     # Initializes Strategy
     strategy = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
@@ -406,7 +416,7 @@ if __name__ == '__main__':
     clean_data = args.clean
 
     # Initialize General Manager
-    gm = GeneralManager(broker_instance, asset_list, strategy, clean_data, start_date)
+    gm = Aquitania(broker_, storage_, asset_list, strategy, clean_data, start_date)
 
     # Selects execution mode accordingly to the ArgumentParser
     select_execution_mode(gm, args)
