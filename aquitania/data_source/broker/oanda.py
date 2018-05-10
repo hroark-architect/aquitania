@@ -77,6 +77,10 @@ class Oanda(AbstractDataSource):
         # Configures API access
         self.api = API(access_token=self.token)
 
+        # Sets file paths
+        self.folder_path = '../../data/broker/'
+        self.file_path = self.folder_path + 'oanda_data.txt'
+
     def get_trading_data(self):
         """
         Returns account ID and token to trade with Oanda's API.
@@ -86,7 +90,7 @@ class Oanda(AbstractDataSource):
         """
 
         # TODO eventually improve path finding - create path finding lib
-        if os.path.isfile('data_source/data/oanda_data.txt'):
+        if os.path.isfile(self.file_path):
             return self.open_token_file()
         else:
             return self.create_new_token_file()
@@ -99,7 +103,7 @@ class Oanda(AbstractDataSource):
         :rtype: Tuple containing 2 strings
         """
         # Reads 'oanda_data.txt' file and retrieves account_id and token
-        text_file = open('data_source/data/oanda_data.txt', 'r')
+        text_file = open(self.file_path, 'r')
         lines = text_file.readlines()
 
         # Get Account ID and Token
@@ -129,8 +133,8 @@ class Oanda(AbstractDataSource):
         token = input()
 
         # File creation Routine
-        generate_folder('data_source/data/')
-        text_file = open('data_source/data/oanda_data.txt', 'w')
+        generate_folder(self.folder_path)
+        text_file = open(self.file_path, 'w')
         text_file.write(account_id + '\n' + token)
         text_file.close()
 
