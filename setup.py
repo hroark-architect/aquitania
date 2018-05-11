@@ -17,7 +17,7 @@
 import os
 import re
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def get_version(package):
@@ -52,22 +52,23 @@ def get_package_data(package):
 
 version = get_version('aquitania')
 
-with open('README.md') as f:
-    long_description = f.read()
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except (IOError, ImportError):
+    readme = ''
 
 setup(
     name='aquitania',
     version=version,
     url='https://github.com/hroark-architect/aquitania',
     license='MIT',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description=readme,
     description='Algorithmic Trading with Artificial Intelligence',
     keywords='finance algorithmic trading ai artificial intelligence',
     author='Howard Roark',
     author_email='hroark.aquitania@gmail.com',
-    packages=get_packages(''),
-    package_data=get_package_data(''),
+    packages=find_packages(),
     install_requires=['scikit-learn', 'numpy', 'pandas', 'oandapyV20', 'fxcmpy', 'requests', 'scipy', 'tables',
                       'matplotlib', 'jupyter', 'jupyterlab', 'memory_profiler', 'pytz', 'statsmodels'],
     python_requires='>=3',

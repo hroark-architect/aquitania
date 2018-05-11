@@ -16,4 +16,4 @@
 
 from aquitania.aquitania import Aquitania
 
-__version__ = '0.0.4.6'
+__version__ = '0.0.4.8'
