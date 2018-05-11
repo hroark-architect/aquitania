@@ -14,6 +14,7 @@ You can install it from the PyPI:
 $ pip install aquitania
 ```
 PS: If you are using linux you may need to run it as root because of the aquitania dependencies.
+TODO: Investigate what dependencies need root.
 
 ## Usage
 
