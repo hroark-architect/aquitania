@@ -13,15 +13,22 @@
 """
 .. moduleauthor:: H Roark
 
+As of 11/05/2018, this class is only working as an Abstract Class, but it soon will be turned into a class with its own
+behavior, just need to make a proper way to instantiate it with a dict of lists of Indicators or similar structure.
 """
 
-import abc
 
+# TODO make an indicator output/state for each strategy
 class Strategy:
 
-    __metaclass__ = abc.ABCMeta
-
+    # TODO make instantiation more powerful, pass a dict of indicators as input and make it work
     def __init__(self):
+        """
+        Instantiates a Strategy.
+
+        self.signal is a mandatory attribute, and it guides the exit building block.
+        """
+        # TODO turn signal into a de facto list
         self.signal = []
         self.indicator_list = self.gen_indicator_list()
 
@@ -35,6 +42,7 @@ class Strategy:
         """
 
         # Order seems retarded but it is important
+        # TODO make it customizable as to what kind of candles to use
         monthly = self.monthly_obs()
         weekly = self.weekly_obs()
         daily = self.daily_obs()

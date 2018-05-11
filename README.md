@@ -21,7 +21,7 @@ $ pip install aquitania
 ```
 from aquitania import Aquitania
 
-aq = Aquitania(broker='test')
+aq = Aquitania()  # Instantiates with default 'test' broker
 aq.run()
 ```
 

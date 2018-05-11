@@ -139,6 +139,7 @@ class AbstractDataSource:
     def get_spread_data(self, finsec):
         pass
 
+    # TODO Evaluate methods that are not used directly after refactor and remove them from here
     @abc.abstractmethod
     def get_oscillation_and_volume(self, finsec):
         pass
@@ -169,4 +170,8 @@ class AbstractDataSource:
 
     @abc.abstractmethod
     def get_used_margin(self):
+        pass
+
+    @abc.abstractmethod
+    def data_dict(self, currency):
         pass

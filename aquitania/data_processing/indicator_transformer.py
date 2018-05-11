@@ -23,7 +23,7 @@ import aquitania.resources.references as ref
 
 from aquitania.data_processing.indicator_pipeline import IndicatorPipeLine
 from aquitania.liquidation.spreads import ratio_with_spreads
-from aquitania.resources.currency import Currencies
+from aquitania.resources.asset import AssetInfo
 
 
 class IndicatorTransformer:
@@ -36,7 +36,7 @@ class IndicatorTransformer:
         self.ratio_bins, self.iratio_bins = None, None
         self.n_proba_bins = n_proba_bins
         self.proba_bins = None
-        self.currency_objects = Currencies(broker_instance, ref.currencies_list)
+        self.currency_objects = AssetInfo(broker_instance, ref.currencies_list)
 
     def transform(self, X, y):
         # Remove lines where it was not traded for real or not exited

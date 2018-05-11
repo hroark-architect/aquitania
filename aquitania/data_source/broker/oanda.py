@@ -461,6 +461,26 @@ class Oanda(AbstractDataSource):
         # May return empty value
         return list_candles
 
+    def get_data_dict(self, currency):
+        spread, spread_pct, last_bid = self.get_spread_data(currency)
+        pip = last_bid / 10000
+        oscillation, volume = self.get_oscillation_and_volume(currency)
+        updated_on = datetime.datetime.now()
+        max_order, min_trade_size, type = self.get_trade_params(currency)
+        precision_digits = self.get_precision_digits(currency)
+        spread_by_osc = spread / oscillation['D144']
+
+        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'pip': pip,
+                'oscillation': oscillation, 'volume': volume, 'updated_on': updated_on, 'max_order': max_order,
+                'min_trade_size': min_trade_size, 'type': type, 'precision_digits': precision_digits,
+                'spread_by_osc': spread_by_osc}
+
+    def get_trade_params(self, currency):
+        var_list = self.get_list_of_instruments()
+        for var in var_list:
+            if var['name'] == currency:
+                return var['maximumOrderUnits'], var['minimumTradeSize'], var['type']
+
 
 def generate_oanda_params(params, count):
     """

@@ -20,7 +20,7 @@ import numpy as np
 import os
 
 from aquitania.execution.live_management.display import *
-from aquitania.resources.currency import Currencies
+from aquitania.resources.asset import AssetInfo
 from aquitania.execution.order_manager import OrderManager
 from aquitania.execution.oracle_manager import OracleManager
 import multiprocessing as mp
@@ -34,7 +34,7 @@ class LiveEnvironment:
         self.loom = list_of_observer_managers
         self.list_of_assets = [om.asset for om in self.loom]
         self.is_live_observer_feed = is_live_observer_feed
-        self.currencies_object = Currencies(broker_instance)
+        self.currencies_object = AssetInfo(broker_instance)
         self.order_manager = OrderManager(self.broker_instance, self.currencies_object)
         self.strategy = strategy
 
