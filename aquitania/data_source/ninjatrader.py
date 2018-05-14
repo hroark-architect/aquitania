@@ -27,6 +27,8 @@ def convert_candles_from_nt8(filename, folder):
     """
     # Routine to convert NT8 into DataFrame
     # TODO add routine to sanitize candles
-    df = pd.read_csv('{}/{}.Bid.txt'.format(folder, filename), sep=';')
+    cols = ['open', 'high', 'low', 'close', 'volume']
+    # TODO check this read_csv
+    df = pd.read_csv('{}/{}.Bid.txt'.format(folder, filename), sep=';', parse_dates=[0], index_col=0, columns=cols)
     proc_filename = filename[0:3] + '_' + filename[4:6]
     df.to_hdf('{}/{}.h5'.format(folder, proc_filename))
