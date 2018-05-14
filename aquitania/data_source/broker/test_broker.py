@@ -74,8 +74,12 @@ class TestBroker(AbstractDataSource):
         :return:
         :rtype:
         """
-        #TODO
+        df = self.load_data(asset)
 
-        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'oscillation': oscillation,
-                'volume': volume, 'max_order': max_order, 'min_trade_size': min_trade_size, 'type': asset_type,
-                'precision_digits': precision_digits}
+        last_bid = df.iloc[-1]['high']
+        spread_pct = 1 / 5000
+        spread = last_bid * spread_pct
+        max_order, min_trade_size, asset_type = 0.0, 0.0, 'CURRENCY'
+
+        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'max_order': max_order,
+                'min_trade_size': min_trade_size, 'type': asset_type}

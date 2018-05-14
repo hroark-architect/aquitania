@@ -20,6 +20,7 @@ to force implementation of certain methods and etc.
 
 import abc
 import datetime
+import pandas as pd
 
 from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 
@@ -99,12 +100,21 @@ class AbstractDataSource:
         data_dict = self.get_asset_attributes(asset)
 
         # Updates Data Dictionary with new fields
+        data_dict['oscillation'], data_dict['volume'] = self.get_oscillation_and_volume(asset)
         data_dict['spread_by_osc'] = data_dict['spread'] / data_dict['oscillation']['D144']
         data_dict['updated_on'] = datetime.datetime.now()
         data_dict['spread_by_osc'] = data_dict['last_bid'] / 10000
 
         # Returns Data Dictionary
         return data_dict
+
+    def get_oscillation_and_volume(self, asset):
+        df = self.load_data(asset)
+        osc_avg_13, osc_avg_21, vol_13, vol_21 = calc_resample_osc(df, 'W', 13, 21)
+        osc_avg_89, osc_avg_144, vol_89, vol_144 = calc_resample_osc(df, 'B', 89, 144)
+        osc_dict = {'D144': osc_avg_144, 'D89': osc_avg_89, 'W21': osc_avg_21, 'W13': osc_avg_13}
+        vol_dict = {'D144': vol_144, 'D89': vol_89, 'W21': vol_21, 'W13': vol_13}
+        return osc_dict, vol_dict
 
     @abc.abstractmethod
     def get_asset_attributes(self, asset):
@@ -172,9 +182,6 @@ class AbstractDataSource:
         pass
 
     # TODO Evaluate methods that are not used directly after refactor and remove them from here
-    @abc.abstractmethod
-    def get_oscillation_and_volume(self, finsec):
-        pass
 
     @abc.abstractmethod
     def get_precision_digits(self, finsec):
@@ -207,3 +214,17 @@ class AbstractDataSource:
     @abc.abstractmethod
     def get_trade_params(self, asset):
         pass
+
+
+def calc_resample_osc(df, resample, x1, x2):
+    candles = df.resample(resample).agg({'high': 'max', 'low': 'min', 'vol': 'sum'})
+    candles.columns = ['max', 'min', 'vol']
+    candles['osc'] = candles['max'] - candles['min']
+
+    osc_1 = candles['osc'][-x1:].mean()
+    osc_2 = candles['osc'][-x2:].mean()
+
+    vol_1 = candles['vol'][-x1:].mean()
+    vol_2 = candles['vol'][-x2:].mean()
+
+    return osc_1, osc_2, vol_1, vol_2
