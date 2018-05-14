@@ -461,19 +461,22 @@ class Oanda(AbstractDataSource):
         # May return empty value
         return list_candles
 
-    def get_data_dict(self, currency):
-        spread, spread_pct, last_bid = self.get_spread_data(currency)
-        pip = last_bid / 10000
-        oscillation, volume = self.get_oscillation_and_volume(currency)
-        updated_on = datetime.datetime.now()
-        max_order, min_trade_size, type = self.get_trade_params(currency)
-        precision_digits = self.get_precision_digits(currency)
-        spread_by_osc = spread / oscillation['D144']
+    def get_asset_attributes(self, asset):
+        """
+        Generate Data Dictionary.
 
-        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'pip': pip,
-                'oscillation': oscillation, 'volume': volume, 'updated_on': updated_on, 'max_order': max_order,
-                'min_trade_size': min_trade_size, 'type': type, 'precision_digits': precision_digits,
-                'spread_by_osc': spread_by_osc}
+        :param asset: (str) Asset Name
+        :return:
+        :rtype:
+        """
+        spread, spread_pct, last_bid = self.get_spread_data(asset)
+        oscillation, volume = self.get_oscillation_and_volume(asset)
+        max_order, min_trade_size, asset_type = self.get_trade_params(asset)
+        precision_digits = self.get_precision_digits(asset)
+
+        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'oscillation': oscillation,
+                'volume': volume, 'max_order': max_order, 'min_trade_size': min_trade_size, 'type': asset_type,
+                'precision_digits': precision_digits}
 
     def get_trade_params(self, currency):
         var_list = self.get_list_of_instruments()

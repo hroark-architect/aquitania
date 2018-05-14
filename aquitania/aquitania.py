@@ -208,7 +208,7 @@ class Aquitania:
         # Instantiates a new IndicatorManager in case it didn't return the function previously
         return IndicatorManager(self._broker_instance, asset_id, self.strategy, self.start_date)
 
-    def run(self, is_complete=True, is_live=False):
+    def run(self, is_complete=False, is_live=False):
         """
         Execute the following steps:
         1. Run multiple process, one for each IndicatorManager, on all the historic data.
