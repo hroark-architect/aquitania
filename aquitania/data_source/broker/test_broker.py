@@ -63,7 +63,19 @@ class TestBroker(AbstractDataSource):
                 urllib.request.urlretrieve(url, filepath)
             except:
                 # Gives back a generic error, might be a connection issue as well, improve this on the future
-                raise ValueError('Didn\'t get file from server, selected financial security may not there.')
+                raise ValueError('Didn\'t get file from server, selected financial security may not there. (There are '
+                                 'few currencies in the Test server).')
 
-    def get_historic_data_status(self, finsec):
-        pass
+    def get_asset_attributes(self, asset):
+        """
+        Generate Data Dictionary.
+
+        :param asset: (str) Asset Name
+        :return:
+        :rtype:
+        """
+        #TODO
+
+        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'oscillation': oscillation,
+                'volume': volume, 'max_order': max_order, 'min_trade_size': min_trade_size, 'type': asset_type,
+                'precision_digits': precision_digits}

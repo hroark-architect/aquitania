@@ -205,5 +205,5 @@ class AbstractDataSource:
         pass
 
     @abc.abstractmethod
-    def data_dict(self, currency):
+    def get_trade_params(self, asset):
         pass

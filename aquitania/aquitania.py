@@ -58,7 +58,7 @@ class Aquitania:
         6. Run a Live Feed and trade the AI Strategy on Real Time
     """
 
-    def __init__(self, broker='test', storage='pandas_hdf5', list_of_asset_ids=ref.cur_ordered_by_spread[0:1],
+    def __init__(self, broker='test', storage='pandas_hdf5', asset_ids=ref.cur_ordered_by_spread[0:1],
                  strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
@@ -74,7 +74,7 @@ class Aquitania:
 
         # Instantiate broker_instance
         self._broker_instance = select_broker(broker, storage)
-        self.list_of_asset_ids = list_of_asset_ids
+        self.asset_ids = asset_ids
         self.is_live = True
         self.strategy = strategy
         self.start_date = start_dt
@@ -148,7 +148,7 @@ class Aquitania:
 
         # Starts multiprocessing to load historic data and run indicators through historic data
         asset_pool = MyPool()
-        indicator = asset_pool.map(self.load_indicator_manager, self.list_of_asset_ids)
+        indicator = asset_pool.map(self.load_indicator_manager, self.asset_ids)
         asset_pool.close()
         asset_pool.join()
         return indicator
@@ -239,7 +239,7 @@ class Aquitania:
         Saves exits on 'data/exits'
         """
 
-        for asset_id in self.list_of_asset_ids:
+        for asset_id in self.asset_ids:
             # Build Exit for a specific asset
             print('Creating exits for security:', asset_id)
 
@@ -262,7 +262,7 @@ class Aquitania:
         time_a = time.time()
 
         # Initializes object that manages AI Strategy creation
-        bm = BrainsManager(self._broker_instance, self.list_of_asset_ids, self.strategy)
+        bm = BrainsManager(self._broker_instance, self.asset_ids, self.strategy)
 
         # Initializes list of AI models that will be used (in case of ensemble)
         strategy_models = RandomForestClf
@@ -283,7 +283,7 @@ class Aquitania:
         This method ran the application on a single process and ensures that debug will be very easy and bug free,
         always debug here or using a similar method.
         """
-        for asset in self.list_of_asset_ids:
+        for asset in self.asset_ids:
             self.load_indicator_manager(asset)
 
 
