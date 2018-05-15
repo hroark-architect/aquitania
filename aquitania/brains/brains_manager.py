@@ -25,6 +25,7 @@ automatic grid search for it.
 import _pickle
 import pandas as pd
 
+from aquitania.brains.models.random_forest import RandomForestClf
 from aquitania.data_processing.analytics_loader import build_ai_df
 from aquitania.data_processing.indicator_transformer import IndicatorTransformer
 from aquitania.execution.oracle import Oracle
@@ -33,26 +34,42 @@ from aquitania.brains.model_manager import ModelManager
 
 
 class BrainsManager:
-    def __init__(self, broker_instance, list_of_currencies, strategy):
+    def __init__(self, broker_instance, list_of_currencies, strategy, selector=None, model=None):
         # Set attributes
         self.broker_instance = broker_instance
         self.list_of_currencies = list_of_currencies
         self.strategy = strategy
         self.transformer = IndicatorTransformer(self.broker_instance, strategy.signal, list_of_currencies)
         self.X, self.y = self.prepare_data()
-        self.is_oos_selector = TrainTestSplit({'test_size': 0.15})
 
-    def run_model(self, model, selector=None):
+        # Sets default selector if None is chosen
+        if selector is None:
+            self.is_oos_selector = TrainTestSplit({'test_size': 0.10})
+
+        # Sets default model if None is chosen
+        if model is None:
+            self.model = RandomForestClf()
+
+        # Instantiates results variables
+        self.model_manager, self.model_results, self.features = None, None, None
+
+    def run_model(self, model=None, selector=None):
+        # Sets previous selector if None is chosen
         if selector is None:
             selector = self.is_oos_selector
 
-        model_manager = ModelManager(model, selector, self.transformer)
+        # Sets previous model if None is chosen
+        if model is None:
+            model = self.model
 
-        model_results = model_manager.fit_predict_evaluate(self.X, self.y)
+        # Instantiates ModelManager
+        self.model_manager = ModelManager(model, selector, self.transformer)
 
-        features = self.X.columns
+        # Make predictions
+        self.model_results = self.model_manager.fit_predict_evaluate(self.X, self.y)
 
-        self.save_strategy_to_disk(model_manager, features, *model_results)
+        # Gets features
+        self.features = self.model_manager.model.features
 
     def prepare_data(self):
         # Gets Raw Data
@@ -82,19 +99,14 @@ class BrainsManager:
 
         return results_set
 
-    def save_strategy_to_disk(self, model_manager, features, bet_sizing_dict, i_bet_sizing_dict):
+    def save_strategy_to_disk(self):
         """
         Pickles all the required strategy elements to make it work on the LiveEnvironment and make decisions about which
         trades are valid and which aren't.
-
-        :param model_manager: (ModelManager) which is used to make predictions
-        :param features: (list) of features that are being utilized to generate predictions
-        :param bet_sizing_dict: (pandas DataFrame) Bet Sizing Dictionary for Ratio
-        :param i_bet_sizing_dict: (pandas DataFrame) Bet Sizing Dictionary for Inverse Ratio
         """
+
         # Instantiates Oracle object (Object that makes predictions)
-        oracle = Oracle(self.strategy.signal, model_manager, features, self.transformer, bet_sizing_dict,
-                        i_bet_sizing_dict)
+        oracle = Oracle(self.strategy.signal, self.model_manager, self.features, self.transformer, **self.model_results)
 
         # Saves Oracle into Disk
         with open('data/model_manager/{}.pkl'.format(self.strategy.__class__.__name__), 'wb') as f:

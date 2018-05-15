@@ -30,6 +30,8 @@ import cProfile
 import datetime
 import importlib
 import re
+import _pickle
+import argparse
 
 from aquitania.brains.brains_manager import BrainsManager
 from aquitania.brains.models.random_forest import RandomForestClf
@@ -39,12 +41,10 @@ from aquitania.execution.live_management.live_environment import LiveEnvironment
 from aquitania.indicator.management.indicator_manager import *
 from aquitania.liquidation.build_exit import BuildExit
 from aquitania.resources.no_deamon_pool import MyPool
-import _pickle
-import aquitania.resources.references as ref
-import argparse
+from aquitania.strategies.example_strategy import ExampleStrategy
+
 
 # TODO create architecture to make indicator managers talk with themselves. Use cross-security output, correlations, etc
-from aquitania.strategies.example_strategy import ExampleStrategy
 
 
 class Bot:
@@ -71,7 +71,6 @@ class Bot:
         :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations
         """
-
         # Instantiate broker_instance
         self._broker_instance = select_broker(broker, storage)
         self.asset_ids = asset_ids
@@ -265,10 +264,13 @@ class Bot:
         bm = BrainsManager(self._broker_instance, self.asset_ids, self.strategy)
 
         # Initializes list of AI models that will be used (in case of ensemble)
-        strategy_models = RandomForestClf
+        strategy_models = RandomForestClf()
 
         # Creates AI Strategy
         bm.run_model(strategy_models)
+
+        # Saves AI Strategy to Disk
+        bm.save_strategy_to_disk()
 
         # Prints time it took to generate and evaluate Strategy
         print('\n\n----------------------------------------------------------------')

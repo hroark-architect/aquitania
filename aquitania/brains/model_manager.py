@@ -22,7 +22,7 @@ from aquitania.brains.evaluator import Evaluator
 
 class ModelManager:
     def __init__(self, model, is_oos_split_object, transformer):
-        self.model = model()
+        self.model = model
         self.is_oos_split_object = is_oos_split_object
         self.transformer = transformer
 
