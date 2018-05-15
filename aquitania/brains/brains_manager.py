@@ -38,7 +38,7 @@ class BrainsManager:
         self.broker_instance = broker_instance
         self.list_of_currencies = list_of_currencies
         self.strategy = strategy
-        self.transformer = IndicatorTransformer(self.broker_instance, strategy.signal)
+        self.transformer = IndicatorTransformer(self.broker_instance, strategy.signal, list_of_currencies)
 
     def run_model(self, model):
         X, y, y_pips = self.prepare_data()

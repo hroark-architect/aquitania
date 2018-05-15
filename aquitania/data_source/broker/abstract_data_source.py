@@ -100,9 +100,11 @@ class AbstractDataSource:
         data_dict = self.get_asset_attributes(asset)
 
         # Updates Data Dictionary with new fields
+
+        data_dict['asset'] = asset
         data_dict['oscillation'], data_dict['volume'] = self.get_oscillation_and_volume(asset)
         data_dict['spread_by_osc'] = data_dict['spread'] / data_dict['oscillation']['D144']
-        data_dict['updated_on'] = datetime.datetime.now()
+        data_dict['update_on'] = datetime.datetime.now()
         data_dict['spread_by_osc'] = data_dict['last_bid'] / 10000
 
         # Returns Data Dictionary
@@ -217,14 +219,14 @@ class AbstractDataSource:
 
 
 def calc_resample_osc(df, resample, x1, x2):
-    candles = df.resample(resample).agg({'high': 'max', 'low': 'min', 'vol': 'sum'})
-    candles.columns = ['max', 'min', 'vol']
+    candles = df.resample(resample).agg({'high': 'max', 'low': 'min', 'volume': 'sum'})
+    candles.columns = ['max', 'min', 'volume']
     candles['osc'] = candles['max'] - candles['min']
 
     osc_1 = candles['osc'][-x1:].mean()
     osc_2 = candles['osc'][-x2:].mean()
 
-    vol_1 = candles['vol'][-x1:].mean()
-    vol_2 = candles['vol'][-x2:].mean()
+    vol_1 = candles['volume'][-x1:].mean()
+    vol_2 = candles['volume'][-x2:].mean()
 
     return osc_1, osc_2, vol_1, vol_2

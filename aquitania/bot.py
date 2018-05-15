@@ -66,7 +66,7 @@ class Bot:
 
         :param broker: (str) Broker Name (ex.: 'test, 'oanda', 'fxcm')
         :param storage: (str) Database Name (ex.: 'pandas_hdf5')
-        :param list_of_asset_ids: (list of str) Asset ids to be processed
+        :param asset_ids: (list of str) Asset ids to be processed
         :param strategy: Strategy to be used
         :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations

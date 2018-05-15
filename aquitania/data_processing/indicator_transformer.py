@@ -27,7 +27,7 @@ from aquitania.resources.asset import AssetInfo
 
 
 class IndicatorTransformer:
-    def __init__(self, broker_instance, signal, n_ratio_bins=10, n_proba_bins=10):
+    def __init__(self, broker_instance, signal, currencies_list, n_ratio_bins=10, n_proba_bins=10):
         self.broker_instance = broker_instance
         self.signal = signal
         self.profit = signal.profit
@@ -36,7 +36,7 @@ class IndicatorTransformer:
         self.ratio_bins, self.iratio_bins = None, None
         self.n_proba_bins = n_proba_bins
         self.proba_bins = None
-        self.currency_objects = AssetInfo(broker_instance, ref.currencies_list)
+        self.currency_objects = AssetInfo(broker_instance, currencies_list)
 
     def transform(self, X, y):
         # Remove lines where it was not traded for real or not exited

@@ -42,9 +42,9 @@ class AssetInfo:
         for the_file in os.listdir(folder):
             if currency in the_file:
                 with open(folder + currency + '.pkl', 'rb') as f:
-                    currency_object = cPickle.load(f)
-                    if currency_object.update_on.month == datetime.datetime.now().month:
-                        return currency_object
+                    asset_obj = cPickle.load(f)
+                    if asset_obj.update_on.month == datetime.datetime.now().month:
+                        return asset_obj
 
         return self.create_new_currency_object(currency, broker_instance)
 
@@ -113,15 +113,14 @@ class Asset:
     """
     Asset object, stores qualitative data about an object.
     """
-    def __init__(self, currency, broker_instance):
+    def __init__(self, asset, broker_instance):
         """
         Instantiates a Currency object and retrieves from the broker all the important information about it.
 
-        :param currency: (str) Currency Name
+        :param asset: (str) Asset Name
         :param broker_instance: (DataSource) Broker Instance object
         """
-        self.currency = currency
-        self.data_dict = broker_instance.data_dict(currency)
+        self.__dict__.update(**broker_instance.gen_asset_dict(asset))
 
 
 def get_currencies_statistics():
