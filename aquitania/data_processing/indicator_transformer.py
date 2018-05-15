@@ -112,8 +112,11 @@ class IndicatorTransformer:
         return df
 
     def proba_bin_generation(self, df):
-        if self.proba_bins is None:
-            self.proba_bins = generate_bins(df, 'raw_predict', self.n_proba_bins)
+        while self.proba_bins is None:
+            try:  # If there is a very big category with non-profitable trades it will throw an error of duplicate bins
+                self.proba_bins = generate_bins(df, 'raw_predict', self.n_proba_bins)
+            except:
+                self.n_proba_bins -= 1
 
     def get_proba_bin(self, value):
         return get_bin_value(self.proba_bins, value)
