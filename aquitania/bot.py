@@ -47,7 +47,7 @@ import argparse
 from aquitania.strategies.example_strategy import ExampleStrategy
 
 
-class Aquitania:
+class Bot:
     """
     This class starts the indicators and load them with data:
         1. Download all necessary historic data.
@@ -439,7 +439,7 @@ if __name__ == '__main__':
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker_ = args.source if args.source is not None else 'oanda'
+    broker_ = args.source if args.source is not None else 'test'
     storage_ = args.database if args.database is not None else 'pandas_hdf5'
 
     # Initializes Strategy
@@ -458,7 +458,7 @@ if __name__ == '__main__':
     clean_data = args.clean
 
     # Initialize General Manager
-    gm = Aquitania(broker_, storage_, asset_list, strategy_, clean_data, start_date)
+    gm = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
 
     # Selects execution mode accordingly to the ArgumentParser
     select_execution_mode(gm, args)

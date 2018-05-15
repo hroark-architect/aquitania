@@ -14,6 +14,6 @@
 .. moduleauthor:: H Roark
 """
 
-from aquitania.aquitania import Aquitania
+from aquitania.bot import Bot
 
-__version__ = '0.0.4.8'
+__version__ = '0.0.4.9'
