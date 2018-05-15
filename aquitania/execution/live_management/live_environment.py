@@ -29,12 +29,12 @@ import _pickle as cPickle
 
 class LiveEnvironment:
 
-    def __init__(self, broker_instance, strategy, list_of_observer_managers, is_live_observer_feed):
+    def __init__(self, broker_instance, strategy, list_of_indicator_managers, is_live_observer_feed):
         self.broker_instance = broker_instance
-        self.loom = list_of_observer_managers
-        self.list_of_assets = [om.asset for om in self.loom]
+        self.l_im = list_of_indicator_managers
+        self.list_of_assets = [im.asset for im in self.l_im]
         self.is_live_observer_feed = is_live_observer_feed
-        self.currencies_object = AssetInfo(broker_instance)
+        self.currencies_object = AssetInfo(broker_instance, self.list_of_assets)
         self.order_manager = OrderManager(self.broker_instance, self.currencies_object)
         self.strategy = strategy
 
@@ -65,7 +65,7 @@ class LiveEnvironment:
         while True:
             if minute != datetime.datetime.now().minute:
                 minute = datetime.datetime.now().minute
-                for observer_manager in self.loom:
+                for observer_manager in self.l_im:
                     observer_manager.live_feed()
                     df = observer_manager.output
                     if df is not None:
