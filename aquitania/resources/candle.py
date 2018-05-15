@@ -350,29 +350,31 @@ class Candle:
         else:
             return False
 
-    def init_open_close_times(self):
+    def init_open_close_times(self, ts=None):
         """
         Initializes Candle with open and close time values.
 
         :return: Candle open time, Candle close time
         :rtype: tuple of 2 datetime elements
         """
+        if ts is None:
+            ts = self.ts
         # This if elif structure looks ridiculous but it is really fast.
-        if self.ts == 0:
+        if ts == 0:
             return self.datetime, self.datetime
-        elif self.ts == 1:
+        elif ts == 1:
             return self.div_by_sec(300)
-        elif self.ts == 2:
+        elif ts == 2:
             return self.div_by_sec(900)
-        elif self.ts == 3:
+        elif ts == 3:
             return self.div_by_sec(1800)
-        elif self.ts == 4:
+        elif ts == 4:
             return self.div_by_sec(3600)
-        elif self.ts == 5:
+        elif ts == 5:
             return self.daily_criteria()
-        elif self.ts == 6:
+        elif ts == 6:
             return self.weekly_criteria()
-        elif self.ts == 7:
+        elif ts == 7:
             return self.monthly_criteria()
         else:
             raise ValueError('Invalid Candle TimeStamp')
