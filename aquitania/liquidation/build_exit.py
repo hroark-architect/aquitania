@@ -300,7 +300,7 @@ def check_if_invalid_entry(df_line):
         selected_columns = df_line.columns[df_line.isin([-1]).values[0]]
         for column in selected_columns:
             selected_dt = column.replace('saldo', 'dt')
-            if df_line[selected_dt].values == np.datetime64('NaT'):
+            if pd.isnull(df_line[selected_dt].values):
                 return True
     return False
 
