@@ -73,7 +73,7 @@ class Oanda(AbstractDataSource):
         self.account_id, self.token = self.get_trading_data()
 
         # Sets .ds 'str' calling super DataSource class
-        super().__init__(broker_name, data_storage_type)
+        super().__init__(broker_name, data_storage_type, is_live=True)
 
         # Setup with broker config
         self.account_leverage = 100
@@ -264,75 +264,6 @@ class Oanda(AbstractDataSource):
         spread_pct = spread / last_bid
         return spread, spread_pct, last_bid
 
-    def get_oscillation_and_volume(self, currency):
-        osc_avg_21, osc_avg_13, vol_21, vol_13 = self.get_oscillation_weekly(currency)
-        osc_avg_144, osc_avg_89, vol_144, vol_89 = self.get_oscillation_daily(currency)
-        osc_dict = {'D144': osc_avg_144, 'D89': osc_avg_89, 'W21': osc_avg_21, 'W13': osc_avg_13}
-        vol_dict = {'D144': vol_144, 'D89': vol_89, 'W21': vol_21, 'W13': vol_13}
-        return osc_dict, vol_dict
-
-    def get_oscillation_weekly(self, currency):
-        params = {'financial instrument': currency, 'granularity': 'W', "count": 21, "price": "B"}
-        conn_params = instruments.InstrumentsCandles(instrument=currency, params=params)
-        candles = self.api.request(conn_params)['candles']
-
-        candle_osc_list = []
-        for candle in candles:
-            candle_osc_list.append(float(candle['bid']['h']) - float(candle['bid']['l']))
-        osc_avg_21 = pd.Series(candle_osc_list).mean()
-        osc_avg_13 = pd.Series(candle_osc_list[-13:]).mean()
-        vol_21 = pd.DataFrame(candles).volume.mean()
-        vol_13 = pd.DataFrame(candles)[-13:].volume.mean()
-
-        return osc_avg_21, osc_avg_13, vol_21, vol_13
-
-    def get_oscillation_daily(self, currency):
-        params = {'financial instrument': currency, 'granularity': 'D', "count": 200, "price": "B"}
-        conn_params = instruments.InstrumentsCandles(instrument=currency, params=params)
-        candles = self.api.request(conn_params)['candles']
-
-        vol_dom = 0
-        high_dom = None
-        candle_osc_list = []
-        candle_vol_list = []
-        marker = False
-
-        for candle in candles:
-            candle_time = parser.parse(candle["time"][0:19])
-            if candle_time.weekday() == 6:
-                high_dom = float(candle['bid']['h'])
-                low_dom = float(candle['bid']['l'])
-                vol_dom = float(candle['volume'])
-                marker = True
-                continue
-            elif candle_time.weekday() == 0 and high_dom is not None and marker:
-                high = max(high_dom, float(candle['bid']['h']))
-                low = max(low_dom, float(candle['bid']['l']))
-                candle_osc_list.append(high - low)
-                candle_vol_list.append(vol_dom + float(candle['volume']))
-            else:
-                marker = False
-                vol_dom = 0
-                candle_osc_list.append(float(candle['bid']['h']) - float(candle['bid']['l']))
-                candle_vol_list.append(float(candle['volume']))
-
-        osc_avg_144 = pd.Series(candle_osc_list[-144:]).mean()
-        osc_avg_89 = pd.Series(candle_osc_list[-89:]).mean()
-
-        vol_144 = pd.Series(candle_vol_list[-144:]).mean()
-        vol_89 = pd.Series(candle_vol_list[-89:]).mean()
-
-        return osc_avg_144, osc_avg_89, vol_144, vol_89
-
-    def get_precision_digits(self, finsec):
-        client = oandapyV20.API(access_token=self.token)
-
-        r = accounts.AccountInstruments(accountID=self.account_id)
-        rv = client.request(r)
-        for line in rv['instruments']:
-            if line['name'] == finsec:
-                return line['displayPrecision']
-
     def get_list_of_instruments(self):
         return self.request_acc_instruments()['instruments']
 
@@ -461,6 +392,27 @@ class Oanda(AbstractDataSource):
         # May return empty value
         return list_candles
 
+    def get_asset_attributes(self, asset):
+        """
+        Generate Data Dictionary.
+
+        :param asset: (str) Asset Name
+
+        :return: Dictionary of Data which is data source dependent
+        :rtype: dict
+        """
+        spread, spread_pct, last_bid = self.get_spread_data(asset)
+        max_order, min_trade_size, asset_type = self.get_trade_params(asset)
+
+        return {'spread': spread, 'spread_pct': spread_pct, 'last_bid': last_bid, 'max_order': max_order,
+                'min_trade_size': min_trade_size, 'type': asset_type}
+
+    def get_trade_params(self, currency):
+        var_list = self.get_list_of_instruments()
+        for var in var_list:
+            if var['name'] == currency:
+                return var['maximumOrderUnits'], var['minimumTradeSize'], var['type']
+
 
 def generate_oanda_params(params, count):
     """
@@ -503,8 +455,6 @@ class OandaStream:
         Initializes and keeps running stream continually.
 
         :param currencies: list of currencies that will be used to stream
-        :param q1: Queue multiprocessing object that will be used to take stream out
-                 outputs only last two g01 candles, as more than that is unnecessary
         """
 
         self.currencies = currencies

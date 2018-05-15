@@ -23,7 +23,8 @@ import pandas as pd
 from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
 
 
-class Currencies:
+class AssetInfo:
+    # TODO make this export to a txt file and vice versa
 
     def __init__(self, broker_instance, list_of_currencies=ref.currencies_list):
         self.dict = {}
@@ -41,16 +42,16 @@ class Currencies:
         for the_file in os.listdir(folder):
             if currency in the_file:
                 with open(folder + currency + '.pkl', 'rb') as f:
-                    currency_object = cPickle.load(f)
-                    if currency_object.update_on.month == datetime.datetime.now().month:
-                        return currency_object
+                    asset_obj = cPickle.load(f)
+                    if asset_obj.update_on.month == datetime.datetime.now().month:
+                        return asset_obj
 
         return self.create_new_currency_object(currency, broker_instance)
 
     def create_new_currency_object(self, currency, broker_instance):
         folder = 'data/currencies/'
 
-        currency_object = Currency(currency, broker_instance)
+        currency_object = Asset(currency, broker_instance)
 
         # Removes file in case it exists
         try:
@@ -108,47 +109,28 @@ class Currencies:
                     return order_size * self.dict[currency_pair].last_bid
 
 
-class Currency:
+class Asset:
+    """
+    Asset object, stores qualitative data about an object.
+    """
+    def __init__(self, asset, broker_instance):
+        """
+        Instantiates a Currency object and retrieves from the broker all the important information about it.
 
-    def __init__(self, currency, broker_instance):
-        self.broker_instance = broker_instance
-
-        self.currency = currency
-        self.spread, self.spread_pct, self.last_bid = self.spread()
-        self.pip = self.pip()
-        self.oscillation, self.volume = self.oscillation_and_volume()
-        self.update_on = datetime.datetime.now()
-        self.max_order, self.min_trade_size, self.type = self.get_variables()
-        self.precision_digits = self.get_precision_digits()
-        self.spread_by_osc = self.spread / self.oscillation['D144']
-
-    def get_variables(self):
-        var_list = self.broker_instance.get_list_of_instruments()
-        for var in var_list:
-            if var['name'] == self.currency:
-                return var['maximumOrderUnits'], var['minimumTradeSize'], var['type']
-
-    def pip(self):
-        return self.last_bid / 10000
-
-    def spread(self):
-        return self.broker_instance.get_spread_data(self.currency)
-
-    def oscillation_and_volume(self):
-        return self.broker_instance.get_oscillation_and_volume(self.currency)
-
-    def get_precision_digits(self):
-        return self.broker_instance.get_precision_digits(self.currency)
+        :param asset: (str) Asset Name
+        :param broker_instance: (DataSource) Broker Instance object
+        """
+        self.__dict__.update(**broker_instance.gen_asset_dict(asset))
 
 
 def get_currencies_statistics():
     broker_instance = AbstractDataSource('Oanda', 'Pandas')
-    cur = Currencies(broker_instance, ref.all_instruments_list)
+    cur = AssetInfo(broker_instance, ref.all_instruments_list)
     df = cur.statistics()
     df.to_csv('currencies.csv')
 
 
 def get_daily_osc(currency):
     broker_instance = AbstractDataSource('Oanda', 'Pandas')
-    cur = Currencies(broker_instance, ref.all_instruments_list)
+    cur = AssetInfo(broker_instance, ref.all_instruments_list)
     return cur.dict[currency].oscillation['D144']

@@ -19,6 +19,7 @@ to force implementation of certain methods and etc.
 """
 
 import abc
+import datetime
 
 from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 
@@ -26,9 +27,10 @@ from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 class AbstractDataSource:
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, broker_name, data_storage_type):
+    def __init__(self, broker_name, data_storage_type, is_live=False):
         self.broker_name = broker_name
         self.ds_name = data_storage_type
+        self.is_live = is_live
         self.ds = self.get_dss(data_storage_type)
 
     def get_dss(self, data_storage_type):
@@ -43,6 +45,7 @@ class AbstractDataSource:
         Get historic data status.
 
         :param finsec: (str) Financial Security to select data
+
         :return: DataFrame containing start and end dates stored in the storage system
         :rtype: pandas DataFrame
         """
@@ -53,35 +56,74 @@ class AbstractDataSource:
     def store(self, df):
         self.ds.add_data(df)
 
-    def load_data(self, finsec):
+    def load_data(self, asset):
         """
         Loads data stored in disk for a specific Financial Security, this will fetch all candles.
 
-        :param finsec: (str) Select Financial Security
+        :param asset: (str) Select Financial Security
         :return: Stored data for selected Financial Security
         :rtype: pandas DataFrame
         """
 
-        return self.ds.get_stored_data(finsec)
+        return self.ds.get_stored_data(asset)
 
-    def sanitize(self, finsec):
+    def sanitize(self, asset):
         """
         Sanitizes data according to DataStorage method.
-        :param finsec: (str) selected Financial Security
+
+        :param asset: (str) selected Financial Security
         """
-        self.ds.sanitize(finsec)
+        self.ds.sanitize(asset)
 
-    def save_indicators(self, df, finsec, ts):
-        self.ds.save_indicators(df, finsec, ts)
+    def save_indicators(self, df, asset, ts):
+        self.ds.save_indicators(df, asset, ts)
 
-    def get_indicator_filename(self, finsec, ts):
-        return self.ds.get_indicator_filename(finsec, ts)
+    def get_indicator_filename(self, asset, ts):
+        return self.ds.get_indicator_filename(asset, ts)
 
-    def get_dict_of_file_columns(self, finsec):
-        return self.ds.get_dict_of_file_columns(finsec)
+    def get_dict_of_file_columns(self, asset):
+        return self.ds.get_dict_of_file_columns(asset)
+
+    def gen_asset_dict(self, asset):
+        """
+        Get Data Dictionary.
+
+        Get Asset Attributes will get the specific info needed for a specific broker. This method will pull the info
+        which is specific to each broker and then add some general methods on top of it.
+
+        :param asset: (str) Asset Name
+
+        :return: Data Dictionary for a given asset
+        :rtype: dictionary
+        """
+        # Generates Data Dictionary
+        data_dict = self.get_asset_attributes(asset)
+
+        # Updates Data Dictionary with new fields
+
+        data_dict['asset'] = asset
+        data_dict['oscillation'], data_dict['volume'] = self.get_oscillation_and_volume(asset)
+        data_dict['spread_by_osc'] = data_dict['spread'] / data_dict['oscillation']['D144']
+        data_dict['update_on'] = datetime.datetime.now()
+        data_dict['spread_by_osc'] = data_dict['last_bid'] / 10000
+
+        # Returns Data Dictionary
+        return data_dict
+
+    def get_oscillation_and_volume(self, asset):
+        df = self.load_data(asset)
+        osc_avg_13, osc_avg_21, vol_13, vol_21 = calc_resample_osc(df, 'W', 13, 21)
+        osc_avg_89, osc_avg_144, vol_89, vol_144 = calc_resample_osc(df, 'B', 89, 144)
+        osc_dict = {'D144': osc_avg_144, 'D89': osc_avg_89, 'W21': osc_avg_21, 'W13': osc_avg_13}
+        vol_dict = {'D144': vol_144, 'D89': vol_89, 'W21': vol_21, 'W13': vol_13}
+        return osc_dict, vol_dict
 
     @abc.abstractmethod
-    def new_historic_data_status(self, finsec):
+    def get_asset_attributes(self, asset):
+        pass
+
+    @abc.abstractmethod
+    def new_historic_data_status(self, asset):
         """
         Gets status of historic data download according to a specific data storage type.
 
@@ -91,13 +133,13 @@ class AbstractDataSource:
         pass
 
     @abc.abstractmethod
-    def candle_downloader(self, df_data_status, finsec, q1):
+    def candle_downloader(self, start_date, asset, q1):
         """
         Manages which data source to send the candle download request to.
 
-        :broker_instance instance of Broker class needed to download candles
-        :dfDataStatus DataFrame that signals from which date to start downloading
-        :q1 queue that is used inside the candle download functions
+        :param start_date: (datetime) Date which to start downloading Candles
+        :param asset: (str) Asset Name to download candles
+        :param q1 queue that is used inside the candle download functions
         """
         pass
 
@@ -106,7 +148,8 @@ class AbstractDataSource:
         """
         Chooses which broker to download historic data from.
 
-        :params broker required params
+        :param params: required params
+
         :return returns raw data from broker
         :rtype may vary according to broker
         """
@@ -117,9 +160,10 @@ class AbstractDataSource:
         """
         Chooses method to process raw data according to which broker generated it.
 
-        :raw_data raw data that was download from broker
-        :return returns processed data
-        :rtype list of lists
+        :param raw_data: (varies from broker to broker) Data that was downloaded from the broker
+
+        :return: returns processed data
+        :rtype: something that can easily transform into a pandas DataFrame
         """
         pass
 
@@ -139,9 +183,7 @@ class AbstractDataSource:
     def get_spread_data(self, finsec):
         pass
 
-    @abc.abstractmethod
-    def get_oscillation_and_volume(self, finsec):
-        pass
+    # TODO Evaluate methods that are not used directly after refactor and remove them from here
 
     @abc.abstractmethod
     def get_precision_digits(self, finsec):
@@ -170,3 +212,21 @@ class AbstractDataSource:
     @abc.abstractmethod
     def get_used_margin(self):
         pass
+
+    @abc.abstractmethod
+    def get_trade_params(self, asset):
+        pass
+
+
+def calc_resample_osc(df, resample, x1, x2):
+    candles = df.resample(resample).agg({'high': 'max', 'low': 'min', 'volume': 'sum'})
+    candles.columns = ['max', 'min', 'volume']
+    candles['osc'] = candles['max'] - candles['min']
+
+    osc_1 = candles['osc'][-x1:].mean()
+    osc_2 = candles['osc'][-x2:].mean()
+
+    vol_1 = candles['volume'][-x1:].mean()
+    vol_2 = candles['volume'][-x2:].mean()
+
+    return osc_1, osc_2, vol_1, vol_2

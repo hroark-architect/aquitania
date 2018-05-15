@@ -47,7 +47,7 @@ import argparse
 from aquitania.strategies.example_strategy import ExampleStrategy
 
 
-class Aquitania:
+class Bot:
     """
     This class starts the indicators and load them with data:
         1. Download all necessary historic data.
@@ -58,26 +58,26 @@ class Aquitania:
         6. Run a Live Feed and trade the AI Strategy on Real Time
     """
 
-    def __init__(self, broker='test', storage='pandas_hdf5', list_of_asset_ids=ref.cur_ordered_by_spread[0:1],
-                 strategy_=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
+    def __init__(self, broker='test', storage='pandas_hdf5', asset_ids=ref.cur_ordered_by_spread[0:1],
+                 strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
         run them through indicators, as well as to create exit points and an AI strategy.
 
         :param broker: (str) Broker Name (ex.: 'test, 'oanda', 'fxcm')
         :param storage: (str) Database Name (ex.: 'pandas_hdf5')
-        :param list_of_asset_ids: (list of str) Asset ids to be processed
-        :param strategy_: Strategy to be used
+        :param asset_ids: (list of str) Asset ids to be processed
+        :param strategy: Strategy to be used
         :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations
         """
 
         # Instantiate broker_instance
         self._broker_instance = select_broker(broker, storage)
-        self._list_of_asset_ids = list_of_asset_ids
-        self._live_feed_status = True
-        self._strategy = strategy_
-        self._start_date = start_dt
+        self.asset_ids = asset_ids
+        self.is_live = True
+        self.strategy = strategy
+        self.start_date = start_dt
 
         # Generates data folders if they are non-existent
         for folder in ref.data_folders:
@@ -86,6 +86,46 @@ class Aquitania:
         # Cleans data in case it was set to reset stored simulations data
         if is_clean:
             self.clean_data()
+
+    @property
+    def broker(self):
+        """
+        Gateway to access the attributes of BrokerInstance correctly.
+
+        :return: Broker Name
+        :rtype: str
+        """
+        return self._broker_instance.broker_name
+
+    @broker.setter
+    def broker(self, broker_name):
+        """
+        Changing the Broker Name would break the DataSource object, so we need to instantiate it again if we change
+        either the Broker Name or the Storage Name.
+
+        :param broker_name: (str) Broker Name to be instantiated
+        """
+        self._broker_instance = select_broker(broker_name, self.storage)
+
+    @property
+    def storage(self):
+        """
+        Gateway to access the attributes of BrokerInstance correctly.
+
+        :return: Storage Name
+        :rtype: str
+        """
+        return self._broker_instance.ds_name
+
+    @storage.setter
+    def storage(self, storage_name):
+        """
+        Changing the Storage Name would break the DataSource object, so we need to instantiate it again if we change
+        either the Storage Name or the Storage Name.
+
+        :param storage_name: (str) Broker Name to be instantiated
+        """
+        self._broker_instance = select_broker(self.broker, storage_name)
 
     def clean_data(self):
         """
@@ -108,7 +148,7 @@ class Aquitania:
 
         # Starts multiprocessing to load historic data and run indicators through historic data
         asset_pool = MyPool()
-        indicator = asset_pool.map(self.load_indicator_manager, self._list_of_asset_ids)
+        indicator = asset_pool.map(self.load_indicator_manager, self.asset_ids)
         asset_pool.close()
         asset_pool.join()
         return indicator
@@ -166,9 +206,9 @@ class Aquitania:
                     return indicator_manager
 
         # Instantiates a new IndicatorManager in case it didn't return the function previously
-        return IndicatorManager(self._broker_instance, asset_id, self._strategy, self._start_date)
+        return IndicatorManager(self._broker_instance, asset_id, self.strategy, self.start_date)
 
-    def run(self, is_complete=True, is_live=False):
+    def run(self, is_complete=False, is_live=False):
         """
         Execute the following steps:
         1. Run multiple process, one for each IndicatorManager, on all the historic data.
@@ -189,23 +229,23 @@ class Aquitania:
 
         # Run only if it is not a test, and executes the strategy on Live Data
         if is_live:
-            le = LiveEnvironment(self._broker_instance, self._strategy, list_of_indicator_managers, True)
+            le = LiveEnvironment(self._broker_instance, self.strategy, list_of_indicator_managers, True)
             le.process_manager()
 
     def run_liquidation(self):
         """
-        Creates exit points as defined in the Strategy at 'self._strategy'.
+        Creates exit points as defined in the Strategy at 'self.strategy'.
 
         Saves exits on 'data/exits'
         """
 
-        for asset_id in self._list_of_asset_ids:
+        for asset_id in self.asset_ids:
             # Build Exit for a specific asset
             print('Creating exits for security:', asset_id)
 
             # Gets signal from strategy
             # TODO implement multiple signals and multiple exit points
-            signal = self._strategy.signal
+            signal = self.strategy.signal
 
             # Generate all possible exits according to possible Exit points
             be = BuildExit(self._broker_instance, asset_id, signal, 14400)
@@ -222,7 +262,7 @@ class Aquitania:
         time_a = time.time()
 
         # Initializes object that manages AI Strategy creation
-        bm = BrainsManager(self._broker_instance, self._list_of_asset_ids, self._strategy)
+        bm = BrainsManager(self._broker_instance, self.asset_ids, self.strategy)
 
         # Initializes list of AI models that will be used (in case of ensemble)
         strategy_models = RandomForestClf
@@ -243,7 +283,7 @@ class Aquitania:
         This method ran the application on a single process and ensures that debug will be very easy and bug free,
         always debug here or using a similar method.
         """
-        for asset in self._list_of_asset_ids:
+        for asset in self.asset_ids:
             self.load_indicator_manager(asset)
 
 
@@ -399,11 +439,11 @@ if __name__ == '__main__':
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker_ = args.source if args.source is not None else 'oanda'
+    broker_ = args.source if args.source is not None else 'test'
     storage_ = args.database if args.database is not None else 'pandas_hdf5'
 
     # Initializes Strategy
-    strategy = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
+    strategy_ = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
 
     # Gets number of assets
     n_assets = args.assets if args.assets is not None else 1
@@ -418,7 +458,7 @@ if __name__ == '__main__':
     clean_data = args.clean
 
     # Initialize General Manager
-    gm = Aquitania(broker_, storage_, asset_list, strategy, clean_data, start_date)
+    gm = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
 
     # Selects execution mode accordingly to the ArgumentParser
     select_execution_mode(gm, args)
