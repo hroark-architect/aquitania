@@ -20,7 +20,6 @@ to force implementation of certain methods and etc.
 
 import abc
 import datetime
-import pandas as pd
 
 from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 
@@ -28,9 +27,10 @@ from aquitania.data_source.storage.pandas_h5 import PandasHDF5
 class AbstractDataSource:
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, broker_name, data_storage_type):
+    def __init__(self, broker_name, data_storage_type, is_live=False):
         self.broker_name = broker_name
         self.ds_name = data_storage_type
+        self.is_live = is_live
         self.ds = self.get_dss(data_storage_type)
 
     def get_dss(self, data_storage_type):

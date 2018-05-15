@@ -30,6 +30,8 @@ import _pickle as cPickle
 class LiveEnvironment:
 
     def __init__(self, broker_instance, strategy, list_of_indicator_managers, is_live_observer_feed):
+        if not broker_instance.is_live:
+            raise NotImplementedError('Selected broker is not implemented to work on a Live Environment.')
         self.broker_instance = broker_instance
         self.l_im = list_of_indicator_managers
         self.list_of_assets = [im.asset for im in self.l_im]

@@ -73,7 +73,7 @@ class Oanda(AbstractDataSource):
         self.account_id, self.token = self.get_trading_data()
 
         # Sets .ds 'str' calling super DataSource class
-        super().__init__(broker_name, data_storage_type)
+        super().__init__(broker_name, data_storage_type, is_live=True)
 
         # Setup with broker config
         self.account_leverage = 100

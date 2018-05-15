@@ -40,7 +40,7 @@ class TestBroker(AbstractDataSource):
     def __init__(self, broker_name, data_storage_type):
         # Sets .ds 'str' calling super DataSource class
         self.url = 'https://raw.githubusercontent.com/hroark-architect/data/master/'
-        super().__init__(broker_name, data_storage_type)
+        super().__init__(broker_name, data_storage_type, is_live=False)
 
     def get_historic_data_status(self, asset):
         # This is important (this method is implemented on the parent class)

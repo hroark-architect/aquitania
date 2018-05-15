@@ -38,18 +38,22 @@ class FXCM(AbstractDataSource):
     def __init__(self, broker_name, data_storage_type):
         # Read 'oanda_data.txt' file and creates a iterable of lines
 
+        # Sets file paths
+        self.folder_path = '../../data/broker/'
+        self.file_path = self.folder_path + 'fxcm_data.txt'
+
         # Loads attributes
         self.token, self.account_type = self.get_trading_data()
 
         # Sets .ds 'str' calling super DataSource class
-        super().__init__(broker_name, data_storage_type)
+        super().__init__(broker_name, data_storage_type, is_live=True)
 
         # Configures API access
         self.api = fxcmpy.fxcmpy(access_token=self.token, log_level='error', server=self.account_type)
 
     def get_trading_data(self):
         try:
-            text_file = open('data_source/data/FXCM_data.txt', 'r')
+            text_file = open(self.file_path, 'r')
             lines = text_file.readlines()
             token = lines[0][0:40]  # Remove spaces on the end of the line
             account_type = lines[1][0:4]  # Remove spaces on the end of the line
@@ -60,24 +64,24 @@ class FXCM(AbstractDataSource):
             token = input()
             print('Insert your account type: (format: demo or real)')
             account_type = input()
-            text_file = open('data_source/data/FXCM_data.txt', 'w')
+            text_file = open(self.file_path, 'w')
             text_file.write(token + '\n' + account_type)
 
         text_file.close()
 
         return token, account_type
 
-    def new_historic_data_status(self, finsec):
-        if not self.ds.is_controls(finsec):
+    def new_historic_data_status(self, asset):
+        if not self.ds.is_controls(asset):
             # TODO Improve and create a method to get first candle from FXCM API database
-            output = [finsec, datetime.datetime(2010, 1, 1), datetime.datetime(2010, 1, 1)]
+            output = [asset, datetime.datetime(2010, 1, 1), datetime.datetime(2010, 1, 1)]
 
             df = pd.DataFrame([output])
             df.columns = ['currency', 'start_date', 'end_date']
 
-            self.ds.save_controls(finsec, df)
+            self.ds.save_controls(asset, df)
 
-    def candle_downloader(self, start_date, currency, q1):
+    def candle_downloader(self, start_date, asset, q1):
         """
         Download candles from FXCM server using multiprocessor module that is managed elsewhere.
 
@@ -102,8 +106,8 @@ class FXCM(AbstractDataSource):
         stop = start + datetime.timedelta(minutes=5000)
 
         while True:
-            candles = self.api.get_candles(currency.replace('_', '/'), period='m1', start=start, stop=stop)
-            candles['fi'] = references.currencies_dict[currency]
+            candles = self.api.get_candles(asset.replace('_', '/'), period='m1', start=start, stop=stop)
+            candles['fi'] = references.currencies_dict[asset]
             q1.put(candles)
             if stop > datetime.datetime.today():
                 break
@@ -124,16 +128,7 @@ class FXCM(AbstractDataSource):
         print(raw_data.tail(1))
         return raw_data
 
-    def stream(self, currencies_list, df_f_stream):
-        pass
-
-    def get_spread_data(self, currency):
-        pass
-
-    def get_oscillation_and_volume(self, currency):
-        pass
-
-    def get_precision_digits(self, currency):
+    def get_spread_data(self, asset):
         pass
 
     def get_account_balance(self):
