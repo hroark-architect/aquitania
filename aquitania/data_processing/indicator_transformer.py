@@ -57,7 +57,7 @@ class IndicatorTransformer:
         # TODO think about shuffling data as some learning algorithms may use order to overfit
         pd.concat([currency_str, X, y_date, y, y_pips], axis=1).to_csv('concat_df.csv')
 
-        return X, y, y_pips
+        return X, y
 
     def transform_x(self, X):
         # Set signal column as True for buy as False for sell

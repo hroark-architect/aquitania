@@ -39,17 +39,18 @@ class BrainsManager:
         self.list_of_currencies = list_of_currencies
         self.strategy = strategy
         self.transformer = IndicatorTransformer(self.broker_instance, strategy.signal, list_of_currencies)
+        self.X, self.y = self.prepare_data()
+        self.is_oos_selector = TrainTestSplit({'test_size': 0.15})
 
-    def run_model(self, model):
-        X, y, y_pips = self.prepare_data()
+    def run_model(self, model, selector=None):
+        if selector is None:
+            selector = self.is_oos_selector
 
-        is_oos_selector = TrainTestSplit({'test_size': 0.15})
+        model_manager = ModelManager(model, selector, self.transformer)
 
-        model_manager = ModelManager(model, is_oos_selector, self.transformer)
+        model_results = model_manager.fit_predict_evaluate(self.X, self.y)
 
-        model_results = model_manager.fit_predict_evaluate(X, y)
-
-        features = X.columns
+        features = self.X.columns
 
         self.save_strategy_to_disk(model_manager, features, *model_results)
 

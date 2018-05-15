@@ -18,7 +18,7 @@ organize my models and facilitate testing other models and doing ensemble models
 """
 
 import abc
-
+import pandas as pd
 
 class AbstractModel:
     __metaclass__ = abc.ABCMeta
@@ -28,6 +28,9 @@ class AbstractModel:
         self.importance_of_columns = None
         self.features = None
 
+    def get_importance_columns(self):
+        return pd.Series(self.importance_of_columns, index=self.features).sort_values()
+
     @abc.abstractmethod
     def fit(self, X, y):
         # Makes it easier to read columns
@@ -36,8 +39,3 @@ class AbstractModel:
     @abc.abstractmethod
     def predict(self, X):
         pass
-
-    @abc.abstractmethod
-    def predict_score(self, X):
-        pass
-
