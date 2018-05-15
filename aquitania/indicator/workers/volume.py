@@ -51,7 +51,7 @@ class Volume(AbstractIndicatorOutput):
         Logic of the indicator that will be run candle by candle.
         """
         # Gets a proxy for absolute value, it only measures the order of magnitude (quantity of digits)
-        abs_vol = candle.volume
+        abs_vol = int(candle.volume)
 
         # Instantiates a relative value for volume, -1 means it is not instantiated
         rel_vol = -1
