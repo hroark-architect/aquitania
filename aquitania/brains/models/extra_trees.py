@@ -23,11 +23,11 @@ class ExtraTrees(AbstractModel):
     RandomForest class gets a list of currencies a signal and exits and creates an algorithm to predict patterns.
     """
 
-    def __init__(self, params=None):
-        if params is None:
-            params = {'n_jobs': -1, 'n_estimators': 5000}
+    def __init__(self, **kwargs):
+        if len(kwargs) == 0:
+            kwargs = {'n_jobs': -1, 'n_estimators': 40}
 
-        super().__init__(ExtraTreesClassifier(params))
+        super().__init__(ExtraTreesClassifier(kwargs))
 
     def fit(self, X, y):
         self.clf.fit(X, y)

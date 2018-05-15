@@ -30,11 +30,11 @@ class RandomForestClf(AbstractModel):
     RandomForest class gets a list of currencies a signal and exits and creates an algorithm to predict patterns.
     """
 
-    def __init__(self, params=None):
-        if params is None:
-            params = {'n_jobs': -1, 'min_samples_split': 25, 'max_features': .5, 'n_estimators': 25}
+    def __init__(self, **kwargs):
+        if len(kwargs) == 0:
+            kwargs = {'n_jobs': -1, 'max_features': .5, 'n_estimators': 25, 'min_samples_leaf': 25}
 
-        super().__init__(RandomForestClassifier(**params))
+        super().__init__(RandomForestClassifier(**kwargs))
 
     def fit(self, X, y):
         self.clf.fit(X, y)

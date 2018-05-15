@@ -59,7 +59,8 @@ class Bot:
     """
 
     def __init__(self, broker='test', storage='pandas_hdf5', asset_ids=ref.cur_ordered_by_spread[0:1],
-                 strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
+                 strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1),
+                 model=RandomForestClf, params={}):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
         run them through indicators, as well as to create exit points and an AI strategy.
@@ -77,6 +78,10 @@ class Bot:
         self.is_live = True
         self.strategy = strategy
         self.start_date = start_dt
+
+        # Instantiate AI variables
+        self.model = model
+        self.params = params
 
         # Generates data folders if they are non-existent
         for folder in ref.data_folders:
@@ -224,7 +229,7 @@ class Bot:
             self.run_liquidation()
 
             # Execute creation of automated AI strategy
-            self.run_brains()
+            self.run_brains(save_to_disk=True)
 
         # Run only if it is not a test, and executes the strategy on Live Data
         if is_live:
@@ -252,7 +257,7 @@ class Bot:
             # Consolidate Exists Routine (it gets all possible exits and finds the earliest one)
             be.consolidate_exits()
 
-    def run_brains(self):
+    def run_brains(self, save_to_disk=False):
         """
         Generates an automated AI strategy and evaluates this strategy.
         """
@@ -263,14 +268,12 @@ class Bot:
         # Initializes object that manages AI Strategy creation
         bm = BrainsManager(self._broker_instance, self.asset_ids, self.strategy)
 
-        # Initializes list of AI models that will be used (in case of ensemble)
-        strategy_models = RandomForestClf()
-
         # Creates AI Strategy
-        bm.run_model(strategy_models)
+        bm.run_model(self.model(**self.params))
 
         # Saves AI Strategy to Disk
-        bm.save_strategy_to_disk()
+        if save_to_disk:
+            bm.save_strategy_to_disk()
 
         # Prints time it took to generate and evaluate Strategy
         print('\n\n----------------------------------------------------------------')
@@ -389,12 +392,12 @@ def select_execution_mode(gm, args):
 
     # Brains only mode
     elif args.ai:
-        gm.run_brains()
+        gm.run_brains(save_to_disk=True)
 
     # Exits and brains only mode
     elif args.exitsai:
         gm.run_liquidation()
-        gm.run_brains()
+        gm.run_brains(save_to_disk=True)
 
     # Debug mode (single process and it doesn't run exits and brains)
     elif args.debug:
