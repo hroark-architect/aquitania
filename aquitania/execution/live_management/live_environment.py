@@ -31,7 +31,9 @@ class LiveEnvironment:
 
     def __init__(self, broker_instance, strategy, list_of_indicator_managers, is_live_observer_feed):
         if not broker_instance.is_live:
-            raise NotImplementedError('Selected broker is not implemented to work on a Live Environment.')
+            raise NotImplementedError(
+                'Selected data source is not implemented to work on a Live Environment. You need to change data sources'
+                ', or only use current data source for backtesting.')
         self.broker_instance = broker_instance
         self.l_im = list_of_indicator_managers
         self.list_of_assets = [im.asset for im in self.l_im]

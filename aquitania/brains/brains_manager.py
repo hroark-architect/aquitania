@@ -106,7 +106,7 @@ class BrainsManager:
         """
 
         # Instantiates Oracle object (Object that makes predictions)
-        oracle = Oracle(self.strategy.signal, self.model_manager, self.features, self.transformer, **self.model_results)
+        oracle = Oracle(self.strategy.signal, self.model_manager, self.features, self.transformer, *self.model_results)
 
         # Saves Oracle into Disk
         with open('data/model_manager/{}.pkl'.format(self.strategy.__class__.__name__), 'wb') as f:
