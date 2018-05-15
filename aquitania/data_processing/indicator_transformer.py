@@ -36,7 +36,7 @@ class IndicatorTransformer:
         self.ratio_bins, self.iratio_bins = None, None
         self.n_proba_bins = n_proba_bins
         self.proba_bins = None
-        self.currency_objects = AssetInfo(broker_instance, currencies_list)
+        self.asset_info = AssetInfo(broker_instance, currencies_list)
 
     def transform(self, X, y):
         # Remove lines where it was not traded for real or not exited
@@ -84,7 +84,7 @@ class IndicatorTransformer:
         df[['ratio', 'ratio_inverted']] = df.apply(self.ratio_w_spread, axis=1, args=(self.profit, self.stop))
 
         # Generate Bins in case it is building the backtest base
-        self.ratio_bin_generation(df, self.n_ratio_bins)
+        self.ratio_bin_generation(df)
 
         # Ratios Bins Routine
         df['ratio'] = pd.cut(df['ratio'], bins=self.ratio_bins).cat.codes
@@ -93,13 +93,16 @@ class IndicatorTransformer:
         return df
 
     def ratio_w_spread(self, df_line, profit_id, stop_id):
-        cur_obj = self.currency_objects.dict[ref.currencies_list[df_line['asset']]]
+        cur_obj = self.asset_info.dict[ref.currencies_list[df_line['asset']]]
         return pd.Series(ratio_with_spreads(df_line[profit_id], df_line[stop_id], df_line['entry'], cur_obj))
 
-    def ratio_bin_generation(self, df, number_of_bins):
-        if self.ratio_bins is None:
-            self.ratio_bins = generate_bins(df, 'ratio', number_of_bins)
-            self.iratio_bins = generate_bins(df, 'ratio_inverted', number_of_bins)
+    def ratio_bin_generation(self, df):
+        while self.ratio_bins is None:
+            try:  # If there is a very big category with non-profitable trades it will throw an error of duplicate bins
+                self.ratio_bins = generate_bins(df, 'ratio', self.n_ratio_bins)
+                self.iratio_bins = generate_bins(df, 'ratio_inverted', self.n_ratio_bins)
+            except:
+                self.n_ratio_bins -= 1
 
     def transform_proba(self, df):
         # Generate Bins in case it is building the backtest base

@@ -81,7 +81,7 @@ class TestBroker(AbstractDataSource):
         df = self.load_data(asset)
 
         last_bid = df.iloc[-1]['high']
-        spread_pct = 1 / 5000
+        spread_pct = 1 / 10000
         spread = last_bid * spread_pct
         max_order, min_trade_size, asset_type = 0.0, 0.0, 'CURRENCY'
 
