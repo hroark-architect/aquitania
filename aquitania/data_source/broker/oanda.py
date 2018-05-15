@@ -66,7 +66,7 @@ class Oanda(AbstractDataSource):
         :param data_storage_type (str): ata Storage Type (Ex.: 'pandas_hdf5')
         """
         # Sets file paths
-        self.folder_path = '../../data/broker/'
+        self.folder_path = 'data/broker/'
         self.file_path = self.folder_path + 'oanda_data.txt'
 
         # Loads attributes

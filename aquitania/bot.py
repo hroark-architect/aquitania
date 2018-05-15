@@ -380,11 +380,11 @@ def select_execution_mode(gm, args):
     """
     # Backtest mode (runs exits and brains)
     if args.backtest:
-        gm.run(True, False)
+        gm.run(is_complete=True, is_live=False)
 
     # Backtest mode (does NOT run exits and brains)
     elif args.backtestonly:
-        gm.run(False, False)
+        gm.run(is_complete=False, is_live=False)
 
     # Exits only mode
     elif args.exits:
@@ -409,7 +409,7 @@ def select_execution_mode(gm, args):
 
     # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
     else:
-        gm.run(True, True)
+        gm.run(is_complete=True, is_live=True)
 
 
 def get_strategy(strategy_name):
@@ -444,7 +444,7 @@ if __name__ == '__main__':
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker_ = args.source if args.source is not None else 'test'
+    broker_ = args.source if args.source is not None else 'oanda'
     storage_ = args.database if args.database is not None else 'pandas_hdf5'
 
     # Initializes Strategy
