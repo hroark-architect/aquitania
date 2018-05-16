@@ -543,14 +543,14 @@ def bet_sizing_coherence(df_line, matrix_len):
     # Iterates row by row on the original Kelly DataFrame
     for i in range(0, matrix_len):
         # Check if current row has greater value than row below
-        if df_line[i] > df_line[i + matrix_len]:
+        if df_line.values[i] > df_line.values[i + matrix_len]:
             # If it has, caps its value
-            df_line[i] = df_line[i + matrix_len]
+            df_line.values[i] = df_line.values[i + matrix_len]
         if i > 0:
             # Check if row 'i-1' has greater value than row on the right
-            if df_line[i - 1] > df_line[i]:
+            if df_line.values[i - 1] > df_line.values[i]:
                 # If it has, caps its value
-                df_line[i - 1] = df_line[i]
+                df_line.values[i - 1] = df_line.values[i]
 
     # Returns a coherent bet sizing line
     return df_line
