@@ -32,6 +32,10 @@ import importlib
 import re
 import _pickle
 import argparse
+import sys
+
+# Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
+sys.path += ['../']
 
 from aquitania.brains.brains_manager import BrainsManager
 from aquitania.brains.models.random_forest import RandomForestClf
