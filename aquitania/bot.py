@@ -36,6 +36,8 @@ import sys
 from configparser import ConfigParser
 
 # Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
+from aquitania.resources.config_create import create_config_ini
+
 sys.path += ['../']
 
 from aquitania.brains.brains_manager import BrainsManager
@@ -443,10 +445,25 @@ def camel_to_underline(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def init_config_parser():
+    """
+    Checks if there is a valid config.ini file, if not create one. And returns an instantiated ConfigParser.
+
+    :return: ConfigParser
+    :rtype: ConfigParser
+    """
+    # Creates new config file if not in disk
+    if not os.path.exists('config.ini'):
+        create_config_ini()
+
+    # Returns ConfigParser
+    return ConfigParser()
+
+
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
     # Starts config parser
-    config = ConfigParser()
+    config = init_config_parser()
 
     # Reads 'config.ini'
     config.read('config.ini')

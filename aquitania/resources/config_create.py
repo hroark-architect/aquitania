@@ -17,7 +17,7 @@
 from configparser import ConfigParser
 
 
-def run_config_parser():
+def create_config_ini():
     """
     Runs a ConfigParser to create 'config.ini'.
     """
