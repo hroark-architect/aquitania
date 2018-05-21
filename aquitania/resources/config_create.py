@@ -16,14 +16,22 @@
 
 from configparser import ConfigParser
 
-config = ConfigParser()
 
-config['settings'] = {
-    'broker': 'test',
-    'database': 'pandas_hdf5',
-    'strategy': 'ExampleStrategy',
-    'n_assets': 2
-}
+def run_config_parser():
+    """
+    Runs a ConfigParser to create 'config.ini'.
+    """
+    # Instantiates ConfigParser
+    config = ConfigParser()
 
-with open('config.ini', 'w') as f:
-    config.write(f)
+    # Sets config parameters
+    config['settings'] = {
+        'broker': 'test',
+        'database': 'pandas_hdf5',
+        'strategy': 'ExampleStrategy',
+        'n_assets': 2
+    }
+
+    # Saves file to disk
+    with open('config.ini', 'w') as f:
+        config.write(f)

@@ -445,7 +445,10 @@ def camel_to_underline(name):
 
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
+    # Starts config parser
     config = ConfigParser()
+
+    # Reads 'config.ini'
     config.read('config.ini')
 
     # Gets ArgumentParser settings
