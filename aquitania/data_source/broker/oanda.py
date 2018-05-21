@@ -74,7 +74,7 @@ class Oanda(AbstractDataSource):
         super().__init__(broker_name, data_storage_type, is_live=True)
 
         # Setup with broker config
-        self.account_leverage = 100
+        self.account_leverage = 30
 
         # Configures API access
         self.api = API(access_token=self.token)
