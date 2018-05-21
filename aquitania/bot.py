@@ -33,6 +33,7 @@ import re
 import _pickle
 import argparse
 import sys
+from configparser import ConfigParser
 
 # Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
 sys.path += ['../']
@@ -444,18 +445,21 @@ def camel_to_underline(name):
 
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
+    config = ConfigParser()
+    config.read('config.ini')
+
     # Gets ArgumentParser settings
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker_ = args.source if args.source is not None else 'oanda'
-    storage_ = args.database if args.database is not None else 'pandas_hdf5'
+    broker_ = args.source if args.source is not None else config.get('settings', 'broker')
+    storage_ = args.database if args.database is not None else config.get('settings', 'database')
 
     # Initializes Strategy
-    strategy_ = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
+    strategy_ = get_strategy(args.trade if args.database is not None else config.get('settings', 'strategy'))
 
     # Gets number of assets
-    n_assets = args.assets if args.assets is not None else 1
+    n_assets = args.assets if args.assets is not None else config.getint('settings', 'n_assets')
 
     # Generates list of assets
     asset_list = ref.cur_ordered_by_spread[0:n_assets]
