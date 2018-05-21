@@ -39,7 +39,7 @@ class FXCM(AbstractDataSource):
         # Read 'oanda_data.txt' file and creates a iterable of lines
 
         # Sets file paths
-        self.folder_path = '../../data/broker/'
+        self.folder_path = 'data/broker/'
         self.file_path = self.folder_path + 'fxcm_data.txt'
 
         # Loads attributes

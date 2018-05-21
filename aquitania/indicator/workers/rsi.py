@@ -69,11 +69,11 @@ class RSI(AbstractIndicatorOutput):
             rsi = 100 - (100 / (1 + rs))
 
         else:
-            # Saves Values for not valid RSI
+            # Saves Values for invalid RSI
             rsi = -1
 
         # Sets last close for next loop
         self.last_close = candle.close[1]
 
         # Returns RSI in form of a 1 element tuple (mandatory for indicators)
-        return (int(rsi / 10),)
+        return (rsi,)

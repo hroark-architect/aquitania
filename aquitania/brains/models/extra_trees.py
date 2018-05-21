@@ -20,11 +20,14 @@ from aquitania.brains.models.abstract_model import AbstractModel
 
 class ExtraTrees(AbstractModel):
     """
-    RandomForest class gets a list of currencies a sinal and exits and creates an algorithm to predict patterns.
+    RandomForest class gets a list of currencies a signal and exits and creates an algorithm to predict patterns.
     """
 
-    def __init__(self, params={'n_jobs': -1, 'n_estimators': 5000}):
-        super().__init__(ExtraTreesClassifier(params))
+    def __init__(self, **kwargs):
+        if len(kwargs) == 0:
+            kwargs = {'n_jobs': -1, 'n_estimators': 40}
+
+        super().__init__(ExtraTreesClassifier(kwargs))
 
     def fit(self, X, y):
         self.clf.fit(X, y)

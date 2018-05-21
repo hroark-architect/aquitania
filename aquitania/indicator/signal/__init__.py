@@ -13,3 +13,6 @@
 """
 .. moduleauthor:: H Roark
 """
+
+from .abstract_signal import AbstractSignal
+from .doji import Doji

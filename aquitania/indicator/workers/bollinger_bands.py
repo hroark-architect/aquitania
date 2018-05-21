@@ -23,7 +23,7 @@ class BollingerBands(AbstractIndicatorOutput):
     """
 
     def __init__(self, obs_id, period):
-        super().__init__(obs_id, ['alta', 'upper', 'lower'], False, (2, -1, -1))
+        super().__init__(obs_id, ['direction', 'upper_tied', 'lower_tied'], False, (2, -1, -1))
         self.ma = deque(maxlen=period)
         self.period = period
 
@@ -67,4 +67,4 @@ class BollingerBands(AbstractIndicatorOutput):
                 lower = -diff / std
 
         # Returns values
-        return sma, int(upper), int(lower)
+        return sma, upper, lower

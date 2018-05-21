@@ -57,7 +57,7 @@ class IndicatorTransformer:
         # TODO think about shuffling data as some learning algorithms may use order to overfit
         pd.concat([currency_str, X, y_date, y, y_pips], axis=1).to_csv('concat_df.csv')
 
-        return X, y, y_pips
+        return X, y
 
     def transform_x(self, X):
         # Set signal column as True for buy as False for sell
@@ -112,8 +112,11 @@ class IndicatorTransformer:
         return df
 
     def proba_bin_generation(self, df):
-        if self.proba_bins is None:
-            self.proba_bins = generate_bins(df, 'raw_predict', self.n_proba_bins)
+        while self.proba_bins is None:
+            try:  # If there is a very big category with non-profitable trades it will throw an error of duplicate bins
+                self.proba_bins = generate_bins(df, 'raw_predict', self.n_proba_bins)
+            except:
+                self.n_proba_bins -= 1
 
     def get_proba_bin(self, value):
         return get_bin_value(self.proba_bins, value)

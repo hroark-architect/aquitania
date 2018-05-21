@@ -14,16 +14,24 @@
 .. moduleauthor:: H Roark
 """
 
-from sklearn.svm import SVC
-from aquitania.brains.models.abstract_model import AbstractModel
+from configparser import ConfigParser
 
 
-class SVCSigmoid(AbstractModel):
-    def __init__(self, X, y, params={'kernel': 'sigmoid'}):
-        super().__init__(X, y, SVC(params))
+def create_config_ini():
+    """
+    Runs a ConfigParser to create 'config.ini'.
+    """
+    # Instantiates ConfigParser
+    config = ConfigParser()
 
-    def fit(self, X, y):
-        self.clf.fit(X, y)
+    # Sets config parameters
+    config['settings'] = {
+        'broker': 'test',
+        'database': 'pandas_hdf5',
+        'strategy': 'ExampleStrategy',
+        'n_assets': 2
+    }
 
-    def get_predictions(self, X):
-        return self.clf.predict_proba(X)
+    # Saves file to disk
+    with open('config.ini', 'w') as f:
+        config.write(f)

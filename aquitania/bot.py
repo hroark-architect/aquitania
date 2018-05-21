@@ -30,7 +30,17 @@ import cProfile
 import datetime
 import importlib
 import re
+import _pickle
+import argparse
+import sys
+from configparser import ConfigParser
 
+# Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
+
+
+sys.path += ['', '../']
+
+from aquitania.resources.config_create import create_config_ini
 from aquitania.brains.brains_manager import BrainsManager
 from aquitania.brains.models.random_forest import RandomForestClf
 from aquitania.data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
@@ -39,12 +49,10 @@ from aquitania.execution.live_management.live_environment import LiveEnvironment
 from aquitania.indicator.management.indicator_manager import *
 from aquitania.liquidation.build_exit import BuildExit
 from aquitania.resources.no_deamon_pool import MyPool
-import _pickle
-import aquitania.resources.references as ref
-import argparse
+from aquitania.strategies.example_strategy import ExampleStrategy
+
 
 # TODO create architecture to make indicator managers talk with themselves. Use cross-security output, correlations, etc
-from aquitania.strategies.example_strategy import ExampleStrategy
 
 
 class Bot:
@@ -59,7 +67,8 @@ class Bot:
     """
 
     def __init__(self, broker='test', storage='pandas_hdf5', asset_ids=ref.cur_ordered_by_spread[0:1],
-                 strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1)):
+                 strategy=ExampleStrategy(), is_clean=False, start_dt=datetime.datetime(1971, 2, 1),
+                 model=RandomForestClf, params={}):
         """
         Initializes GeneralManager, which is a class that has methods to download all Candles (historic and live) and
         run them through indicators, as well as to create exit points and an AI strategy.
@@ -71,13 +80,16 @@ class Bot:
         :param is_clean: if True will reset all historical data
         :param start_dt: start date for historical simulations
         """
-
         # Instantiate broker_instance
         self._broker_instance = select_broker(broker, storage)
         self.asset_ids = asset_ids
         self.is_live = True
         self.strategy = strategy
         self.start_date = start_dt
+
+        # Instantiate AI variables
+        self.model = model
+        self.params = params
 
         # Generates data folders if they are non-existent
         for folder in ref.data_folders:
@@ -167,7 +179,7 @@ class Bot:
         """
 
         # Print asset
-        print('Running simulation on:', asset)
+        print('{}Running simulations on {}.'.format(dtfx.now(), asset))
 
         # Instantiates IndicatorManager
         indicator_manager = self.instantiates_indicator_manager(asset)
@@ -225,7 +237,7 @@ class Bot:
             self.run_liquidation()
 
             # Execute creation of automated AI strategy
-            self.run_brains()
+            self.run_brains(save_to_disk=True)
 
         # Run only if it is not a test, and executes the strategy on Live Data
         if is_live:
@@ -253,7 +265,7 @@ class Bot:
             # Consolidate Exists Routine (it gets all possible exits and finds the earliest one)
             be.consolidate_exits()
 
-    def run_brains(self):
+    def run_brains(self, save_to_disk=False):
         """
         Generates an automated AI strategy and evaluates this strategy.
         """
@@ -264,11 +276,12 @@ class Bot:
         # Initializes object that manages AI Strategy creation
         bm = BrainsManager(self._broker_instance, self.asset_ids, self.strategy)
 
-        # Initializes list of AI models that will be used (in case of ensemble)
-        strategy_models = RandomForestClf
-
         # Creates AI Strategy
-        bm.run_model(strategy_models)
+        bm.run_model(self.model(**self.params))
+
+        # Saves AI Strategy to Disk
+        if save_to_disk:
+            bm.save_strategy_to_disk()
 
         # Prints time it took to generate and evaluate Strategy
         print('\n\n----------------------------------------------------------------')
@@ -375,11 +388,11 @@ def select_execution_mode(gm, args):
     """
     # Backtest mode (runs exits and brains)
     if args.backtest:
-        gm.run(True, False)
+        gm.run(is_complete=True, is_live=False)
 
     # Backtest mode (does NOT run exits and brains)
     elif args.backtestonly:
-        gm.run(False, False)
+        gm.run(is_complete=False, is_live=False)
 
     # Exits only mode
     elif args.exits:
@@ -387,12 +400,12 @@ def select_execution_mode(gm, args):
 
     # Brains only mode
     elif args.ai:
-        gm.run_brains()
+        gm.run_brains(save_to_disk=True)
 
     # Exits and brains only mode
     elif args.exitsai:
         gm.run_liquidation()
-        gm.run_brains()
+        gm.run_brains(save_to_disk=True)
 
     # Debug mode (single process and it doesn't run exits and brains)
     elif args.debug:
@@ -404,7 +417,7 @@ def select_execution_mode(gm, args):
 
     # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
     else:
-        gm.run(True, True)
+        gm.run(is_complete=True, is_live=True)
 
 
 def get_strategy(strategy_name):
@@ -433,20 +446,41 @@ def camel_to_underline(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def init_config_parser():
+    """
+    Checks if there is a valid config.ini file, if not create one. And returns an instantiated ConfigParser.
+
+    :return: ConfigParser
+    :rtype: ConfigParser
+    """
+    # Creates new config file if not in disk
+    if not os.path.exists('config.ini'):
+        create_config_ini()
+
+    # Returns ConfigParser
+    return ConfigParser()
+
+
 # General Manager - Runs simulations and live feeds from here
 if __name__ == '__main__':
+    # Starts config parser
+    config = init_config_parser()
+
+    # Reads 'config.ini'
+    config.read('config.ini')
+
     # Gets ArgumentParser settings
     args = arg_parser()
 
     # Gets broker instance arguments
-    broker_ = args.source if args.source is not None else 'test'
-    storage_ = args.database if args.database is not None else 'pandas_hdf5'
+    broker_ = args.source if args.source is not None else config.get('settings', 'broker')
+    storage_ = args.database if args.database is not None else config.get('settings', 'database')
 
     # Initializes Strategy
-    strategy_ = get_strategy(args.trade if args.database is not None else 'ExampleStrategy')
+    strategy_ = get_strategy(args.trade if args.database is not None else config.get('settings', 'strategy'))
 
     # Gets number of assets
-    n_assets = args.assets if args.assets is not None else 1
+    n_assets = args.assets if args.assets is not None else config.getint('settings', 'n_assets')
 
     # Generates list of assets
     asset_list = ref.cur_ordered_by_spread[0:n_assets]

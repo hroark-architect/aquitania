@@ -474,10 +474,10 @@ class Evaluator:
         pred = df['raw_predict']
         y = df['results']
         acc_dict = {'acc_proba': accuracy_proba(pred, y), 'acc_clf': accuracy_classifier(pred, y),
-                    'prec_20': precision_metric(pred, y, 0.2, True), 'prec_25': precision_metric(pred, y, 0.25, True),
-                    'prec_30': precision_metric(pred, y, 0.3, True), 'prec_35': precision_metric(pred, y, 0.35, True),
-                    'prec_40': precision_metric(pred, y, 0.4, True), 'prec_45': precision_metric(pred, y, 0.45, True),
-                    'prec_50<': precision_metric(pred, y, 0.5, True), 'prec_50>': precision_metric(pred, y, 0.5, True),
+                    'prec_20': precision_metric(pred, y, 0.2, False), 'prec_25': precision_metric(pred, y, 0.25, False),
+                    'prec_30': precision_metric(pred, y, 0.3, False), 'prec_35': precision_metric(pred, y, 0.35, False),
+                    'prec_40': precision_metric(pred, y, 0.4, False), 'prec_45': precision_metric(pred, y, 0.45, False),
+                    'prec_50<': precision_metric(pred, y, 0.5, False), 'prec_50>': precision_metric(pred, y, 0.5, True),
                     'prec_55': precision_metric(pred, y, 0.55, True), 'prec_60': precision_metric(pred, y, 0.6, True),
                     'prec_65': precision_metric(pred, y, 0.65, True), 'prec_70': precision_metric(pred, y, 0.7, True),
                     'prec_75': precision_metric(pred, y, 0.75, True), 'prec_80': precision_metric(pred, y, 0.8, True)}
@@ -543,14 +543,14 @@ def bet_sizing_coherence(df_line, matrix_len):
     # Iterates row by row on the original Kelly DataFrame
     for i in range(0, matrix_len):
         # Check if current row has greater value than row below
-        if df_line[i] > df_line[i + matrix_len]:
+        if df_line.values[i] > df_line.values[i + matrix_len]:
             # If it has, caps its value
-            df_line[i] = df_line[i + matrix_len]
+            df_line.values[i] = df_line.values[i + matrix_len]
         if i > 0:
             # Check if row 'i-1' has greater value than row on the right
-            if df_line[i - 1] > df_line[i]:
+            if df_line.values[i - 1] > df_line.values[i]:
                 # If it has, caps its value
-                df_line[i - 1] = df_line[i]
+                df_line.values[i - 1] = df_line.values[i]
 
     # Returns a coherent bet sizing line
     return df_line

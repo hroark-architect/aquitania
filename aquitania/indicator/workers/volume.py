@@ -51,7 +51,7 @@ class Volume(AbstractIndicatorOutput):
         Logic of the indicator that will be run candle by candle.
         """
         # Gets a proxy for absolute value, it only measures the order of magnitude (quantity of digits)
-        abs_vol = len(str(candle.volume))
+        abs_vol = int(candle.volume)
 
         # Instantiates a relative value for volume, -1 means it is not instantiated
         rel_vol = -1
@@ -68,11 +68,5 @@ class Volume(AbstractIndicatorOutput):
             # Calculates relative volume in relation to average
             rel_vol = candle.volume / avg
 
-            # Caps rel max value to avoid too many categories
-            rel_vol = 5 if rel_vol > 5 else rel_vol
-
-            # Multiply by for to generate more integers possibilities (measure by .25 increments)
-            rel_vol = rel_vol * 4
-
         # Returns Absolute and Relative volume
-        return abs_vol, int(rel_vol)
+        return abs_vol, rel_vol

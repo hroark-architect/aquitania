@@ -9,3 +9,6 @@
 # |||| The merit of a design is the only credential that you require. |||||||||||||||||||||||||||||||||||||||||||||||| #
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
 ########################################################################################################################
+
+from .indicator_abc import AbstractIndicator
+from .indicator_output_abc import AbstractIndicatorOutput

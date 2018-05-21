@@ -28,22 +28,26 @@ class IndicatorPipeLine:
         pass
 
     def fit_transform(self, X):
-        X = a_favor(X)
-        X = max_min(X)
+        X = aligned(X)
+        X = sup_res_align(X)
         return X
 
 
-def a_favor(df):
+def aligned(df):
     for column in df:
-        if 'alta' in column:
+        if 'direction' in column:
             df[column] = df[column] == df['signal']
+
+    for column in df:
+        if 'tied' in column:
+            df[column] = df.apply(lambda x: x[column] if x['signal'] else -x[column], axis=1)
     return df
 
 
-def max_min(df):
+def sup_res_align(df):
     for column in df:
         if 'sup' in column:
-            df[column + '_favor'] = ((df[column] == df['signal']) & (df['signal']))
+            df[column + '_aligned'] = ((df[column] == df['signal']) & (df['signal']))
         if 'res' in column:
-            df[column + '_favor'] = ((df[column] == ~df['signal']) & (~df['signal']))
+            df[column + '_aligned'] = ((df[column] == ~df['signal']) & (~df['signal']))
     return df
