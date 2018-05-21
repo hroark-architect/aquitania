@@ -36,10 +36,11 @@ import sys
 from configparser import ConfigParser
 
 # Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
+
+
+sys.path += ['', '../']
+
 from aquitania.resources.config_create import create_config_ini
-
-sys.path += ['../']
-
 from aquitania.brains.brains_manager import BrainsManager
 from aquitania.brains.models.random_forest import RandomForestClf
 from aquitania.data_processing.util import generate_folder, clean_indicator_data, clean_ai_data
@@ -178,7 +179,7 @@ class Bot:
         """
 
         # Print asset
-        print('Running simulation on:', asset)
+        print('{}Running simulations on {}.'.format(dtfx.now(), asset))
 
         # Instantiates IndicatorManager
         indicator_manager = self.instantiates_indicator_manager(asset)

@@ -28,18 +28,16 @@ import json
 import oandapyV20.endpoints.orders as orders
 import pandas as pd
 import numpy as np
+import aquitania.resources.datetimefx as dtfx
 
 from oandapyV20 import API, oandapyV20
 from dateutil import parser
-
 from aquitania.data_processing.util import generate_folder
 from aquitania.data_source.broker.abstract_data_source import AbstractDataSource
-from aquitania.resources import datetimefx
 from aquitania.resources import references
 from oandapyV20.endpoints import instruments
 from oandapyV20.endpoints import pricing
 from oandapyV20.exceptions import V20Error
-
 from aquitania.resources.datetimefx import next_candle_datetime
 
 
@@ -234,7 +232,7 @@ class Oanda(AbstractDataSource):
                 if raw_data:
                     q1.put(raw_data)
             except:
-                if raw_data is None and not datetimefx.is_fx_working_hours_from_tz(datetime.datetime.now()):
+                if raw_data is None and not dtfx.is_fx_working_hours_from_tz(datetime.datetime.now()):
                     return
                 Warning('Unable to connect to Oanda. Trying again in 10 seconds.')
                 time.sleep(10)
@@ -242,7 +240,7 @@ class Oanda(AbstractDataSource):
     def get_spread_data(self, finsec):
         """
         Get spread data for specific Financial Security.
-        
+
         :param finsec: (str) Selected Financial Security
 
         :return: absolute spread value, spread percentage of last bid, last bid
@@ -385,7 +383,7 @@ class Oanda(AbstractDataSource):
             # Oanda may feed open candles, check if complete to store in database
             if candle['complete']:
                 # Check if valid market hours
-                if datetimefx.is_fx_working_hours_from_tz(candle_time):
+                if dtfx.is_fx_working_hours_from_tz(candle_time):
                     # Appends to list of valid only candles
                     list_candles.append(export_candle)
 
@@ -436,7 +434,8 @@ def generate_oanda_params(params, count):
     params.update({'price': 'B'})
 
     # Outputs every param generation (one for each request to Oanda)
-    print(params)
+    print('{}Requesting candles to {} for {} on {}'.format(dtfx.now(), 'Oanda', params['financial instrument'],
+                                                                 params['from']))
 
     return params
 

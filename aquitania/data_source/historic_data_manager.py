@@ -24,8 +24,8 @@ on live trading.
 """
 import time
 import multiprocessing as mp
-
 import pandas as pd
+import aquitania.resources.datetimefx as dtfx
 
 
 class HistoricDataManager:
@@ -34,12 +34,12 @@ class HistoricDataManager:
         1. Download Candles from server
         2. Process Candles to get them ready for storage
         3. Store candles
-        
+
     As to optimize those functions and to reduce processing time, this module was built using multiprocessing.
     Each one of the 3 functions stated above has its own process, which enables us multi-thread.
-    
+
     We were able to drastically reduce processing time with those measures.
-    
+
     This class manages the multiprocessing, most of the hard coding is done inside the data_source module.
     """
 
@@ -139,7 +139,7 @@ class HistoricDataManager:
     def download_candles(self, start_date, step1, q1):
         """
         Function that manages candle download from the server, uses more specific functions inside broker.
-        
+
         :broker_instance Is the instance of the broker connection.
         :q1 Queue 1 is the one that will transport raw data from server download to data processor.
         """
@@ -149,7 +149,7 @@ class HistoricDataManager:
     def process_data(self, step1, step2, q1, q2, q3):
         """
         Function that processes raw data to storage ready data.
-        
+
         :broker_instance Is the instance of the broker connection.
         :q1 Queue 1 is the one that will transport raw data from server download to data processor.
         :q2 Queue 2 is the one that will transport processed data to be stored on the computer.
@@ -199,5 +199,5 @@ class HistoricDataManager:
 
         # Sanitizes candles (remove duplicates if any) in case it fetched more than 500 candles
         if size > 500:
-            print('sanitizing ...' + self.finsec)
+            print('{}Sanitizing {} candles database.'.format(dtfx.now(), self.finsec))
             self._broker_instance.sanitize(self.finsec)
