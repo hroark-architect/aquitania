@@ -96,6 +96,12 @@ class BuildExit:
 
             self.exits = pd.concat([self.exits, virada_df], axis=1)
 
+        # Quick fix to generate entry points for AI
+        else:
+            temp_df = df[['entry_point']]
+            temp_df.columns = ['entry']
+            self.exits = pd.concat([self.exits, temp_df], axis=1)
+
         # Sets filename
         filename = 'data/liquidation/' + self.asset + '_' + self.entry
 
