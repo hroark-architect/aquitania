@@ -71,6 +71,12 @@ class BrainsManager:
         # Gets features
         self.features = self.model_manager.model.features
 
+        # Print feature importance
+        print('\n----------------------------')
+        print('FEATURE IMPORTANCE:')
+        print('----------------------------')
+        print(self.features.sort_values())
+
     def prepare_data(self):
         # Gets Raw Data
         X = build_ai_df(self.broker_instance, self.list_of_currencies, self.strategy.signal.entry)
