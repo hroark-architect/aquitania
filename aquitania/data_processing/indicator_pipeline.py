@@ -15,7 +15,6 @@
 
 Studying Pipelines through 'Hands-On Machine Learning...' on 29/01/2018.
 """
-import numpy as np
 
 
 class IndicatorPipeLine:
