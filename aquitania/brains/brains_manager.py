@@ -44,7 +44,7 @@ class BrainsManager:
 
         # Sets default selector if None is chosen
         if selector is None:
-            self.is_oos_selector = TrainTestSplit({'test_size': 0.10})
+            self.is_oos_selector = TrainTestSplit({'test_size': 0.3})
 
         # Sets default model if None is chosen
         if model is None:
