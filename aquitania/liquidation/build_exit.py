@@ -22,7 +22,7 @@ from aquitania.data_processing.analytics_loader import build_liquidation_dfs
 
 
 class BuildExit:
-    def __init__(self, broker_instance, currency, signal, max_candles):
+    def __init__(self, broker_instance, currency, signal, max_candles, is_dentro=False, is_virada=False):
         """
         Calculates exit DateTime for a list of Exit Points. It will be used in later module that evaluates winning or
         losing positions.
@@ -41,6 +41,7 @@ class BuildExit:
         self.exits = None
         self.last_trade = None
         self.max_candles = max_candles
+        self.is_dentro = is_dentro
 
         # Load DataFrames
         df = build_liquidation_dfs(broker_instance, currency, self.exit_points, self.entry)
@@ -88,9 +89,11 @@ class BuildExit:
             else:
                 self.exits = pd.concat([self.exits, pd.concat([exit_cima, exit_baixo])], axis=1)
 
-        virada_df = virada(df)
+        # Routine if for every trade an opposite trade is automatically an entry
+        if is_virada:
+            virada_df = virada(df)
 
-        self.exits = pd.concat([self.exits, virada_df], axis=1)
+            self.exits = pd.concat([self.exits, virada_df], axis=1)
 
         # Sets filename
         filename = 'data/liquidation/' + self.currency + '_' + self.entry
@@ -118,7 +121,6 @@ class BuildExit:
 
         # Finds exit points for elements outside the inner join DataFrame
         for element in df.index.difference(df_inner.index):
-
             # Selects 1 month prior to the DataFrame, which is the highest period we use
             w = self.candles_df.loc[element - pd.offsets.Day(31):element + pd.offsets.Minute(1)].iloc[-1][
                 ['close', 'entry_point']]
@@ -265,7 +267,7 @@ class BuildExit:
         :rtype: pandas Series
         """
         # Dentro Routine
-        if self.last_trade is not None and self.last_trade > df_line.name:
+        if self.is_dentro and self.last_trade is not None and self.last_trade > df_line.name:
             return pd.Series(['', np.datetime64('NaT'), 0])
 
         # Creates DataFrame to be able to use select_dtypes function
