@@ -690,6 +690,7 @@ def precision_metric(predictions, y, threshold, inverted):
     :return: metric that evaluates how often a perceived probability actually happens
     :rtype: float
     """
+    # TODO add .count() to output
     if inverted:
         return 1 - y[predictions < threshold].mean()
     else:
