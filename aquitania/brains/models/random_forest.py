@@ -55,7 +55,8 @@ class RandomForestClf(AbstractModel):
         for i in max_features:
             for e in n_est:
                 for s in min_samples_leaf:
-                    gs_params.append({'max_features': i, 'n_estimators': e, 'min_samples_leaf': s, 'oob_score': True})
+                    gs_params.append(
+                        {'max_features': i, 'n_estimators': e, 'min_samples_leaf': s, 'n_jobs': -1, 'oob_score': True})
         return gs_params
 
     def restart_model(self, params):

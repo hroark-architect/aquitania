@@ -74,7 +74,7 @@ class ModelManager:
     def grid_search(self, x_train, y_train):
         gs_dict = {}
         for params in self.model.gen_grid_search():
-            self.model.restart_model(**params)
+            self.model.restart_model(params)
             self.fit(x_train, y_train)
             score = self.model.get_score()
             gs_dict[params] = score
