@@ -72,18 +72,25 @@ class ModelManager:
         return test_eval
 
     def grid_search(self, x_train, y_train):
-        gs_dict = {}
+        score_list = []
+        params_list = []
         for params in self.model.gen_grid_search():
+            print(params)
             self.model.restart_model(params)
             self.fit(x_train, y_train)
             score = self.model.get_score()
-            gs_dict[params] = score
+            score_list.append(score)
+            params_list.append(params)
 
         print('Grid Search Results:')
-        print(gs_dict)
+        print(pd.DataFrame([[p, s] for p, s in zip(params_list, score_list)]))
 
-        max_params = max(gs_dict.items(), key=operator.itemgetter(1))[0]
-        self.model.restart_model(**max_params)
+        max_params = params_list[score_list.index(max(score_list))]
+
+        print('Best params:')
+        print(max_params)
+        self.model.restart_model(max_params)
+        self.fit(x_train, y_train)
 
         return self.predict(x_train)
 

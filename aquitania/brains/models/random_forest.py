@@ -49,7 +49,7 @@ class RandomForestClf(AbstractModel):
 
     def gen_grid_search(self):
         gs_params = []
-        max_features = [(i + 1 // 4) for i in range(4)]
+        max_features = [((i + 1) / 4) for i in range(4)]
         n_est = [((i + 2) ** 4) for i in range(3)]
         min_samples_leaf = [1, 5, 21, 89, 377, 2584]
         for i in max_features:
