@@ -34,6 +34,8 @@ class RandomForestClf(AbstractModel):
         if len(kwargs) == 0:
             kwargs = {'n_jobs': -1, 'max_features': .5, 'n_estimators': 25, 'min_samples_leaf': 25}
 
+        self.kwargs = kwargs
+
         super().__init__(RandomForestClassifier(**kwargs))
 
     def fit(self, X, y):
@@ -44,3 +46,20 @@ class RandomForestClf(AbstractModel):
 
     def predict(self, X):
         return self.clf.predict_proba(X).T[1]
+
+    def gen_grid_search(self):
+        gs_params = []
+        max_features = [(i + 1 // 4) for i in range(4)]
+        n_est = [((i + 2) ** 4) for i in range(3)]
+        min_samples_leaf = [1, 5, 21, 89, 377, 2584]
+        for i in max_features:
+            for e in n_est:
+                for s in min_samples_leaf:
+                    gs_params.append({'max_features': i, 'n_estimators': e, 'min_samples_leaf': s, 'oob_score': True})
+        return gs_params
+
+    def restart_model(self, params):
+        self.__init__(**params)
+
+    def get_score(self):
+        return self.clf.oob_score_

@@ -14,6 +14,8 @@
 .. moduleauthor:: H Roark
 
 """
+import operator
+
 import pandas as pd
 import numpy as np
 
@@ -55,21 +57,36 @@ class ModelManager:
         :rtype
         """
         x_train, x_test, y_train, y_test = self.is_oos_split_object.output(X, y)
-        self.fit(x_train, y_train)
+
+        train_predictions = self.grid_search(x_train, y_train)
 
         # Test goes before train to get Test buckets form prediction proba
         test_predictions = self.predict(x_test)
-        test_eval = self.evaluate(x_test, test_predictions, y_test, True)
 
-        train_predictions = self.predict(x_train)
-        train_eval = self.evaluate(x_train, train_predictions, y_train, False)
+        # Run evaluation routine
+        self.evaluate(x_train, train_predictions, y_train, False)
+        test_eval = self.evaluate(x_test, test_predictions, y_test, True)
 
         self.evaluator.overfit_metrics()
 
-        # TODO go back to test_eval when finishing debugging LiveEnvironment
-        return train_eval
+        return test_eval
+
+    def grid_search(self, x_train, y_train):
+        gs_dict = {}
+        for params in self.model.gen_grid_search():
+            self.model.restart_model(**params)
+            self.fit(x_train, y_train)
+            score = self.model.get_score()
+            gs_dict[params] = score
+
+        print('Grid Search Results:')
+        print(gs_dict)
+
+        max_params = max(gs_dict.items(), key=operator.itemgetter(1))[0]
+        self.model.restart_model(**max_params)
+
+        return self.predict(x_train)
 
     def get_features(self):
         # TODO needs to decide how this will deal with multiple models and etc
         return self.model.get_importance_columns()
-

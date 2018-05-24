@@ -13,7 +13,8 @@
 """
 .. moduleauthor:: H Roark
 
-I am not sure when I first created Abstract classes for model_manager and etc, but it was likely to be around February 2018.
+I am not sure when I first created Abstract classes for model_manager and etc, but it was likely to be around February
+2018.
 
 Now it is May 1st of 2018, and I decided to go for a full refactor of the Brains Module. I'll create a Model Abstract
 class that will handle ensembles and other more complicated structures inside it and that will behave just as like a
