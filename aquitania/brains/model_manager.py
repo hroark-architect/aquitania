@@ -14,10 +14,8 @@
 .. moduleauthor:: H Roark
 
 """
-import operator
 
 import pandas as pd
-import numpy as np
 
 from aquitania.brains.evaluator import Evaluator
 

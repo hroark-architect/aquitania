@@ -47,6 +47,9 @@ class RandomForestClf(AbstractModel):
     def predict(self, X):
         return self.clf.predict_proba(X).T[1]
 
+    def get_feature_importance(self):
+        return pd.Series(self.importance_of_columns, index=self.features).sort_values(ascending=False)
+
     def gen_grid_search(self):
         gs_params = []
         max_features = [((i + 1) / 4) for i in range(4)]

@@ -69,14 +69,11 @@ class BrainsManager:
         # Make predictions
         self.model_results = self.model_manager.fit_predict_evaluate(self.X, self.y)
 
-        # Gets features
-        self.features = self.model_manager.model.features
-
         # Print feature importance
         print('\n----------------------------')
         print('FEATURE IMPORTANCE:')
         print('----------------------------')
-        print(self.features.sort_values())
+        print(self.model_manager.model.get_feature_importance())
 
     def prepare_data(self):
         # Gets Raw Data
