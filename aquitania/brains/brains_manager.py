@@ -13,7 +13,8 @@
 """
 .. moduleauthor:: H Roark
 
-I am not sure when I first created Abstract classes for model_manager and etc, but it was likely to be around February 2018.
+I am not sure when I first created Abstract classes for model_manager and etc, but it was likely to be around February
+2018.
 
 Now it is May 1st of 2018, and I decided to go for a full refactor of the Brains Module. I'll create a Model Abstract
 class that will handle ensembles and other more complicated structures inside it and that will behave just as like a
@@ -44,7 +45,7 @@ class BrainsManager:
 
         # Sets default selector if None is chosen
         if selector is None:
-            self.is_oos_selector = TrainTestSplit({'test_size': 0.10})
+            self.is_oos_selector = TrainTestSplit({'test_size': 0.15})
 
         # Sets default model if None is chosen
         if model is None:
@@ -68,8 +69,11 @@ class BrainsManager:
         # Make predictions
         self.model_results = self.model_manager.fit_predict_evaluate(self.X, self.y)
 
-        # Gets features
-        self.features = self.model_manager.model.features
+        # Print feature importance
+        print('\n----------------------------')
+        print('FEATURE IMPORTANCE:')
+        print('----------------------------')
+        print(self.model_manager.model.get_feature_importance())
 
     def prepare_data(self):
         # Gets Raw Data

@@ -14,8 +14,8 @@
 .. moduleauthor:: H Roark
 
 """
+
 import pandas as pd
-import numpy as np
 
 from aquitania.brains.evaluator import Evaluator
 
@@ -55,21 +55,43 @@ class ModelManager:
         :rtype
         """
         x_train, x_test, y_train, y_test = self.is_oos_split_object.output(X, y)
-        self.fit(x_train, y_train)
+
+        train_predictions = self.grid_search(x_train, y_train)
 
         # Test goes before train to get Test buckets form prediction proba
         test_predictions = self.predict(x_test)
-        test_eval = self.evaluate(x_test, test_predictions, y_test, True)
 
-        train_predictions = self.predict(x_train)
-        train_eval = self.evaluate(x_train, train_predictions, y_train, False)
+        # Run evaluation routine
+        self.evaluate(x_train, train_predictions, y_train, False)
+        test_eval = self.evaluate(x_test, test_predictions, y_test, True)
 
         self.evaluator.overfit_metrics()
 
-        # TODO go back to test_eval when finishing debugging LiveEnvironment
-        return train_eval
+        return test_eval
+
+    def grid_search(self, x_train, y_train):
+        score_list = []
+        params_list = []
+        for params in self.model.gen_grid_search():
+            print(params)
+            self.model.restart_model(params)
+            self.fit(x_train, y_train)
+            score = self.model.get_score()
+            score_list.append(score)
+            params_list.append(params)
+
+        print('Grid Search Results:')
+        print(pd.DataFrame([[p, s] for p, s in zip(params_list, score_list)]))
+
+        max_params = params_list[score_list.index(max(score_list))]
+
+        print('Best params:')
+        print(max_params)
+        self.model.restart_model(max_params)
+        self.fit(x_train, y_train)
+
+        return self.predict(x_train)
 
     def get_features(self):
         # TODO needs to decide how this will deal with multiple models and etc
         return self.model.get_importance_columns()
-

@@ -22,30 +22,32 @@ from aquitania.data_processing.analytics_loader import build_liquidation_dfs
 
 
 class BuildExit:
-    def __init__(self, broker_instance, currency, signal, max_candles):
+    def __init__(self, broker_instance, asset, signal, max_candles, is_dentro=False, is_virada=False):
         """
         Calculates exit DateTime for a list of Exit Points. It will be used in later module that evaluates winning or
         losing positions.
 
-        :param broker_instance: Input broker instance (DataSource object)
-        :param currency: Input currency (String)
-        :param signal: Input signal (String)
-        :param exit_points: List of Exit Points (List of Strings)
+        :param broker_instance: (DataSource) Input broker instance
+        :param asset: (str) Input asset
+        :param signal: (str) Input signal
+        :param max_candles: (int) Number of max G01 candles to look in the future to liquidate trade
+        :param is_dentro: (bool) True if when positioned, don't look for new positions in the same side
+        :param is_virada: (bool) True if when positioned, if there is a trade in the same side, you switch positions
         """
 
         # Initializes variables
         self.broker_instance = broker_instance
-        self.currency = currency
+        self.asset = asset
         self.entry = signal.entry
         self.exit_points = {signal.stop, signal.profit}
         self.exits = None
         self.last_trade = None
         self.max_candles = max_candles
+        self.is_dentro = is_dentro
 
         # Load DataFrames
-        df = build_liquidation_dfs(broker_instance, currency, self.exit_points, self.entry)
-
-        self.candles_df = self.broker_instance.load_data(currency)
+        df = build_liquidation_dfs(broker_instance, asset, self.exit_points, self.entry)
+        self.candles_df = self.broker_instance.load_data(asset)
 
         # Create Entry Point column
         self.candles_df['entry_point'] = self.candles_df['open'].shift(-1)
@@ -88,12 +90,20 @@ class BuildExit:
             else:
                 self.exits = pd.concat([self.exits, pd.concat([exit_cima, exit_baixo])], axis=1)
 
-        virada_df = virada(df)
+        # Routine if for every trade an opposite trade is automatically an entry
+        if is_virada:
+            virada_df = virada(df)
 
-        self.exits = pd.concat([self.exits, virada_df], axis=1)
+            self.exits = pd.concat([self.exits, virada_df], axis=1)
+
+        # Quick fix to generate entry points for AI
+        else:
+            temp_df = df[['entry_point']]
+            temp_df.columns = ['entry']
+            self.exits = pd.concat([self.exits, temp_df], axis=1)
 
         # Sets filename
-        filename = 'data/liquidation/' + self.currency + '_' + self.entry
+        filename = 'data/liquidation/' + self.asset + '_' + self.entry
 
         # Save liquidation to disk
         save_liquidation_to_disk(filename, self.exits)
@@ -118,7 +128,6 @@ class BuildExit:
 
         # Finds exit points for elements outside the inner join DataFrame
         for element in df.index.difference(df_inner.index):
-
             # Selects 1 month prior to the DataFrame, which is the highest period we use
             w = self.candles_df.loc[element - pd.offsets.Day(31):element + pd.offsets.Minute(1)].iloc[-1][
                 ['close', 'entry_point']]
@@ -248,7 +257,7 @@ class BuildExit:
         df.columns = ['exit_reference', 'exit_date', 'exit_saldo']
 
         # Sets filename
-        filename = 'data/liquidation/' + self.currency + '_' + self.entry + '_CONSOLIDATE'
+        filename = 'data/liquidation/' + self.asset + '_' + self.entry + '_CONSOLIDATE'
 
         # Save liquidation to disk
         save_liquidation_to_disk(filename, df)
@@ -265,7 +274,7 @@ class BuildExit:
         :rtype: pandas Series
         """
         # Dentro Routine
-        if self.last_trade is not None and self.last_trade > df_line.name:
+        if self.is_dentro and self.last_trade is not None and self.last_trade > df_line.name:
             return pd.Series(['', np.datetime64('NaT'), 0])
 
         # Creates DataFrame to be able to use select_dtypes function

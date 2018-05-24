@@ -41,7 +41,7 @@ class AbstractIndicatorOutput(AbstractIndicator):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, obs_id, columns, is_open, last_output):
+    def __init__(self, obs_id, columns, is_open=True, last_output=None):
         """
         Sets values for attributes specific to output-able indicators.
 

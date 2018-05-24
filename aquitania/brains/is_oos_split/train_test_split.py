@@ -28,4 +28,5 @@ class TrainTestSplit(SplitABC):
         super().__init__()
 
     def output(self, X, y):
-        return train_test_split(X, y, **self.params)
+        threshold = int(len(X) * (1 - self.params['test_size']))
+        return X[:threshold], X[threshold:], y[:threshold], y[threshold:]

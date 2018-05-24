@@ -30,6 +30,7 @@ class IndicatorPipeLine:
     def fit_transform(self, X):
         X = aligned(X)
         X = sup_res_align(X)
+        # X = process_dates(X)
         return X
 
 
@@ -50,4 +51,13 @@ def sup_res_align(df):
             df[column + '_aligned'] = ((df[column] == df['signal']) & (df['signal']))
         if 'res' in column:
             df[column + '_aligned'] = ((df[column] == ~df['signal']) & (~df['signal']))
+    return df
+
+
+def process_dates(df):
+    fld = df.index
+    pre = 'dt_'
+    attr_list = ['Year', 'Month', 'Week', 'Day', 'Dayofweek', 'Hour', 'Minute']
+    for attr in attr_list:
+        df[pre + attr] = getattr(fld.dt, attr.lower())
     return df
