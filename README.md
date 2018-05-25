@@ -21,9 +21,9 @@ TODO: Investigate what dependencies need root.
 ### Running your first simulation:
 
 ```
-from aquitania import Aquitania
+from aquitania import Bot
 
-aq = Aquitania()  # Instantiates with default 'test' broker
+aq = Bot()  # Instantiates with default 'test' broker
 aq.run()
 ```
 
