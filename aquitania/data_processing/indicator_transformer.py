@@ -39,6 +39,10 @@ class IndicatorTransformer:
         self.asset_info = AssetInfo(broker_instance, currencies_list)
 
     def transform(self, X, y):
+        # Sort X and y values to order it in time
+        X.sort_values(inplace=True)
+        y.sort_values(inplace=True)
+
         # Remove lines where it was not traded for real or not exited
         X = self.transform_x(X)
         not_traded = np.where(y['exit_saldo'] == 0, False, True)
