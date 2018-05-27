@@ -75,6 +75,9 @@ class BrainsManager:
         print('----------------------------')
         print(self.model_manager.model.get_feature_importance())
 
+        # Fixing bug of not saving strategy to disk
+        self.save_strategy_to_disk()
+
     def prepare_data(self):
         # Gets Raw Data
         X = build_ai_df(self.broker_instance, self.list_of_currencies, self.strategy.signal.entry)
