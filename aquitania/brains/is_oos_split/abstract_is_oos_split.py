@@ -12,6 +12,8 @@
 
 """
 .. moduleauthor:: H Roark
+
+28/05/2018 - Abstract class created around 17/02/2018, I need to check if it is useful.
 """
 
 
@@ -19,6 +21,11 @@ import abc
 
 
 class SplitABC:
+    """
+    Abstract class to split between train and test sets (maybe validation in the future as well).
+
+    Only current functionality is to force the implementation of output method.
+    """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):

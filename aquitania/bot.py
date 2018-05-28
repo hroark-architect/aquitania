@@ -35,6 +35,7 @@ import argparse
 import sys
 
 # Changing the syspath was the way I found to be able to run the bot.py on the terminal, doesn't look great
+# TODO seemingly not working on windows (Linux is ok)
 sys.path += ['', '../']
 
 from configparser import ConfigParser

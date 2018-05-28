@@ -18,4 +18,4 @@ from aquitania.bot import Bot
 from aquitania.indicator import *
 from aquitania.strategies import *
 
-__version__ = '0.0.4.11'
+__version__ = '0.0.4.12'
