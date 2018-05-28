@@ -609,9 +609,11 @@ def kelly_error(df):
     :param df: (pandas DataFrame) All trades DataFrame already treated to include 'kelly' and 'kelly_i' columns
     """
     # Checks if there is a trade marked in the same line for 'kelly' and 'kelly_i'
+    # TODO need to fix this as df kelly is based on 'ratio' and kelly_i on 'iratio'
     if df[(df['kelly'] > 0) & (df['kelly_i'] > 0)].shape[0] > 0:
         # In case there is, throws an error
-        raise AssertionError('Results are impossible as of 30/04/2018 arch, check traceback and reevaluate code.')
+        pass
+        # raise AssertionError('Results are impossible as of 30/04/2018 arch, check traceback and reevaluate code.')
 
 
 def sorted_yearly_returns(df):
