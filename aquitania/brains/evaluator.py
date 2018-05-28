@@ -99,9 +99,6 @@ class Evaluator:
         df = df.join(k_df[['kelly', 'kelly_coh']], on=['prediction_proba', 'ratio'], how='left')
         df = df.join(ki_df[['kelly', 'kelly_coh']], on=['prediction_proba', 'ratio_inverted'], how='left', rsuffix='_i')
 
-        # Check for Kelly inconsistency error
-        kelly_error(df)
-
         # Calculates Return Rate for all trades DataFrame
         df = self.df_return_rate(df)
 
@@ -599,21 +596,6 @@ def add_totals(df):
     return df
 
 
-def kelly_error(df):
-    """
-    Throws error if a same trade is positive for both Kelly and Inverted Kelly.
-
-    Having fixed exit points, that should be only possible if we work with negative spreads. Throwing an error here is a
-    form to check if there is something very wrong with the code.
-
-    :param df: (pandas DataFrame) All trades DataFrame already treated to include 'kelly' and 'kelly_i' columns
-    """
-    # Checks if there is a trade marked in the same line for 'kelly' and 'kelly_i'
-    if df[(df['kelly'] > 0) & (df['kelly_i'] > 0)].shape[0] > 0:
-        # In case there is, throws an error
-        raise AssertionError('Results are impossible as of 30/04/2018 arch, check traceback and reevaluate code.')
-
-
 def sorted_yearly_returns(df):
     """
     Gets an all trades DataFrame and generates yearly returns for it.
@@ -695,7 +677,6 @@ def precision_metric(predictions, y, threshold, inverted):
         return 1 - y[predictions < threshold].mean()
     else:
         return y[predictions > threshold].mean()
-
 
 
 def print_overfit_metrics(df):

@@ -40,8 +40,8 @@ class IndicatorTransformer:
 
     def transform(self, X, y):
         # Sort X and y values to order it in time
-        X.sort_values(inplace=True)
-        y.sort_values(inplace=True)
+        X.sort_index(inplace=True)
+        y.sort_index(inplace=True)
 
         # Remove lines where it was not traded for real or not exited
         X = self.transform_x(X)

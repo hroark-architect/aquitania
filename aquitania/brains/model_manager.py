@@ -62,8 +62,10 @@ class ModelManager:
         test_predictions = self.predict(x_test)
 
         # Run evaluation routine
-        self.evaluate(x_train, train_predictions, y_train, False)
         test_eval = self.evaluate(x_test, test_predictions, y_test, True)
+
+        # Order is important, needs to run after test set
+        self.evaluate(x_train, train_predictions, y_train, False)
 
         self.evaluator.overfit_metrics()
 
