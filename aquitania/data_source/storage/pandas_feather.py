@@ -124,3 +124,7 @@ class PandasFeather(AbstractStorageSystem):
         filename = self.get_indicator_filename(asset, ts)
 
         df.reset_index().to_feather(filename)
+
+    def get_columns(self, filepath):
+        # TODO eventually improve performance, check if pandas will support some kind of selection with Feather
+        return pd.read_feather(filepath).columns.values
