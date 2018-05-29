@@ -39,7 +39,7 @@ def build_liquidation_dfs(broker_instance, asset, list_of_columns, signal):
     :rtype: pandas DataFrame
     """
     # Get column names
-    # TODO this operation is too expansive, need to refactor this for a cheaper operation / save this inside strategy
+    # TODO this operation is too expansive, need to refactor this for a cheaper operation / pickle_state this inside strategy
     columns_dict = get_dataframes_that_contain_columns(broker_instance, asset, list_of_columns)
 
     # Instantiate variables
@@ -111,7 +111,7 @@ def get_dataframes_that_contain_columns(broker_instance, asset, set_of_columns):
         # Find if there is an intersection between the selected columns and the actual columns in the file
         set_intersect = set_of_columns.intersection(dict_of_columns[key])
 
-        # If there are columns that intersect, save it to output according to key in 'dict_of_columns'
+        # If there are columns that intersect, pickle_state it to output according to key in 'dict_of_columns'
         if len(set_intersect) > 0:
             selected_keys[key] = set_intersect
 

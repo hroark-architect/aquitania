@@ -81,7 +81,7 @@ class AbstractIndicatorOutput(AbstractIndicator):
             elif len(last_output) != len(columns):
                 raise ValueError('Please correct the length of last_output or columns, should be the same')
 
-            # If last_output is in correct format, save it as an attribute
+            # If last_output is in correct format, pickle_state it as an attribute
             else:
                 self.last_output = last_output
 

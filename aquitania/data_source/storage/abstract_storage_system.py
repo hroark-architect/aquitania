@@ -109,7 +109,6 @@ class AbstractStorageSystem:
 
                 # Iterates through list of files for given asset
                 for the_file in os.listdir(currency_dir):
-
                     # Gets filepath for given file
                     filepath = '{}/{}'.format(currency_dir, the_file)
 
@@ -125,6 +124,10 @@ class AbstractStorageSystem:
 
     @abc.abstractmethod
     def get_stored_data(self, currency):
+        pass
+
+    @abc.abstractmethod
+    def get_stored_data_in_chunks(self, currency, chunksize):
         pass
 
     @abc.abstractmethod

@@ -250,7 +250,7 @@ class Feeder:
         """
         Feed all Candles of DataFrame to the instantiated indicators.
 
-        Every time it saves the output into disk it yields so that the IndicatorManager can save its state.
+        Every time it saves the output into disk it yields so that the IndicatorManager can pickle_state its state.
 
         :param df: (pandas DataFrame) Candles to be fed
         :param counter: (int) Candles counter
@@ -284,9 +284,9 @@ class Feeder:
                 self.save_output()
                 yield dt_tm
 
-        # Finished all Candles, save it all to disk
+        # Finished all Candles, pickle_state it all to disk
         self.save_output()
-        yield dt_tm  # Need to be yield here to run one more save loop in IndicatorManager
+        return dt_tm
 
     def instantiate_first_candle(self, df_line):
         """
@@ -312,7 +312,7 @@ class Feeder:
     def save_output(self):
         # Saves output of indicators
         # TODO consider a less volatile storage than .h5
-        # TODO need to save state and output at the same time
+        # TODO need to pickle_state state and output at the same time
 
         for loader in self._loaders:
             loader.save_output()

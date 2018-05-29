@@ -55,17 +55,6 @@ class HistoricDataManager:
 
         self.live_start_dates = None
 
-    def load_data(self):
-        """
-        Loads data from disk and returns the corresponding DataFrame.
-
-        :return: All G01 candles of currency instantiated.
-        :rtype: pandas DataFrame
-        """
-
-        df = self._broker_instance.load_data(self.asset)
-        return df
-
     def get_live_data(self):
         """
         Streams live_data through a MultiProcessing Queue().

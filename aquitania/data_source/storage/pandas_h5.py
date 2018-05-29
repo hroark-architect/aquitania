@@ -55,6 +55,13 @@ class PandasHDF5(AbstractStorageSystem):
             df = hdf.get(key='G01')
             return df
 
+    def get_stored_data_in_chunks(self, asset, chunksize):
+        # Generates candles and asset name if folder don't exist
+        generate_folder('{}/{}'.format(self.candles_folder, asset))
+
+        # Gets DataFrame from disk
+        return pd.read_hdf(self.get_candles_filename(asset), chunksize=chunksize)
+
     def save_over_data(self, asset, df):
         """
         Overwrites current file on disk. Used on 'controls.h5', not on the main 'data.h5' file.

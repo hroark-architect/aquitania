@@ -67,6 +67,17 @@ class AbstractDataSource:
 
         return self.ds.get_stored_data(asset)
 
+    def load_data_in_chunks(self, asset, chunksize):
+        """
+        Loads data stored in disk for a specific Financial Security, this will fetch all candles.
+
+        :param asset: (str) Select Financial Security
+        :return: Stored data for selected Financial Security
+        :rtype: pandas DataFrame
+        """
+
+        return self.ds.get_stored_data_in_chunks(asset, chunksize)
+
     def sanitize(self, asset):
         """
         Sanitizes data according to DataStorage method.
