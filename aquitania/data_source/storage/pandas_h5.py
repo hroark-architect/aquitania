@@ -162,39 +162,7 @@ class PandasHDF5(AbstractStorageSystem):
         with pd.HDFStore(filename) as hdf:
             hdf.append(key='indicators', value=df, format='table', data_columns=True)
 
-    def get_dict_of_file_columns(self, asset):
-        """
-        Creates a dictionary with keys as timestamp and values as column names.
-
-        :param asset: (str) Asset Name
-
-        :return: dictionary with keys as timestamp and values as column names
-        :rtype: dict of sets
-        """
-        # Sets indicator output folder
-        folder = self.indicator_output_folder
-        generate_folder(folder)
-
-        # Creates dict
-        columns = {}
-
-        # Gets list of assets
-        for directory in os.listdir(folder):
-
-            # Checks if there asset is on the list of all assets
-            if asset in directory:
-
-                # Creates path for desired asset
-                currency_dir = '{}/{}'.format(folder, directory)
-
-                # Iterates through list of files for given asset
-                for the_file in os.listdir(currency_dir):
-                    # Gets filepath for given file
-                    filepath = '{}/{}'.format(currency_dir, the_file)
-
-                    # Get column name for given file
-                    with pd.HDFStore(filepath) as hdf:
-                        columns[the_file] = set(hdf.select('indicators', start=0, stop=0).columns.values)
-
-        # Returns dictionary with keys as timestamp and values as column names
-        return columns
+    def get_columns(self, filepath):
+        # Get column name for given file
+        with pd.HDFStore(filepath) as hdf:
+            return set(hdf.select('indicators', start=0, stop=0).columns.values)

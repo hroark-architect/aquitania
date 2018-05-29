@@ -82,6 +82,43 @@ class AbstractStorageSystem:
         """
         return os.path.isfile(self.get_candles_controls_filename(asset))
 
+    def get_dict_of_file_columns(self, asset):
+        """
+        Creates a dictionary with keys as timestamp and values as column names.
+
+        :param asset: (str) Asset Name
+
+        :return: dictionary with keys as timestamp and values as column names
+        :rtype: dict of sets
+        """
+        # Sets indicator output folder
+        folder = self.indicator_output_folder
+        generate_folder(folder)
+
+        # Creates dict
+        columns = {}
+
+        # Gets list of assets
+        for directory in os.listdir(folder):
+
+            # Checks if there asset is on the list of all assets
+            if asset in directory:
+
+                # Creates path for desired asset
+                currency_dir = '{}/{}'.format(folder, directory)
+
+                # Iterates through list of files for given asset
+                for the_file in os.listdir(currency_dir):
+
+                    # Gets filepath for given file
+                    filepath = '{}/{}'.format(currency_dir, the_file)
+
+                    # Get column name for given file
+                    columns[the_file] = self.get_columns(filepath)
+
+        # Returns dictionary with keys as timestamp and values as column names
+        return columns
+
     @abc.abstractmethod
     def add_data_storage(self, asset, df):
         pass
@@ -96,4 +133,8 @@ class AbstractStorageSystem:
 
     @abc.abstractmethod
     def save_indicators(self, df, currency, ts):
+        pass
+
+    @abc.abstractmethod
+    def get_columns(self, filepath):
         pass
