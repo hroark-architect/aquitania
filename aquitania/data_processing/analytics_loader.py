@@ -39,6 +39,7 @@ def build_liquidation_dfs(broker_instance, asset, list_of_columns, signal):
     :rtype: pandas DataFrame
     """
     # Get column names
+    # TODO this operation is too expansive, need to refactor this for a cheaper operation / save this inside strategy
     columns_dict = get_dataframes_that_contain_columns(broker_instance, asset, list_of_columns)
 
     # Instantiate variables
@@ -188,6 +189,7 @@ def get_asset_output(broker_instance, asset, df_filter, signal):
     :param broker_instance: (DataSource) connection to broker / database
     :param asset: (str) Asset Name
     :param df_filter: (numpy Array) Boolean values to determine which rows to select in a DataFrame
+    :param signal: (str) entry name
 
     :return: DataFrame combining all timestamps for a given asset
     :rtype: pandas DataFrame
@@ -204,15 +206,15 @@ def get_asset_output(broker_instance, asset, df_filter, signal):
         if asset in directory:
 
             # Gets folder name for current directory
-            finsec_dir = '{}/{}/'.format(folder, asset)
+            asset_dir = '{}/{}/'.format(folder, asset)
 
             # Sorts file names to create DataFrame in a logical order of columns
-            list_output = sorted(os.listdir(finsec_dir))
+            list_output = sorted(os.listdir(asset_dir))
 
             # Runs file by file routine to append them into a single DataFrame
             for the_file in list_output:
                 # Reads and filters DataFrame
-                temp_df = pd.read_hdf(finsec_dir + the_file)[df_filter]
+                temp_df = pd.read_hdf(asset_dir + the_file)[df_filter]
 
                 # Combines timestamps into a single DataFrame
                 final_df = add_to_dataframe(final_df, temp_df, axis=1)
