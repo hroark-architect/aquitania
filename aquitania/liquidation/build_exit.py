@@ -146,7 +146,7 @@ class BuildExit:
 
     def multiprocessing(self, df):
         cpu = multiprocessing.cpu_count()
-        dividers = [int(df.shape[0] / cpu * i) for i in range(1, cpu)]
+        dividers = [int(df.shape[0] / cpu) * i for i in range(1, cpu)]
 
         df_list = np.split(df, dividers, axis=0)
 

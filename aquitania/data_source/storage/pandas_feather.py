@@ -52,6 +52,13 @@ class PandasFeather(AbstractStorageSystem):
         # Gets DataFrame from disk
         return pd.read_feather(self.get_candles_filename(asset)).set_index('datetime')
 
+    def get_stored_data_in_chunks(self, currency, chunksize):
+        df = self.get_stored_data(currency)
+        n_chunks = int(df.shape[0] / chunksize) + 1
+        dividers = [i * chunksize for i in range(1, n_chunks)]
+        # TODO Check if this works
+        return np.split(df, dividers, axis=0)
+
     def save_over_data(self, asset, df):
         """
         Overwrites current file on disk. Used on 'controls.h5', not on the main 'data.h5' file.
