@@ -246,15 +246,13 @@ class Feeder:
         """
         return candle.datetime == self._candles[ts].close_time
 
-    def exec_df(self, df, counter=0, reference=250000):
+    def exec_df(self, df):
         """
         Feed all Candles of DataFrame to the instantiated indicators.
 
         Every time it saves the output into disk it yields so that the IndicatorManager can pickle_state its state.
 
         :param df: (pandas DataFrame) Candles to be fed
-        :param counter: (int) Candles counter
-        :param reference: (int) Number of Candles to be counted before saving a batch into disk
         """
         # If DataFrame is empty finishes process
         if df.shape[0] == 0:
@@ -271,18 +269,6 @@ class Feeder:
 
             # Feeds Candle
             self.feed(candle)
-
-            # Adds to counter
-            counter += 1
-
-            # Check number of iterations
-            if counter > reference:
-                # Zeroes counter
-                reference += 250000
-
-                # Saves output
-                self.save_output()
-                yield dt_tm
 
         # Finished all Candles, pickle_state it all to disk
         self.save_output()

@@ -44,7 +44,7 @@ class IndicatorManager:
     work. Each Financial Security (asset) should run contained in a IndicatorManager object.
 s   """
 
-    def __init__(self, broker_instance, asset, strategy, start_date=slice(None), end_date=slice(None)):
+    def __init__(self, broker_instance, asset, strategy, start_date=None, end_date=None):
         """
         Initializes IndicatorManager.
 
@@ -89,11 +89,11 @@ s   """
         This method loads all the historic data and then run all the indicators through it.
         """
         # Load generator of DataFrame
-        df_chunks = self.broker_instance.load_data_in_chunks()
+        df_chunks = self.broker_instance.load_data_in_chunks(self.asset, chunksize=100000)
 
         # Gets Usable DataFrame
         for df in df_chunks:
-            df = df[self.start_date:self.end_date]
+            df = df.loc[slice(self.start_date, self.end_date)]
             if df.shape[0] > 0:
                 datetime = self.feeder.exec_df(df)
                 self.save_state(datetime)
