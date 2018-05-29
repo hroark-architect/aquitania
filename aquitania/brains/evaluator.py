@@ -126,13 +126,13 @@ class Evaluator:
         k_df.apply(self.info_by_strategy, axis=1, args=(False, is_test))
         ki_df.apply(self.info_by_strategy, axis=1, args=(True, is_test))
 
+        # Gets out of the loop if it is train set
+        if not is_test:
+            return
+
         # Gets out of the loop if there is no Trade-Able strategy
         if len(self.strategy_dicts) == 0:
             no_tradable_strategies_message()
-            return
-
-        # Gets out of the loop if it is train set
-        if not is_test:
             return
 
         # Save all trades DataFrame into disk
