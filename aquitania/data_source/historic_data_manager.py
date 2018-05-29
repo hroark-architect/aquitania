@@ -43,9 +43,9 @@ class HistoricDataManager:
     This class manages the multiprocessing, most of the hard coding is done inside the data_source module.
     """
 
-    def __init__(self, broker_instance, finsec, is_san_n_store):
+    def __init__(self, broker_instance, asset, is_san_n_store):
         # Checks if list or not
-        self.finsec = finsec
+        self.asset = asset
 
         # Define attributes
         self._broker_instance = broker_instance
@@ -63,7 +63,7 @@ class HistoricDataManager:
         :rtype: pandas DataFrame
         """
 
-        df = self._broker_instance.load_data(self.finsec)
+        df = self._broker_instance.load_data(self.asset)
         return df
 
     def get_live_data(self):
@@ -134,7 +134,7 @@ class HistoricDataManager:
         self.is_san_n_store = False
 
     def get_historic_start_dates(self):
-        return self._broker_instance.get_historic_data_status(self.finsec)
+        return self._broker_instance.get_historic_data_status(self.asset)
 
     def download_candles(self, start_date, step1, q1):
         """
@@ -143,7 +143,7 @@ class HistoricDataManager:
         :broker_instance Is the instance of the broker connection.
         :q1 Queue 1 is the one that will transport raw data from server download to data processor.
         """
-        self._broker_instance.candle_downloader(start_date, self.finsec, q1)
+        self._broker_instance.candle_downloader(start_date, self.asset, q1)
         step1.value = 0
 
     def process_data(self, step1, step2, q1, q2, q3):
@@ -199,5 +199,5 @@ class HistoricDataManager:
 
         # Sanitizes candles (remove duplicates if any) in case it fetched more than 500 candles
         if size > 500:
-            print('{}Sanitizing {} candles database.'.format(dtfx.now(), self.finsec))
-            self._broker_instance.sanitize(self.finsec)
+            print('{}Sanitizing {} candles database.'.format(dtfx.now(), self.asset))
+            self._broker_instance.sanitize(self.asset)

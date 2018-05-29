@@ -17,6 +17,8 @@
 """
 
 import abc
+import numpy as np
+import os
 
 from aquitania.data_processing.util import generate_folder
 from aquitania.data_source.storage.sanity_check import basic_sanitizer
@@ -30,21 +32,24 @@ class AbstractStorageSystem:
         self.indicator_output_folder = '{}/{}'.format('data/indicator', broker_name)
         self.extension = extension
 
-    @abc.abstractmethod
     def add_data(self, df):
-        pass
+        """
+        Appends Candle data to HDF5 repository.
 
-    @abc.abstractmethod
-    def get_stored_data(self, currency):
-        pass
+        :param df: (pandas DataFrame) Candle data to be appended.
+        DataFrame columns are: ['open, 'high', 'low', 'close', 'volume'] with DateTime index.
+        """
+        # Gets asset name
+        asset = df.loc[df.index[-1], 'fi']
 
-    @abc.abstractmethod
-    def save_over_data(self, currency, df):
-        pass
+        # Creates new DataFrame (Uses .copy() to avoid pandas setCopyWarning...)
+        df = df[['open', 'high', 'low', 'close', 'volume']].copy()
 
-    @abc.abstractmethod
-    def save_indicators(self, df, currency, ts):
-        pass
+        # Converts volume to int32
+        df.loc[:, 'volume'] = df.loc[:, 'volume'].astype(np.int32)
+
+        # Saves into HDF5
+        self.add_data_storage(asset, df)
 
     def sanitize(self, currency):
         df = self.get_stored_data(currency)
@@ -62,3 +67,33 @@ class AbstractStorageSystem:
     def get_candles_controls_filename(self, finsec):
         generate_folder('{}/{}/'.format(self.candles_folder, finsec))
         return '{}/{}/controls{}'.format(self.candles_folder, finsec, self.extension)
+
+    def is_candles(self, asset):
+        return os.path.isfile(self.get_candles_filename(asset))
+
+    def is_controls(self, asset):
+        """
+        Check if control files exists.
+
+        :param asset: Asset Name
+
+        :return: True if there is a controls file for given asset name
+        :rtype: bool
+        """
+        return os.path.isfile(self.get_candles_controls_filename(asset))
+
+    @abc.abstractmethod
+    def add_data_storage(self, asset, df):
+        pass
+
+    @abc.abstractmethod
+    def get_stored_data(self, currency):
+        pass
+
+    @abc.abstractmethod
+    def save_over_data(self, currency, df):
+        pass
+
+    @abc.abstractmethod
+    def save_indicators(self, df, currency, ts):
+        pass
