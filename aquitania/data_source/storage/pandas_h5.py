@@ -74,7 +74,7 @@ class PandasHDF5(AbstractStorageSystem):
             hdf.remove(key='G01')
 
             # Save new files into disk
-            hdf.append(key='G01', value=df, format='fixed')
+            hdf.append(key='G01', value=df, format='table')
 
     def add_data_storage(self, asset, df):
         """
@@ -91,7 +91,7 @@ class PandasHDF5(AbstractStorageSystem):
 
         # Save Candles data into disk
         with pd.HDFStore(self.get_candles_filename(asset)) as hdf:
-            hdf.append(key='G01', value=df, format='fixed')
+            hdf.append(key='G01', value=df, format='table')
 
         # Update controls with new data
         self.reset_controls(asset, df.index[-1])
@@ -116,7 +116,7 @@ class PandasHDF5(AbstractStorageSystem):
             end_df['end_date'] = end_date
 
             # Saves 'controls.hdf5' back into disk
-            hdf.append(key='controls', value=end_df, format='fixed')
+            hdf.append(key='controls', value=end_df, format='table')
 
     def save_controls(self, asset, df):
         """
@@ -130,7 +130,7 @@ class PandasHDF5(AbstractStorageSystem):
 
         # Save controls DataFrame into disk
         with pd.HDFStore(self.get_candles_controls_filename(asset)) as hdf:
-            hdf.put(key='controls', value=df, format='fixed')
+            hdf.put(key='controls', value=df, format='table')
 
     def is_candles(self, finsec):
         return os.path.isfile(self.get_candles_filename(finsec))
@@ -167,7 +167,7 @@ class PandasHDF5(AbstractStorageSystem):
 
         # Saves indicators into disk
         with pd.HDFStore(filename) as hdf:
-            hdf.append(key='indicators', value=df, format='fixed')
+            hdf.append(key='indicators', value=df, format='table')
 
     def get_columns(self, filepath):
         # Get column name for given file
