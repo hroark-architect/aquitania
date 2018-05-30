@@ -17,8 +17,8 @@
 
 import numpy as np
 import pandas as pd
-from aquitania.indicator.management.indicator_data import *
 import copy
+import aquitania.resources.references as ref
 
 
 class IndicatorLoader:
@@ -26,18 +26,18 @@ class IndicatorLoader:
     An IndicatorLoader object holds all indicators for a specific Financial Security
     """
 
-    def __init__(self, indicator_list, finsec, timestamp, broker_instance):
+    def __init__(self, indicator_list, asset, timestamp, broker_instance):
         """
-        Initializes IndicatorLoader for specific currency and timestamp.
+        Initializes IndicatorLoader for specific asset and timestamp.
 
         :param indicator_list: Indicators to be evaluated
-        :param finsec: Financial Security that will be evaluated
+        :param asset: Financial Security that will be evaluated
         :param timestamp: Timestamp of the IndicatorLoader
         """
 
         # Initialize variables
         self._indicator_list = indicator_list
-        self._currency = finsec
+        self._asset = asset
         self._timestamp = timestamp
         self._broker_instance = broker_instance
         self._datetimes = []
@@ -93,11 +93,16 @@ class IndicatorLoader:
         Combines the output of all the indicators in a single pandas DataFrame.
 
         """
-        # Initializes IndicatorDataManager
-        odm = IndicatorDataManager(self._currency, self._broker_instance)
-
         df = self.generate_df()
-        odm.save_output(df, self._timestamp)
+
+        # When empty DataFrame is generated, it is converted to None, that should not be saved
+        if df is None:
+            return
+
+        ts = ref.ts_to_letter[self._timestamp]
+
+        # Saves observations to disk
+        self._broker_instance.save_indicators(df, self._asset, ts)
 
     def generate_df(self):
         # Initialize Variables

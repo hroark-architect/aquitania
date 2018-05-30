@@ -167,7 +167,7 @@ class PandasHDF5(AbstractStorageSystem):
 
         # Saves indicators into disk
         with pd.HDFStore(filename) as hdf:
-            hdf.append(key='indicators', value=df, format='table', data_columns=True)
+            hdf.append(key='indicators', value=df, format='fixed')
 
     def get_columns(self, filepath):
         # Get column name for given file
