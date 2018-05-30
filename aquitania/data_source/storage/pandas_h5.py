@@ -132,8 +132,8 @@ class PandasHDF5(AbstractStorageSystem):
         with pd.HDFStore(self.get_candles_controls_filename(asset)) as hdf:
             hdf.put(key='controls', value=df, format='table')
 
-    def is_candles(self, finsec):
-        return os.path.isfile(self.get_candles_filename(finsec))
+    def is_candles(self, asset):
+        return os.path.isfile(self.get_candles_filename(asset))
 
     def is_controls(self, asset):
         """
