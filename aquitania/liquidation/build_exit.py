@@ -59,6 +59,10 @@ class BuildExit:
         # Build entry points and close values into exit DataFrame
         df = self.build_entry_points(df)
 
+        # Checks if df is empty and raise Warning if so.
+        if df.shape[0] == 0:
+            ValueError('There was a problem with the signal in your strategy, it didn\'t generate any ok=True.')
+
         # Clean Candles DF
         self.candles_df = self.candles_df[['open', 'high', 'low']]
 
@@ -155,7 +159,7 @@ class BuildExit:
         pool.close()
         pool.join()
 
-        x = pd.concat(results)[[0, 1]]
+        x = pd.concat(results).iloc[:, 0:1]
         return x
 
     def dataframe_apply(self, df):
