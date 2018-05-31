@@ -34,6 +34,7 @@ directly on Numpy.
 
 from aquitania.resources.candle import Candle
 import datetime
+import aquitania.resources.references as ref
 
 
 class Feeder:
@@ -51,7 +52,7 @@ class Feeder:
         8. Monthly
     """
 
-    def __init__(self, list_of_loaders, currency):
+    def __init__(self, list_of_loaders, asset):
         """
         Feeder class is initialized with the list_of_loaders to whom the Candles will be fed.
 
@@ -60,7 +61,7 @@ class Feeder:
 
         # Initialize variables
         self._loaders = list_of_loaders
-        self.currency = currency
+        self.asset = ref.currencies_dict[asset]
         self._candles = None
 
     def init_build(self, candle):
@@ -265,7 +266,7 @@ class Feeder:
         for dt_tm, open_, high, low, close, volume in df.itertuples():  # itertuples() is much faster than iterrows()
 
             # Instantiates Candle
-            candle = Candle(0, self.currency, dt_tm, open_, high, low, close, volume, True)
+            candle = Candle(0, self.asset, dt_tm, open_, high, low, close, volume, True)
 
             # Feeds Candle
             self.feed(candle)
@@ -290,7 +291,7 @@ class Feeder:
         dt_tm, open_, high, low, close, volume = df_line.name, *df_line.values
 
         # Instantiates Candle
-        candle = Candle(0, self.currency, dt_tm, open_, high, low, close, volume, True)
+        candle = Candle(0, self.asset, dt_tm, open_, high, low, close, volume, True)
 
         # Initializes Candle states
         self.init_build(candle)
