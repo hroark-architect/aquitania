@@ -154,10 +154,7 @@ class Candle:
         :return: True if given Candle is lower.
         :rtype: Boolean
         """
-        if self.low[up] < candle.low[up]:
-            return True
-        else:
-            return False
+        return self.low[up] < candle.low[up]
 
     def higher_than(self, candle, up):
         """
@@ -169,10 +166,7 @@ class Candle:
         :return: True if given Candle is higher.
         :rtype: Boolean
         """
-        if self.high[up] > candle.high[up]:
-            return True
-        else:
-            return False
+        return self.high[up] > candle.high[up]
 
     def ascending(self, candle, up):
         """
@@ -184,13 +178,7 @@ class Candle:
         :return: True if it is ascending
         :rtype: Boolean
         """
-        if self.low[up] > candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
-        else:
-            return False
+        return self.low[up] > candle.low[up] and self.high[up] > candle.high[up]
 
     def new_ts(self, ts):
         """
@@ -223,11 +211,8 @@ class Candle:
         """
         if self.low[up] < candle.low[up]:
             return True
-        elif self.low[up] == candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
+        elif self.low[up] == candle.low[up] and self.high[up] > candle.high[up]:
+            return True
         else:
             return False
 
@@ -243,11 +228,8 @@ class Candle:
         """
         if self.high[up] > candle.high[up]:
             return True
-        elif self.high[up] == candle.high[up]:
-            if self.low[up] < candle.low[up]:
-                return True
-            else:
-                return False
+        elif self.high[up] == candle.high[up] and self.low[up] < candle.low[up]:
+            return True
         else:
             return False
 
@@ -261,16 +243,10 @@ class Candle:
         :return: True if given Candle eclipses current Candle
         :rtype: Boolean
         """
-        if self.low[up] < candle.low[up]:
-            if self.high[up] >= candle.high[up]:
-                return True
-            else:
-                return False
-        elif self.low[up] == candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
+        if self.low[up] < candle.low[up] and self.high[up] >= candle.high[up]:
+            return True
+        elif self.low[up] == candle.low[up] and self.high[up] > candle.high[up]:
+            return True
         else:
             return False
 
