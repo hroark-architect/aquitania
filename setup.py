@@ -17,7 +17,8 @@
 import os
 import re
 
-from setuptools import setup, find_packages
+from Cython.Build import cythonize
+from setuptools import setup, find_packages, Extension
 
 
 def get_version(package):
@@ -54,12 +55,15 @@ version = get_version('aquitania')
 
 try:
     import pypandoc
+
     readme = pypandoc.convert('README.md', 'rst')
 except (IOError, ImportError):
     readme = ''
 
 setup(
     name='aquitania',
+    ext_modules=[Extension('candle', ['aquitania/cython/candle.pyx']),
+                 Extension('feeder', ['aquitania/cython/feeder.pyx'])],
     version=version,
     url='https://github.com/hroark-architect/aquitania',
     license='MIT',
