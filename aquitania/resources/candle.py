@@ -33,6 +33,7 @@ indicator movement.
 
 import datetime
 
+import aquitania.resources.references as ref
 import aquitania.resources.datetimefx as dtfx
 from copy import copy
 
@@ -453,6 +454,6 @@ class Candle:
         :return: Returns string object consisting of print logic
         :rtype: String
         """
-        return str(self.datetime) + ' O: ' + str(self.open[1]) + ' H: ' + str(self.high[1]) + ' L: ' + str(
-            self.low[1]) + ' C: ' + str(self.close[1]) + ' V: ' + str(self.volume) + ' Ts: ' + str(
-            self.ts) + ' Cur: ' + self.currency
+        return '{}: O: {} H: {} L: {} C: {} V: {} Ts: {} Cur: {}'.format(self.datetime, self.open[1], self.high[1],
+                                                                         self.low[1], self.close[1], self.volume,
+                                                                         self.ts, ref.currency_list[self.currency])
