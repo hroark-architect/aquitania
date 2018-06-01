@@ -28,7 +28,7 @@ import time
 import os
 
 from aquitania.data_processing.util import add_asset_columns_to_df
-from aquitania.cython.feeder import Feeder
+from aquitania.data_source.feeder import Feeder
 from aquitania.data_source.historic_data_manager import HistoricDataManager
 from aquitania.indicator.management.indicator_loader import IndicatorLoader
 from aquitania.resources.candle import Candle
