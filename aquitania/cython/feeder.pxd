@@ -1,4 +1,4 @@
-from candle cimport Candle
+from aquitania.cython.candle cimport Candle
 
 cdef class Feeder:
     cdef public int asset

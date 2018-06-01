@@ -32,8 +32,8 @@ are only going to process things like SMAs and Bollinger Bands, it is quite easy
 directly on Numpy.
 """
 
-from candle cimport Candle
-from candle import Candle
+from aquitania.cython.candle cimport Candle
+from aquitania.cython.candle import Candle
 from cpython.datetime cimport datetime
 import datetime as dtm
 
