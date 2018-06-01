@@ -28,10 +28,10 @@ import time
 import os
 
 from aquitania.data_processing.util import add_asset_columns_to_df
-from aquitania.data_source.feeder import Feeder
+from aquitania.cython.feeder import Feeder
 from aquitania.data_source.historic_data_manager import HistoricDataManager
 from aquitania.indicator.management.indicator_loader import IndicatorLoader
-from aquitania.resources.candle import Candle
+from aquitania.cython.candle import Candle
 import aquitania.resources.references as ref
 import aquitania.resources.datetimefx as dtfx
 import _pickle
@@ -66,7 +66,7 @@ s   """
         self.hdm = HistoricDataManager(broker_instance, asset, True)
 
         # Instantiate Feeder
-        self.feeder = Feeder(self.list_of_loaders, asset)
+        self.feeder = Feeder(self.list_of_loaders, ref.currencies_dict[asset])
 
     def update_load_run_data(self):
         """

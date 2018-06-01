@@ -9,19 +9,6 @@ cdef class Candle:
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-    cdef:
-        public int ts
-        public int currency
-        public datetime datetime
-        public datetime open_time
-        public datetime close_time
-        public tuple open
-        public tuple high
-        public tuple low
-        public tuple close
-        public long volume
-        public bint complete
-
     def __cinit__(self, int ts, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
