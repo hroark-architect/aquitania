@@ -53,11 +53,11 @@ cdef class Feeder:
         8. Monthly
     """
 
-    cdef public str asset
+    cdef public int asset
     cdef list _loaders
     cdef list _candles
 
-    def __init__(self, list list_of_loaders, int asset_id):
+    def __init__(self, list list_of_loaders, str asset_str):
         """
         Feeder class is initialized with the list_of_loaders to whom the Candles will be fed.
 
@@ -66,7 +66,7 @@ cdef class Feeder:
 
         # Initialize variables
         self._loaders = list_of_loaders
-        self.asset = ref.currencies_dict[asset_id]
+        self.asset = ref.currencies_dict[asset_str]
         self._candles = None
 
     def init_build(self, candle):
@@ -101,7 +101,7 @@ cdef class Feeder:
         cdef list criteria_table = self.generate_criteria_table(candle)
 
         self.missing_closed_candles(criteria_table)
-        
+
         cdef int ts
         for ts in reversed(range(0, 8)):
             self.make_candle(ts, candle, criteria_table)
@@ -125,7 +125,7 @@ cdef class Feeder:
 
         # Creates a dummy variable to compare with closing times
         dt = dtm.datetime(1970, 1, 2)
-        
+
         cdef int ts
         # Gets closing datetime to propagate to all timestamps
         for ts, criteria in enumerate(criteria_table):
@@ -139,7 +139,7 @@ cdef class Feeder:
         # Timestamp 0 routine ('1Min' timestamp only works with complete Candles, it is a bit of a different logic)
         self._candles[0].datetime = dt
         self._loaders[0].fillna(self._candles[0])
-        
+
          # Routine for timestamps > 1, .feed() if it is complete, and .fillna() if it is not complete
         for ts in reversed(range(1, 8)):
             self._candles[ts].datetime = dt
@@ -256,7 +256,7 @@ cdef class Feeder:
         """
         return candle.datetime == self._candles[ts].close_time
 
-    cdef exec_df(self, object df):
+    cpdef exec_df(self, object df):
         """
         Feed all Candles of DataFrame to the instantiated indicators.
 

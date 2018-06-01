@@ -60,12 +60,14 @@ try:
 except (IOError, ImportError):
     readme = ''
 
+cy_ext = [Extension('feeder', ['aquitania/cython/feeder.pyx']), Extension('candle', ['aquitania/cython/candle.pyx'])]
+
 setup(
     name='aquitania',
-    ext_modules=[Extension('candle', ['aquitania/cython/candle.pyx']),
-                 Extension('feeder', ['aquitania/cython/feeder.pyx'])],
     version=version,
     url='https://github.com/hroark-architect/aquitania',
+    ext_modules=cythonize(cy_ext),
+    zip_safe=False,  # Necessary to work with SetupTools
     license='MIT',
     long_description=readme,
     description='Algorithmic Trading with Artificial Intelligence',
