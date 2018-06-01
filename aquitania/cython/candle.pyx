@@ -9,7 +9,7 @@ cdef class Candle:
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-    def __cinit__(self, int ts, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
+    def __cinit__(self, int ts_i, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
 
@@ -24,7 +24,7 @@ cdef class Candle:
         :param complete: Complete (Boolean)
         """
         # Initializes variables
-        self.ts = ts
+        self.ts = ts_i
         self.currency = currency
         self.datetime = dt
         self.open_time, self.close_time = self.init_open_close_times(-1)

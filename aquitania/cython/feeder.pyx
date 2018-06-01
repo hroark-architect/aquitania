@@ -32,7 +32,8 @@ are only going to process things like SMAs and Bollinger Bands, it is quite easy
 directly on Numpy.
 """
 
-from aquitania.cython.candle cimport Candle
+from candle cimport Candle
+from candle import Candle
 from cpython.datetime cimport datetime
 import datetime as dtm
 
@@ -51,13 +52,9 @@ cdef class Feeder:
         8. Monthly
     """
 
-    cdef public int asset
-    cdef list _loaders
-    cdef list _candles
-
-    def __init__(self, list list_of_loaders, int asset):
+    def __cinit__(self, list list_of_loaders, int asset):
         """
-        Feeder class is initialized with the list_of_loaders to whom the Candles will be fed.
+        Feeder class is initialized with the list_of_loaders to whom thime Candles will be fed.
 
         :param list_of_loaders: List of Loaders, each element in the list refers to a timestamp.
         """

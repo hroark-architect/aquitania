@@ -26,7 +26,7 @@ cdef class Candle:
 
     cpdef eclipses(self, Candle candle, bint up)
 
-    cpdef datetime init_open_close_times(self, int ts)
+    cpdef tuple init_open_close_times(self, int ts)
 
     cpdef upper_shadow(self, up)
 
