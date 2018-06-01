@@ -4,9 +4,9 @@ cdef class Candle:
     cdef:
         public int ts
         public int currency
-        public int datetime
-        public int open_time
-        public int close_time
+        public datetime datetime
+        public datetime open_time
+        public datetime close_time
         public tuple open
         public tuple high
         public tuple low
@@ -27,3 +27,7 @@ cdef class Candle:
     cpdef eclipses(self, Candle candle, bint up)
 
     cpdef datetime init_open_close_times(self, int ts)
+
+    cpdef upper_shadow(self, up)
+
+    cpdef lower_shadow(self, up)

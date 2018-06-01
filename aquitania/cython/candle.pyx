@@ -9,7 +9,20 @@ cdef class Candle:
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-    def __cinit__(self, int ts, int currency, int dt, float open, float high, float low, float close, int volume, bint complete):
+    cdef:
+        public int ts
+        public int currency
+        public datetime datetime
+        public datetime open_time
+        public datetime close_time
+        public tuple open
+        public tuple high
+        public tuple low
+        public tuple close
+        public long volume
+        public bint complete
+
+    def __cinit__(self, int ts, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
 
@@ -27,8 +40,8 @@ cdef class Candle:
         self.ts = ts
         self.currency = currency
         self.datetime = dt
-        self.open_time, self.close_time = dt, dt
-        self.open, self.high, self.low, self.close = open, high, low, close
+        self.open_time, self.close_time = self.init_open_close_times(-1)
+        self.open, self.high, self.low, self.close = (-open, open), (-low, high), (-high, low), (-close, close)
         self.volume = volume
         self.complete = complete
 
@@ -91,7 +104,7 @@ cdef class Candle:
         """
         return self.size(up) - self.body(up)
 
-    def upper_shadow(self, up):
+    cpdef upper_shadow(self, up):
         """
         Returns Candle's upper shadow size.
 
@@ -100,7 +113,7 @@ cdef class Candle:
         """
         return self.high[up] - self.body_max(up)
 
-    def lower_shadow(self, up):
+    cpdef lower_shadow(self, up):
         """
         Returns Candle's upper shadow size.
 
@@ -291,7 +304,7 @@ cdef class Candle:
         else:
             return False
 
-    cpdef datetime init_open_close_times(self, int ts):
+    cpdef tuple init_open_close_times(self, int ts):
         """
         Initializes Candle with open and close time values.
 
@@ -420,4 +433,4 @@ cdef class Candle:
         """
         return '{}: O: {} H: {} L: {} C: {} V: {} Ts: {} Cur: {}'.format(self.datetime, self.open[1], self.high[1],
                                                                          self.low[1], self.close[1], self.volume,
-                                                                         self.ts, ref.currency_list[self.currency])
+                                                                         self.ts, '')
