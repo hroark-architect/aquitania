@@ -35,8 +35,6 @@ directly on Numpy.
 from aquitania.cython.candle cimport Candle
 from cpython.datetime cimport datetime
 import datetime as dtm
-import aquitania.resources.references as ref
-
 
 cdef class Feeder:
     """
@@ -57,7 +55,7 @@ cdef class Feeder:
     cdef list _loaders
     cdef list _candles
 
-    def __init__(self, list list_of_loaders, str asset_str):
+    def __init__(self, list list_of_loaders, int asset):
         """
         Feeder class is initialized with the list_of_loaders to whom the Candles will be fed.
 
@@ -66,7 +64,7 @@ cdef class Feeder:
 
         # Initialize variables
         self._loaders = list_of_loaders
-        self.asset = ref.currencies_dict[asset_str]
+        self.asset = asset
         self._candles = None
 
     def init_build(self, candle):
@@ -134,7 +132,7 @@ cdef class Feeder:
                 dt = max(self._candles[ts].close_time, dt)
 
         # Define close value
-        cdef float close = self._candles[0].close
+        cdef tuple close = self._candles[0].close
 
         # Timestamp 0 routine ('1Min' timestamp only works with complete Candles, it is a bit of a different logic)
         self._candles[0].datetime = dt
@@ -161,7 +159,6 @@ cdef class Feeder:
         # Checks if there is the need to create a new Candle
         if criteria_table[ts]:
             self.new_candle_routine(ts, candle)
-
         else:
             # Check if there is the need to update values (high, low, close)
             self.set_values(ts, candle)
