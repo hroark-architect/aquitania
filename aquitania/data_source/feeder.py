@@ -61,7 +61,7 @@ class Feeder:
 
         # Initialize variables
         self._loaders = list_of_loaders
-        self.asset = ref.currencies_dict[asset]
+        self.asset = asset
         self._candles = None
 
     def init_build(self, candle):
