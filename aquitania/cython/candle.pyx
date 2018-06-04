@@ -1,15 +1,13 @@
 import datetime as dtm
 import aquitania.resources.datetimefx as dtfx
-import aquitania.resources.references as ref
 from copy import copy
-from cpython.datetime cimport datetime
 
 cdef class Candle:
     """
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-    def __cinit__(self, int ts_i, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
+    def __init__(self, int ts_i, int currency, datetime dt, float open, float high, float low, float close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
 
@@ -91,7 +89,7 @@ cdef class Candle:
         """
         return self.size(up) - self.body(up)
 
-    cpdef upper_shadow(self, up):
+    cpdef bint upper_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
@@ -100,7 +98,7 @@ cdef class Candle:
         """
         return self.high[up] - self.body_max(up)
 
-    cpdef lower_shadow(self, up):
+    cpdef bint lower_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
@@ -109,7 +107,7 @@ cdef class Candle:
         """
         return self.body_min(up) - self.low[up]
 
-    def lower_than(self, Candle candle, bint up):
+    cpdef bint lower_than(self, Candle candle, bint up):
         """
         Checks if given Candle is lower than current Candle.
 
@@ -121,7 +119,7 @@ cdef class Candle:
         """
         return self.low[up] < candle.low[up]
 
-    cpdef higher_than(self, Candle candle, bint up):
+    cpdef bint higher_than(self, Candle candle, bint up):
         """
         Checks if given Candle is higher than current Candle.
 
@@ -133,7 +131,7 @@ cdef class Candle:
         """
         return self.high[up] > candle.high[up]
 
-    cpdef ascending(self, Candle candle, bint up):
+    cpdef bint ascending(self, Candle candle, bint up):
         """
         Checks if given Candle is ascending to current Candle (has both higher low and high values)
 
@@ -145,7 +143,7 @@ cdef class Candle:
         """
         return self.low[up] > candle.low[up] and self.high[up] > candle.high[up]
 
-    cpdef new_ts(self, int ts):
+    cpdef Candle new_ts(self, int ts):
         """
         Creates an identical copy of current the Candle object.
 
@@ -155,7 +153,7 @@ cdef class Candle:
         return Candle(ts, self.currency, self.datetime, self.open[1], self.high[1], self.low[1], self.close[1],
                       self.volume, ts == 0)
 
-    def copy(self):
+    cpdef Candle copy(self):
         """
         Creates an identical copy of current the Candle object.
 
@@ -164,7 +162,7 @@ cdef class Candle:
         """
         return copy(self)
 
-    cpdef lower_eclipses(self, Candle candle, bint up):
+    cpdef bint lower_eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle is lower than current Candle.
 
@@ -181,7 +179,7 @@ cdef class Candle:
         else:
             return False
 
-    cpdef higher_eclipses(self, Candle candle, bint up):
+    cpdef bint higher_eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle is higher than current Candle.
 
@@ -198,7 +196,7 @@ cdef class Candle:
         else:
             return False
 
-    cpdef eclipses(self, Candle candle, bint up):
+    cpdef bint eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle eclipses (higher high and lower low) current Candle.
 

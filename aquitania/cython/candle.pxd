@@ -14,20 +14,24 @@ cdef class Candle:
         public long volume
         public bint complete
 
-    cpdef higher_than(self, Candle candle, bint up)
+    cpdef bint lower_than(self, Candle candle, bint up)
 
-    cpdef ascending(self, Candle candle, bint up)
+    cpdef bint higher_than(self, Candle candle, bint up)
 
-    cpdef new_ts(self, int ts)
+    cpdef bint ascending(self, Candle candle, bint up)
 
-    cpdef lower_eclipses(self, Candle candle, bint up)
+    cpdef Candle new_ts(self, int ts)
 
-    cpdef higher_eclipses(self, Candle candle, bint up)
+    cpdef Candle copy(self)
 
-    cpdef eclipses(self, Candle candle, bint up)
+    cpdef bint lower_eclipses(self, Candle candle, bint up)
+
+    cpdef bint higher_eclipses(self, Candle candle, bint up)
+
+    cpdef bint eclipses(self, Candle candle, bint up)
 
     cpdef tuple init_open_close_times(self, int ts)
 
-    cpdef upper_shadow(self, up)
+    cpdef bint upper_shadow(self, bint up)
 
-    cpdef lower_shadow(self, up)
+    cpdef bint lower_shadow(self, bint up)

@@ -32,8 +32,7 @@ are only going to process things like SMAs and Bollinger Bands, it is quite easy
 directly on Numpy.
 """
 
-from aquitania.cython.candle cimport Candle
-from aquitania.cython.candle import Candle
+from candle cimport Candle
 from cpython.datetime cimport datetime
 import datetime as dtm
 
@@ -52,9 +51,9 @@ cdef class Feeder:
         8. Monthly
     """
 
-    def __cinit__(self, list list_of_loaders, int asset):
+    def __init__(self, list list_of_loaders, int asset):
         """
-        Feeder class is initialized with the list_of_loaders to whom thime Candles will be fed.
+        Feeder class is initialized with the list_of_loaders to whom the Candles will be fed.
 
         :param list_of_loaders: List of Loaders, each element in the list refers to a timestamp.
         """
@@ -86,7 +85,7 @@ cdef class Feeder:
         candle.complete = False if ts > 0 else True
         return candle
 
-    cdef feed(self, Candle candle):
+    cdef void feed(self, Candle candle):
         """
         Feeds candle to all Loaders.
 
@@ -101,7 +100,7 @@ cdef class Feeder:
         for ts in reversed(range(0, 8)):
             self.make_candle(ts, candle, criteria_table)
 
-    cdef missing_closed_candles(self, list criteria_table):
+    cdef void missing_closed_candles(self, list criteria_table):
         """
         This method purpose is to deal with candles that should have closed but didn't because they were actually
         missing from the feed. For example, a candle of '15Min' should close on 08h14, but we only had the 08h13 candle
@@ -144,7 +143,7 @@ cdef class Feeder:
             else:
                 self._loaders[ts].fillna(self._candles[ts])
 
-    cdef make_candle(self, int ts, Candle candle, list criteria_table):
+    cdef void make_candle(self, int ts, Candle candle, list criteria_table):
         """
         Creates the Candle a specific timestamp and feeds it to its respective Loader.
 
@@ -160,7 +159,7 @@ cdef class Feeder:
             # Check if there is the need to update values (high, low, close)
             self.set_values(ts, candle)
 
-    cdef generate_criteria_table(self, Candle candle):
+    cdef list generate_criteria_table(self, Candle candle):
         """
         Evaluates if it is time to create a new Candle.
         :param candle: Input Candle
@@ -171,7 +170,7 @@ cdef class Feeder:
         cdef Candle candle_ts
         return [candle.datetime > candle_ts.close_time for candle_ts in self._candles]
 
-    cdef new_candle_routine(self, int ts, Candle candle):
+    cdef void new_candle_routine(self, int ts, Candle candle):
         """
         Creates new Candle if necessary and feeds indicators the complete candle.
 
@@ -187,7 +186,7 @@ cdef class Feeder:
 
         self._loaders[ts].feed(self._candles[ts])
 
-    cdef new_candle(self, int ts, Candle candle):
+    cdef void new_candle(self, int ts, Candle candle):
         """
         Creates a new Candle for a given timestamp from a G01 Candle.
 
@@ -199,7 +198,7 @@ cdef class Feeder:
         else:
             self._candles[ts] = candle.new_ts(ts)
 
-    cdef set_values(self, int ts, Candle candle):
+    cdef void set_values(self, int ts, Candle candle):
         """
         Routine to update incomplete candles of larger timestamps.
 
@@ -238,7 +237,7 @@ cdef class Feeder:
         else:
             loader.fillna(self._candles[ts])
 
-    cdef is_closing_candle(self, int ts, Candle candle):
+    cdef bint is_closing_candle(self, int ts, Candle candle):
         """
         Routine to know whether a Candle is the closing Candle.
 
