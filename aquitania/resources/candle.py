@@ -33,9 +33,12 @@ indicator movement.
 
 import datetime
 
+from ipywidgets.widgets.widget_bool import _Bool
+
 import aquitania.resources.references as ref
 import aquitania.resources.datetimefx as dtfx
 from copy import copy
+import pandas as pd
 
 
 class Candle:
@@ -357,29 +360,24 @@ class Candle:
             raise ValueError('Invalid Candle TimeStamp')
 
     def div_by_sec(self, seconds):
-        open_time = (self.datetime.timestamp() // seconds) * seconds
-        close_time = open_time + seconds - 60
+        open_time = pd.Timestamp(self.datetime.value // (seconds * 1e9) * seconds * 1e9)
+        close_time = pd.Timestamp(open_time.value + (seconds - 60) * 1e9)
 
-        return dtfx.dt_from_ts(open_time), dtfx.dt_from_ts(close_time)
+        return open_time, close_time
 
     def daily_criteria(self):
-        open_time = (self.datetime.timestamp() // 86400) * 86400
-        close_time = open_time + 86400 - 60
-
         # Puts Monday together with Sunday
         if self.datetime.weekday() == 0:
-            open_time -= 86400
-            open_time = dtfx.dt_from_ts(open_time)
+            open_time = pd.Timestamp((self.datetime.value // (86400 * 1e9) * 86400 * 1e9) - 86400 * 1e9)
         else:
-            open_time = dtfx.dt_from_ts(open_time)
+            open_time = pd.Timestamp(self.datetime.value // (86400 * 1e9) * 86400 * 1e9)
 
         if self.datetime.weekday() == 6:
-            close_time += 86400
-            close_time = dtfx.dt_from_ts(close_time)
+            close_time = pd.Timestamp((self.datetime.value // (86400 * 1e9) * 86400 * 1e9) + 172800 * 1e9)
         elif self.datetime.weekday() == 4:
             close_time = dtfx.next_market_close(self.datetime)
         else:
-            close_time = dtfx.dt_from_ts(close_time)
+            close_time = pd.Timestamp((self.datetime.value // (86400 * 1e9) * 86400 * 1e9) + 86400 * 1e9)
 
         return open_time, close_time
 
@@ -387,16 +385,14 @@ class Candle:
         # Need to divide in to groups:
         #  1. 3-5 Thursday to Saturday
         if 3 <= self.datetime.weekday() <= 5:
-            open_time = (self.datetime.timestamp() // 604800) * 604800 - 345600
+            open_time = pd.Timestamp(self.datetime.value // (604800 * 1e9) * 604800 - 345600)
         # 2. Other weekdays
         else:
-            open_time = (self.datetime.timestamp() // 604800) * 604800 + 259200
+            open_time = pd.Timestamp(self.datetime.value // (604800 * 1e9) * 604800 + 259200)
 
-        close_time = dtfx.dt_from_ts(open_time + 604800 - 60)
-        if 5 >= close_time.weekday() >= 4:
-            close_time = dtfx.next_market_close(self.datetime)
+        close_time = dtfx.next_market_close(open_time)
 
-        return dtfx.dt_from_ts(open_time), close_time
+        return open_time, close_time
 
     def monthly_criteria(self):
         open_time = datetime.datetime(self.datetime.year, self.datetime.month, 1)
@@ -416,7 +412,7 @@ class Candle:
 
     def __eq__(self, other):
         return isinstance(self, other.__class__) and self.datetime == other.datetime and self.currency == \
-               other.currency and self.ts == other.ts
+                                                                                         other.currency and self.ts == other.ts
 
     def __gt__(self, other):
         return isinstance(self, other.__class__) and self.datetime > other.datetime
