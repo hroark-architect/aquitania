@@ -452,4 +452,4 @@ class Candle:
         """
         return '{}: O: {} H: {} L: {} C: {} V: {} Ts: {} Cur: {}'.format(self.datetime, self.open[1], self.high[1],
                                                                          self.low[1], self.close[1], self.volume,
-                                                                         self.ts, ref.currency_list[self.currency])
+                                                                         self.ts, ref.currencies_list[self.currency])
