@@ -42,7 +42,7 @@ class IndicatorManager:
     """
     One of the pillars of the Aquitania project, this class is the architect of how a single process in Aquitania should
     work. Each Financial Security (asset) should run contained in a IndicatorManager object.
-s   """
+    """
 
     def __init__(self, broker_instance, asset, strategy, start_date=None, end_date=None):
         """
@@ -129,7 +129,8 @@ s   """
             asset = ref.currencies_list[candle[1]]
 
             # Converts processed candle to Candle object
-            candle = Candle(0, asset, candle[0], candle[3], candle[4], candle[5], candle[6], candle[7], True)
+            candle = Candle(0, asset, candle[0], candle[0], candle[0], candle[3], candle[4], candle[5], candle[6],
+                            candle[7], True)
 
             # Feeds Candle object to Indicators
             self.feeder.feed(candle)
@@ -181,7 +182,7 @@ s   """
         """
 
         # Initializes Variables
-        fi = self.asset
+        fi = ref.currencies_dict[self.asset]
         il = self.strategy.indicator_list
 
         # TODO correct rest of code base to work well with variable timestamps (specially feeder.py)

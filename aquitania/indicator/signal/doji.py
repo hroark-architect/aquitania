@@ -36,7 +36,7 @@ class Doji(AbstractSignal):
         """
         profit, loss, entry = 0.0, 0.0, 0.0
 
-        self.up = candle.upper_shadow(up=True) < candle.lower_shadow(up=True)
+        self.up = candle.upper_shadow(True) < candle.lower_shadow(True)
 
         # Check if it is a Doji
         is_ok = candle.is_doji(self.up)
