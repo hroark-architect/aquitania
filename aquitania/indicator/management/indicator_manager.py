@@ -89,7 +89,7 @@ class IndicatorManager:
         This method loads all the historic data and then run all the indicators through it.
         """
         # Load generator of DataFrame
-        df_chunks = self.broker_instance.load_data_in_chunks(self.asset, chunksize=100000)
+        df_chunks = self.broker_instance.load_data_in_chunks(self.asset, chunksize=25000)
 
         # Gets Usable DataFrame
         for df in df_chunks:

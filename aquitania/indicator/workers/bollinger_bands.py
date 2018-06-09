@@ -23,7 +23,7 @@ class BollingerBands(AbstractIndicatorOutput):
     """
 
     def __init__(self, obs_id, period):
-        super().__init__(obs_id, ['direction', 'upper_tied', 'lower_tied'], False, (2, -1, -1))
+        super().__init__(obs_id, ['direction', 'upper_tied', 'lower_tied'], False, (2, -1.0, -1.0))
         self.ma = deque(maxlen=period)
         self.period = period
 
@@ -35,7 +35,7 @@ class BollingerBands(AbstractIndicatorOutput):
         * Lower Band = 20-day SMA - (20-day standard deviation of price x 2)
         """
         # Initialize variables
-        sma, upper, lower = 2, -1, -1  # 'sma' = 2 is clever way to generate 'a favor' e 'contra'
+        sma, upper, lower = 2, -1.0, -1.0  # 'sma' = 2 is clever way to generate 'a favor' e 'contra'
 
         # Append close to moving average
         self.ma.append(candle.close[self.up])
