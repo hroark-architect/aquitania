@@ -51,6 +51,20 @@ def get_package_data(package):
     return {package: filepaths}
 
 
+def get_cython_extensions():
+    extension_list = []
+    for x, y, z in os.walk('aquitania'):
+        for filename in z:
+            if '.pyx' == filename[-4:]:
+                ext_name = '{}.{}'.format(x.replace('/', '.'), filename[:-4])
+                include_dir = '{}/'.format(x)
+                source = include_dir + filename
+                extension_list.append(Extension(ext_name, [source], include_dirs=[include_dir]))
+                print(ext_name,source,include_dir)
+
+    return extension_list
+
+
 version = get_version('aquitania')
 
 try:
@@ -60,13 +74,11 @@ try:
 except (IOError, ImportError):
     readme = ''
 
-cy_ext = [Extension('feeder', ['aquitania/cython/feeder.pyx']), Extension('candle', ['aquitania/cython/candle.pyx'])]
-
 setup(
     name='aquitania',
     version=version,
     url='https://github.com/hroark-architect/aquitania',
-    ext_modules=cythonize(cy_ext),
+    ext_modules=cythonize(get_cython_extensions()),
     zip_safe=False,  # Necessary to work with SetupTools
     license='MIT',
     long_description=readme,

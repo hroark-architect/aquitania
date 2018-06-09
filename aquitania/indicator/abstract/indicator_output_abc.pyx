@@ -18,14 +18,10 @@ This abstract base class was done to facilitate generating output-able indicator
 It was conceived on 27/11/2017.
 
 17/04/2018 - It once was divided into 2 classes Open and Closed Output, now it is back to one very simple class.
-31/05/2018 - Forced implementation of 'last_output' for closed observers.
+31/05/2018 - Forced implementation of 'last_output' for closed indicators.
 """
 
-import abc
-from aquitania.indicator.abstract.indicator_abc import AbstractIndicator
-
-
-class AbstractIndicatorOutput(AbstractIndicator):
+cdef class AbstractIndicatorOutput(AbstractIndicator):
     """
     This class was made to force requirements for indicator that will produce outputs.
 
@@ -38,8 +34,6 @@ class AbstractIndicatorOutput(AbstractIndicator):
 
     This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, obs_id, columns, is_open=True, last_output=None):
         """
@@ -58,12 +52,12 @@ class AbstractIndicatorOutput(AbstractIndicator):
         # Instantiates abstract indicator
         super().__init__()
 
-        # Routine verification for last output on closed observers, will force implementation
+        # Routine verification for last output on closed indicators, will force implementation
         self.set_last_output(columns, is_open, last_output)
 
     def set_last_output(self, columns, is_open, last_output):
         """
-        Routine to set 'self.last_output' on close observers.
+        Routine to set 'self.last_output' on close indicators.
 
         It serves to force implementation, as it was hard to remember exactly how to set this up.
 
@@ -71,7 +65,7 @@ class AbstractIndicatorOutput(AbstractIndicator):
         :param is_open: (bool) True if open, False if closed
         :param last_output: (tuple of values) Tuple that contains the initial state for indicator output
         """
-        # Only works for closed observers
+        # Only works for closed indicators
         if not is_open:
             # Check if output is in correct data structure for indicator output (tuple)
             if not isinstance(last_output, tuple):
@@ -85,19 +79,10 @@ class AbstractIndicatorOutput(AbstractIndicator):
             else:
                 self.last_output = last_output
 
-    def set_output(self, result):
+    cpdef void save_output(self):
         """
         Append to 'output_list' and set 'last_output'.
 
         :param result: Output from '.indicator_logic()'
-        """
-        self.last_output = result
-        self.output_list.append(result)
-
-    def fillna(self):
-        """
-        FillNA method, specific to output indicators.
-
-        Copies last output to list.
         """
         self.output_list.append(self.last_output)
