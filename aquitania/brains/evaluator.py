@@ -436,13 +436,22 @@ class Evaluator:
             gdf.columns = ['n_trades', 'n_win_trades', 'n_strategies']
 
             # Creates a new concatenated and transposed DataFrame
-            ndf = pd.concat([gdf, df2], axis=1).T
+            gdf = gdf.T
 
             # Sets Column Names
-            ndf.columns = ['Train Set', 'Test Set']
+            gdf.columns = ['Train Set', 'Test Set']
+
+            # Gets the Transposed DataFrame
+            df2 = df2.T
+
+            # Get column names
+            df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
 
             # Runs routine to print overfitting metrics
-            print_overfit_metrics(ndf)
+            print_overfit_metrics(gdf)
+
+            # Prints data not related to strategies
+            print(df2)
 
         # Routine for when no valid strategy was found
         except:
@@ -453,7 +462,7 @@ class Evaluator:
             df2 = df2.T
 
             # Get column names
-            df2.columns = ['Train Set', 'Test Set']
+            df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
 
             # Prints data not related to strategies
             print(df2)
@@ -478,8 +487,7 @@ class Evaluator:
                     'prec_55': precision_metric(pred, y, 0.55, False), 'prec_60': precision_metric(pred, y, 0.6, False),
                     'prec_65': precision_metric(pred, y, 0.65, False), 'prec_70': precision_metric(pred, y, 0.7, False),
                     'prec_75': precision_metric(pred, y, 0.75, False), 'prec_80': precision_metric(pred, y, 0.8, False)}
-        self.accuracy_metrics[
-            is_test] = acc_dict
+        self.accuracy_metrics[is_test] = acc_dict
 
 
 def coherent_truth_table(matrix_kelly):
@@ -638,7 +646,7 @@ def accuracy_proba(predictions, y):
     :rtype: float
     """
     # TODO this metric might be better evaluated putting values together into brackets
-    return 1 - (y - predictions).abs().mean()
+    return 1 - (y - predictions).abs().mean(), y.count()
 
 
 def accuracy_classifier(predictions, y):
@@ -674,9 +682,9 @@ def precision_metric(predictions, y, threshold, inverted):
     """
     # TODO add .count() to output
     if inverted:
-        return 1 - y[predictions < threshold].mean()
+        return y[predictions < threshold].mean(), y[predictions < threshold].count()
     else:
-        return y[predictions > threshold].mean()
+        return y[predictions > threshold].mean(), y[predictions < threshold].count()
 
 
 def print_overfit_metrics(df):
