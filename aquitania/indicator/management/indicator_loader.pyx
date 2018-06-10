@@ -15,18 +15,16 @@
 
 """
 
-import numpy as np
 import pandas as pd
-import copy
 import aquitania.resources.references as ref
+from aquitania.resources.candle cimport Candle
 
-
-class IndicatorLoader:
+cdef class IndicatorLoader:
     """
     An IndicatorLoader object holds all indicators for a specific Financial Security
     """
 
-    def __init__(self, indicator_list, asset, timestamp, broker_instance):
+    def __init__(self, list indicator_list, int asset, int timestamp, object broker_instance):
         """
         Initializes IndicatorLoader for specific asset and timestamp.
 
@@ -36,48 +34,27 @@ class IndicatorLoader:
         """
 
         # Initialize variables
-        self._indicator_list = indicator_list
+        self.indicator_list = indicator_list
         self._asset = asset
         self._timestamp = timestamp
         self._broker_instance = broker_instance
         self._datetimes = []
-        self._last_candle_dt = None
         self._candle_complete = []
 
-    def feed(self, candle):
+    cpdef void feed(self, Candle candle):
         """
         Feeds open candle into open indicators and fillna() to closed indicators.
 
         :param candle: Input Candle
         """
-
-        # Store Routine
-        self.store_candle(candle)
-
         # Feeds Candle to all indicators
-        for indicator in self._indicator_list:
+        for indicator in self.indicator_list:
 
             # Routine for open indicator and closed indicators when candle is complete
             if indicator.is_open or candle.complete:
                 indicator.feed(candle)
-            else:
-                # Fillna closed indicators
-                indicator.fillna()
 
-    def fillna(self, candle):
-        """
-        Saves indicators in case it is a not relevant candle.
-
-        :param candle: Last Candle evaluated
-        """
-        # Store Candle Routine
-        self.store_candle(candle)
-
-        # FillNA method
-        for indicator in self._indicator_list:
-            indicator.fillna()
-
-    def store_candle(self, candle):
+    cdef void store_candle(self, Candle candle):
         """
         Store Candle routine
 
@@ -86,9 +63,8 @@ class IndicatorLoader:
 
         self._datetimes.append(candle.datetime)
         self._candle_complete.append(candle.complete)
-        self._last_candle_dt = copy.copy(candle.datetime)
 
-    def save_output(self):
+    cpdef void save_output(self):
         """
         Combines the output of all the indicators in a single pandas DataFrame.
 
@@ -102,9 +78,9 @@ class IndicatorLoader:
         ts = ref.ts_to_letter[self._timestamp]
 
         # Saves observations to disk
-        self._broker_instance.save_indicators(df, self._asset, ts)
+        self._broker_instance.save_indicators(df, ref.currencies_list[self._asset], ts)
 
-    def generate_df(self):
+    cdef object generate_df(self):
         # Initialize Variables
         df = None
 
@@ -112,7 +88,7 @@ class IndicatorLoader:
         index = self._datetimes
 
         # Gets output from indicators
-        for indicator in self._indicator_list:
+        for indicator in self.indicator_list:
 
             # Go to next element if columns are empty
             if not indicator.columns:
@@ -134,7 +110,7 @@ class IndicatorLoader:
             self._candle_complete = []
             return df
 
-        df['complete_{}'.format(ref.ts_to_letter[self._timestamp])] = np.array([self._candle_complete]).T
+        df['complete_{}'.format(ref.ts_to_letter[self._timestamp])] = self._candle_complete
 
         df.index = index
 
