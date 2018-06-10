@@ -427,6 +427,22 @@ class Evaluator:
         # Initializes DataFrame with data from the accuracy metrics calculations
         df2 = pd.DataFrame(self.accuracy_metrics, index=[False, True])
 
+        # Gets the Transposed DataFrame
+        df2 = df2.T
+
+        df_list = []
+        for c in df2.columns:
+            df_list.append(pd.DataFrame(df2[c].tolist()))
+
+        ndf = pd.concat(df_list, 1, ignore_index=True).add_prefix('col_')
+        ndf.index = df2.index
+
+        df2 = ndf
+        del ndf
+
+        # Get column names
+        df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
+
         # Routine for when there is a valid train or test strategy
         try:
             # Creates a new DataFrame grouped by Train and Test sets
@@ -441,12 +457,6 @@ class Evaluator:
             # Sets Column Names
             gdf.columns = ['Train Set', 'Test Set']
 
-            # Gets the Transposed DataFrame
-            df2 = df2.T
-
-            # Get column names
-            df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
-
             # Runs routine to print overfitting metrics
             print_overfit_metrics(gdf)
 
@@ -457,12 +467,6 @@ class Evaluator:
         except:
             # Messages about the fact that no profitable strategies where found
             print('No Profitable Strategies Were Found in Train or Test Sets')
-
-            # Gets the Transposed DataFrame
-            df2 = df2.T
-
-            # Get column names
-            df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
 
             # Prints data not related to strategies
             print(df2)
@@ -479,7 +483,8 @@ class Evaluator:
         """
         pred = df['raw_predict']
         y = df['results']
-        acc_dict = {'acc_proba': accuracy_proba(pred, y), 'acc_clf': accuracy_classifier(pred, y),
+        acc_dict = {'baseline': (y.mean(), y.count()), 'acc_proba': accuracy_proba(pred, y),
+                    'acc_clf': accuracy_classifier(pred, y),
                     'prec_20': precision_metric(pred, y, 0.2, True), 'prec_25': precision_metric(pred, y, 0.25, True),
                     'prec_30': precision_metric(pred, y, 0.3, True), 'prec_35': precision_metric(pred, y, 0.35, True),
                     'prec_40': precision_metric(pred, y, 0.4, True), 'prec_45': precision_metric(pred, y, 0.45, True),
@@ -682,9 +687,9 @@ def precision_metric(predictions, y, threshold, inverted):
     """
     # TODO add .count() to output
     if inverted:
-        return y[predictions < threshold].mean(), y[predictions < threshold].count()
+        return 1 - y[predictions < threshold].mean(), y[predictions < threshold].count()
     else:
-        return y[predictions > threshold].mean(), y[predictions < threshold].count()
+        return y[predictions > threshold].mean(), y[predictions > threshold].count()
 
 
 def print_overfit_metrics(df):
