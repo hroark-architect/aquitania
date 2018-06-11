@@ -85,12 +85,11 @@ class ExampleBiggerStrategy(Strategy):
 
         # Extremist indicator needs to be loaded before anything that uses count_ext
 
-        self.signal = Doji('d_doji')
         volume = Volume('d_volume', 25)
         sma = BollingerBands('d_bb', 25)
         rsi = RSI('d_rsi', 25)
 
-        return [self.signal, volume, sma, rsi]
+        return [volume, sma, rsi]
 
     def g15_obs(self):
         """
@@ -104,7 +103,6 @@ class ExampleBiggerStrategy(Strategy):
         rsi = RSI('c_rsi', 25)
 
         return [volume, sma, rsi]
-
 
     def g05_obs(self):
         """
@@ -129,5 +127,6 @@ class ExampleBiggerStrategy(Strategy):
         volume = Volume('a_volume', 25)
         sma = BollingerBands('a_bb', 25)
         rsi = RSI('a_rsi', 25)
+        self.signal = Doji('a_doji')
 
-        return [volume, sma, rsi]
+        return [volume, sma, rsi, self.signal]
