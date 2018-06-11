@@ -18,6 +18,7 @@ import pandas as pd
 import numpy as np
 import os
 from aquitania.data_processing.analytics_loader import build_liquidation_dfs
+from cpython.datetime cimport datetime
 
 cpdef build_exits(broker_instance, str asset, signal, int max_candles, bint is_dentro=False, bint is_virada=False):
     """
@@ -73,27 +74,22 @@ cdef process_exit_points(df, exit_points, candles_df, max_candles, is_virada):
 
     # Create exits for all exit points
     for exit_point in exit_points:
-        # Separate Alta and Baixa
-        df_alta = df[df[exit_point] > 0].copy()
-        df_baixa = df[df[exit_point] < 0].copy()
-
-        # Invert Baixa values
-        df_baixa[exit_point] = df_baixa[exit_point] * -1
-
         # Run multiprocessing routine
         exit_point = exit_point
-        exit_baixo = mp(df_alta, exit_point, candles_df, max_candles)
-        exit_cima = mp(df_baixa, exit_point, candles_df, max_candles)
+        exit_buy = mp(df[['close', 'entry_point', exit_point]].query('{} > 0'.format(exit_point)), exit_point,
+                      candles_df, max_candles)
+        exit_sell = mp(df[['close', 'entry_point', exit_point]].query('{} < 0'.format(exit_point)), exit_point,
+                       candles_df, max_candles)
 
         # Routine for df_alta
-        exit_baixo.columns = [exit_point + '_dt', exit_point + '_saldo']
-        exit_cima.columns = [exit_point + '_dt', exit_point + '_saldo']
+        exit_buy.columns = [exit_point + '_dt', exit_point + '_saldo']
+        exit_sell.columns = [exit_point + '_dt', exit_point + '_saldo']
 
         # Concat exits
         if exits is None:
-            exits = pd.concat([exit_cima, exit_baixo])
+            exits = pd.concat([exit_buy, exit_sell])
         else:
-            exits = pd.concat([exits, pd.concat([exit_cima, exit_baixo])], axis=1)
+            exits = pd.concat([exits, pd.concat([exit_buy, exit_sell])], axis=1)
         # Routine if for every trade an opposite trade is automatically an entry
 
     if is_virada:
@@ -163,11 +159,19 @@ cdef mp(df, exit_point, candles_df, max_candles):
     x = pd.concat(results)[[0, 1]]
     return x
 
-cpdef dataframe_apply(dlist):
-    df, exit_point, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3]
-    return df.apply(create_exits, axis=1, args=(exit_point, candles_df, max_candles))
+cpdef dataframe_apply(tuple dlist):
+    df, ep_str, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3]
+    raw_df = []
+    cdef datetime dt
+    cdef double close
+    cdef double entry_point
+    cdef double exit_point
 
-def create_exits(df_line, exit_point, candles_df, max_candles):
+    for dt, close, entry_point, exit_point in df.itertuples():
+        raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, candles_df, max_candles))
+    return pd.DataFrame(raw_df, index=df.index)
+
+def create_exits(dt, double close, double entry_point, double exitp, str exit_str, candles_df, int max_candles):
     """
     Calculate exit datetime for each possible exit point.
 
@@ -175,37 +179,38 @@ def create_exits(df_line, exit_point, candles_df, max_candles):
 
     :return: pd.Series([Hora da Saida, Saldo])
     """
-    print(df_line)
-    print(df_line.index)
-    exit_point = exit_point
-
     # Evaluate if it is stop or not
-    if 'stop' in exit_point:
+    if 'stop' in exit_str:
         is_stop = True
     else:
         is_stop = False
 
     # Evaluate if alta ou baixa
-    if df_line.close > df_line[exit_point]:
+    if close > exitp:
         is_high = False
     else:
         is_high = True
 
     # Gets Exit Quote
-    exit_quote = df_line[exit_point]
+    exit_quote = exitp
 
     # Select remaining DataFrame
-    remaining = candles_df.loc[df_line.name:]
+    remaining = candles_df.loc[dt:]
 
     # Checks if it is not the last value
     if remaining.shape[0] < 2:
         # Need to return series as this outputs a DataFrame when used in a DF.apply()
-        return pd.Series([np.datetime64('NaT'), 0.0])
+        return [np.datetime64('NaT'), 0.0]
 
     # First row instantiation
     first_row = remaining.index[0]
 
     # Iter through DataFrame to find exit
+
+    cdef datetime index
+    cdef double open
+    cdef double high
+    cdef double low
 
     for index, open, high, low in remaining[0:1].itertuples():
 
@@ -214,14 +219,14 @@ def create_exits(df_line, exit_point, candles_df, max_candles):
             if high >= exit_quote:
                 if index == first_row:
                     if open >= exit_quote:
-                        return pd.Series([np.datetime64('NaT'), -1.0])
+                        return [np.datetime64('NaT'), -1.0]
 
         # Routine if low
         else:
             if low <= exit_quote:
                 if index == first_row:
                     if open <= exit_quote:
-                        return pd.Series([np.datetime64('NaT'), -1.0])
+                        return [np.datetime64('NaT'), -1.0]
 
     # Select all rows but self
     remaining = remaining.iloc[1:max_candles]
@@ -233,24 +238,24 @@ def create_exits(df_line, exit_point, candles_df, max_candles):
         if is_high:
             if high >= exit_quote:
                 exit_quote = max(open, exit_quote)
-                saldo = exit_quote - df_line['entry_point']
+                saldo = exit_quote - entry_point
 
                 if is_stop:
                     saldo = saldo * -1
-                return pd.Series([index, saldo])
+                return [index, saldo]
 
         # Routine if low
         else:
             if low <= exit_quote:
                 exit_quote = min(open, exit_quote)
-                saldo = df_line['entry_point'] - exit_quote
+                saldo = entry_point - exit_quote
 
                 if is_stop:
                     saldo = saldo * -1
-                return pd.Series([index, saldo])
+                return [index, saldo]
 
     # If no values found returns blank
-    return pd.Series([np.datetime64('NaT'), 0.0])
+    return [np.datetime64('NaT'), 0.0]
 
 def consolidate_exits(asset, entry, exits, is_dentro):
     """
