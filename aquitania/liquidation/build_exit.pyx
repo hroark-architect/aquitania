@@ -228,13 +228,11 @@ def create_exits(datetime dt, double close, double entry_point, double exitp, st
     # Routine if high
     if is_high:
         if open >= exitp:
-            print(-1000)
             return [np.datetime64('NaT'), -1000.0]
 
     # Routine if low
     else:
         if open <= exitp:
-            print(-1000)
             return [np.datetime64('NaT'), -1000.0]
 
     # Iter through DataFrame to find exit
@@ -270,14 +268,16 @@ cdef void consolidate_exits(str asset, str entry, object exits, bint is_dentro):
     # Sort DataFrame
     exits.sort_index(inplace=True)
 
-    output = []
-    last_trade = None
     # Instantiates DataFrame
+    cdef tuple col_names = tuple(exits.columns.values)
+    cdef list output = []
+    cdef datetime last_trade = None
+
     for row in exits.itertuples():
-        last_trade, tmp = juntate_exits(last_trade, tuple(row), is_dentro)
+        last_trade, tmp = juntate_exits(last_trade, tuple(row), is_dentro, col_names)
         output.append(tmp)
 
-    df = pd.DataFrame(output)
+    df = pd.DataFrame(output, index=exits.index)
     df.columns = ['exit_reference', 'exit_date', 'exit_saldo']
 
     # Sets filename
@@ -286,7 +286,7 @@ cdef void consolidate_exits(str asset, str entry, object exits, bint is_dentro):
     # Save liquidation to disk
     save_liquidation_to_disk(filename, df)
 
-cdef tuple juntate_exits(datetime last_trade, tuple df_line, bint is_dentro):
+cdef tuple juntate_exits(datetime last_trade, tuple df_line, bint is_dentro, tuple column_names):
     """
     Gets a DataFrame line and evaluate what exit will it be.
 
@@ -316,19 +316,17 @@ cdef tuple juntate_exits(datetime last_trade, tuple df_line, bint is_dentro):
     for i, dt in enumerate(df_line[1:]):
         if isinstance(dt, datetime):
             if dt.value > 0:
-                if dt_min is None:
+                if dt_min is None or dt < dt_min:
                     dt_min = dt
                     saldo_min = df_line[i + 2]
-                elif dt < dt_min:
-                    dt_min = dt
-                    saldo_min = df_line[i + 2]
+                    col_name = column_names[i]
 
     # If dates returns empty return empty
     if dt_min is None:
         return last_trade, ['', np.datetime64('NaT'), 0]
 
     # Generates output# TODO use named tuples to get 'nome da saida'
-    return dt_min, ['nome da saida', dt_min, saldo_min]
+    return dt_min, [col_name[:-3], dt_min, saldo_min]
 
 cdef check_if_invalid_entry(df_line):
     if not any(i == -1000.0 for i in df_line):
