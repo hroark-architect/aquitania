@@ -38,17 +38,27 @@ cpdef build_exits(broker_instance, str asset, signal, int max_candles, bint is_d
     entry = signal.entry
     exit_points = {signal.stop, signal.profit}
     exits = None
+    import time
+    time_a = time.time()
 
     df, candles_df = build_dfs(broker_instance, asset, exit_points, entry)
+    print('build_dfs: ', time.time() - time_a)
+
+    time_b = time.time()
     exits = process_exit_points(df, exit_points, candles_df, max_candles, is_virada)
+    print('process exit points: ', time.time() - time_b)
 
     # Sets filename
     filename = 'data/liquidation/' + asset + '_' + entry
 
     # Save liquidation to disk
+    time_c = time.time()
     save_liquidation_to_disk(filename, exits)
+    print('save liquidation to disk: ', time.time() - time_c)
 
+    time_d = time.time()
     consolidate_exits(asset, entry, exits, is_dentro)
+    print('consolidate exits: ', time.time() - time_d)
 
 cdef build_dfs(broker_instance, asset, exit_points, entry):
     # Load DataFrames
@@ -146,10 +156,15 @@ cdef mp(df, exit_point, candles_df_pd, max_candles):
 
     df_list = np.split(df, dividers, axis=0)
 
-    df_list = [(tuple(tuple(x) for x in d.itertuples()), exit_point, candles_index, candles_df, max_candles) for d in
-               df_list]
+    index_start = [bisect.bisect_left(candles_index, df.index[0])] + [
+        bisect.bisect_left(candles_index, df.index[divider]) for divider in dividers]
+    index_end = [bisect.bisect_left(candles_index, df.index[divider - 1]) for divider in dividers] + [
+        bisect.bisect_left(candles_index, df.index[-1])]
 
-    pool = multiprocessing.pool.ThreadPool(cpu)
+    df_list = [(tuple(tuple(x) for x in d.itertuples()), exit_point, candles_index[index_start[i]:index_end[i]],
+                candles_df[index_start[i]:index_end[i] + max_candles], max_candles) for i, d in enumerate(df_list)]
+
+    pool = multiprocessing.Pool()
     results = pool.map(dataframe_apply, df_list)
     pool.close()
     pool.join()
@@ -172,10 +187,8 @@ cpdef dataframe_apply(dlist):
 
     for dt, close, entry_point, exit_point in df:
         pos = bisect.bisect_left(candles_index, dt)
-
-        candles_df = candles_df[pos:]
-
-        raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, candles_df[:max_candles]))
+        x = candles_df[pos:max_candles]
+        raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, x))
         index.append(dt)
 
     return pd.DataFrame(raw_df, index=index)
