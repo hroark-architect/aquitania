@@ -179,20 +179,15 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
 
     :return: pd.Series([Hora da Saida, Saldo])
     """
+
+    if exitp < 0:
+        exitp = exitp * -1
+
     # Evaluate if it is stop or not
-    if 'stop' in exit_str:
-        is_stop = True
-    else:
-        is_stop = False
+    is_stop = 'stop' in exit_str
 
     # Evaluate if alta ou baixa
-    if close > exitp:
-        is_high = False
-    else:
-        is_high = True
-
-    # Gets Exit Quote
-    exit_quote = exitp
+    is_high =  close < exitp
 
     # Select remaining DataFrame
     remaining = candles_df.loc[dt:]
@@ -216,16 +211,16 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
 
         # Routine if high
         if is_high:
-            if high >= exit_quote:
+            if high >= exitp:
                 if index == first_row:
-                    if open >= exit_quote:
+                    if open >= exitp:
                         return [np.datetime64('NaT'), -1.0]
 
         # Routine if low
         else:
-            if low <= exit_quote:
+            if low <= exitp:
                 if index == first_row:
-                    if open <= exit_quote:
+                    if open <= exitp:
                         return [np.datetime64('NaT'), -1.0]
 
     # Select all rows but self
@@ -236,9 +231,9 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
 
         # Routine if high
         if is_high:
-            if high >= exit_quote:
-                exit_quote = max(open, exit_quote)
-                saldo = exit_quote - entry_point
+            if high >= exitp:
+                exitp = max(open, exitp)
+                saldo = exitp - entry_point
 
                 if is_stop:
                     saldo = saldo * -1
@@ -246,9 +241,9 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
 
         # Routine if low
         else:
-            if low <= exit_quote:
-                exit_quote = min(open, exit_quote)
-                saldo = entry_point - exit_quote
+            if low <= exitp:
+                exitp = min(open, exitp)
+                saldo = entry_point - exitp
 
                 if is_stop:
                     saldo = saldo * -1
