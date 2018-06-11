@@ -46,7 +46,7 @@ from aquitania.data_processing.util import generate_folder, clean_indicator_data
 from aquitania.data_source.broker.broker_selection import select_broker
 from aquitania.execution.live_management.live_environment import LiveEnvironment
 from aquitania.indicator.management.indicator_manager import *
-from aquitania.liquidation.build_exit import BuildExit
+from aquitania.liquidation.build_exit import build_exits
 from aquitania.resources.no_deamon_pool import MyPool
 from aquitania.strategies.example_strategy import ExampleStrategy
 
@@ -249,6 +249,8 @@ class Bot:
 
         Saves exits on 'data/exits'
         """
+        # Initializes time counter
+        time_a = time.time()
 
         for asset_id in self.asset_ids:
             # Build Exit for a specific asset
@@ -259,10 +261,12 @@ class Bot:
             signal = self.strategy.signal
 
             # Generate all possible exits according to possible Exit points
-            be = BuildExit(self._broker_instance, asset_id, signal, 14400)
+            build_exits(self._broker_instance, asset_id, signal, 14400)
 
-            # Consolidate Exists Routine (it gets all possible exits and finds the earliest one)
-            be.consolidate_exits()
+        # Prints time it took to generate and evaluate Exits
+        print('\n\n----------------------------------------------------------------')
+        print('Exit generation took: {} seconds'.format(time.time() - time_a))
+        print('----------------------------------------------------------------')
 
     def run_brains(self, save_to_disk=False):
         """
@@ -335,6 +339,7 @@ def arg_parser():
     mode.add_argument('-ei', '--exitsai', action='store_true', help='Build Exits and Artificial Intelligence only')
     mode.add_argument('-d', '--debug', action='store_true', help='Debug mode (Single Process)')
     mode.add_argument('-cp', '--cprofile', action='store_true', help='CProfile Code (Evaluate Performance)')
+    mode.add_argument('-cpe', '--cprofileexit', action='store_true', help='CProfile Exits Code (Evaluate Performance)')
 
     # Selects number of assets
     parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
@@ -413,6 +418,9 @@ def select_execution_mode(gm, args):
     # Performance evaluator mode (single process and it doesn't run exits and brains)
     elif args.cprofile:
         cProfile.run('gm.debug_single_process()')
+
+    elif args.cprofileexit:
+        cProfile.run('gm.run_liquidation()')
 
     # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
     else:
