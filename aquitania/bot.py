@@ -383,48 +383,48 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 
-def select_execution_mode(gm, args):
+def select_execution_mode(bot, args):
     """
     Executes the GeneralManager accordingly to what was set in the ArgumentParser.
 
-    :param gm: (GeneralManager) instantiated GeneralManager object
+    :param bot: (GeneralManager) instantiated GeneralManager object
     :param args: (ArgumentParser) instantiated ArgumentParser
     """
     # Backtest mode (runs exits and brains)
     if args.backtest:
-        gm.run(is_complete=True, is_live=False)
+        bot.run(is_complete=True, is_live=False)
 
     # Backtest mode (does NOT run exits and brains)
     elif args.backtestonly:
-        gm.run(is_complete=False, is_live=False)
+        bot.run(is_complete=False, is_live=False)
 
     # Exits only mode
     elif args.exits:
-        gm.run_liquidation()
+        bot.run_liquidation()
 
     # Brains only mode
     elif args.ai:
-        gm.run_brains(save_to_disk=True)
+        bot.run_brains(save_to_disk=True)
 
     # Exits and brains only mode
     elif args.exitsai:
-        gm.run_liquidation()
-        gm.run_brains(save_to_disk=True)
+        bot.run_liquidation()
+        bot.run_brains(save_to_disk=True)
 
     # Debug mode (single process and it doesn't run exits and brains)
     elif args.debug:
-        gm.debug_single_process()
+        bot.debug_single_process()
 
     # Performance evaluator mode (single process and it doesn't run exits and brains)
     elif args.cprofile:
-        cProfile.run('gm.debug_single_process()')
+        cProfile.run('bot.debug_single_process()')
 
     elif args.cprofileexit:
-        cProfile.run('gm.run_liquidation()')
+        cProfile.run('bot.run_liquidation()')
 
     # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
     else:
-        gm.run(is_complete=True, is_live=True)
+        bot.run(is_complete=True, is_live=True)
 
 
 def get_strategy(strategy_name):
@@ -499,7 +499,7 @@ if __name__ == '__main__':
     clean_data = args.clean
 
     # Initialize General Manager
-    gm = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
+    bot = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
 
     # Selects execution mode accordingly to the ArgumentParser
-    select_execution_mode(gm, args)
+    select_execution_mode(bot, args)
