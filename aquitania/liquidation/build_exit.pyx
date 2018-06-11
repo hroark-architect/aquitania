@@ -13,6 +13,7 @@
 """
 .. moduleauthor:: H Roark
 """
+import bisect
 import multiprocessing
 import pandas as pd
 import numpy as np
@@ -67,7 +68,7 @@ cdef build_dfs(broker_instance, asset, exit_points, entry):
     # Clean Candles DF
     candles_df = candles_df[['open', 'high', 'low']]
 
-    return df, candles_df
+    return df.sort_index(), candles_df
 
 cdef process_exit_points(df, exit_points, candles_df, max_candles, is_virada):
     cdef object exits = None
@@ -75,23 +76,19 @@ cdef process_exit_points(df, exit_points, candles_df, max_candles, is_virada):
     # Create exits for all exit points
     for exit_point in exit_points:
         # Run multiprocessing routine
-        exit_point = exit_point
-        exit_buy = mp(df[['close', 'entry_point', exit_point]].query('{} > 0'.format(exit_point)), exit_point,
-                      candles_df, max_candles)
-        exit_sell = mp(df[['close', 'entry_point', exit_point]].query('{} < 0'.format(exit_point)), exit_point,
-                       candles_df, max_candles)
+        temp_exit = mp(df[['close', 'entry_point', exit_point]], exit_point, candles_df, max_candles)
 
         # Routine for df_alta
-        exit_buy.columns = [exit_point + '_dt', exit_point + '_saldo']
-        exit_sell.columns = [exit_point + '_dt', exit_point + '_saldo']
+        temp_exit.columns = [exit_point + '_dt', exit_point + '_saldo']
 
         # Concat exits
         if exits is None:
-            exits = pd.concat([exit_buy, exit_sell])
+            exits = temp_exit
         else:
-            exits = pd.concat([exits, pd.concat([exit_buy, exit_sell])], axis=1)
-        # Routine if for every trade an opposite trade is automatically an entry
+            exits = pd.concat([exits, temp_exit], axis=1)
+        del temp_exit
 
+    # Routine if for every trade an opposite trade is automatically an entry
     if is_virada:
         virada_df = virada(df)
         exits = pd.concat([exits, virada_df], axis=1)
@@ -140,15 +137,19 @@ cdef build_entry_points(df, candles_df):
     # Returns ordered DataFrame
     return df_inner.sort_index()
 
-cdef mp(df, exit_point, candles_df, max_candles):
+cdef mp(df, exit_point, candles_df_pd, max_candles):
+    cdef tuple candles_index = tuple(candles_df_pd.index)
+    cdef tuple candles_df = tuple(tuple(x) for x in candles_df_pd.itertuples())
+
     cpu = multiprocessing.cpu_count()
     dividers = [int(df.shape[0] / cpu * i) for i in range(1, cpu)]
 
     df_list = np.split(df, dividers, axis=0)
 
-    df_list = [(d, exit_point, candles_df, max_candles) for d in df_list]
+    df_list = [(tuple(tuple(x) for x in d.itertuples()), exit_point, candles_index, candles_df, max_candles) for d in
+               df_list]
 
-    pool = multiprocessing.Pool()
+    pool = multiprocessing.pool.ThreadPool(cpu)
     results = pool.map(dataframe_apply, df_list)
     pool.close()
     pool.join()
@@ -159,19 +160,27 @@ cdef mp(df, exit_point, candles_df, max_candles):
     x = pd.concat(results)[[0, 1]]
     return x
 
-cpdef dataframe_apply(tuple dlist):
-    df, ep_str, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3]
-    raw_df = []
+cpdef dataframe_apply(dlist):
+    df, ep_str, candles_index, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3], dlist[4]
+
+    cdef list raw_df = []
+    cdef list index = []
     cdef datetime dt
     cdef double close
     cdef double entry_point
     cdef double exit_point
 
-    for dt, close, entry_point, exit_point in df.itertuples():
-        raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, candles_df, max_candles))
-    return pd.DataFrame(raw_df, index=df.index)
+    for dt, close, entry_point, exit_point in df:
+        pos = bisect.bisect_left(candles_index, dt)
 
-def create_exits(dt, double close, double entry_point, double exitp, str exit_str, candles_df, int max_candles):
+        candles_df = candles_df[pos:]
+
+        raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, candles_df[:max_candles]))
+        index.append(dt)
+
+    return pd.DataFrame(raw_df, index=index)
+
+def create_exits(datetime dt, double close, double entry_point, double exitp, str exit_str, tuple remaining):
     """
     Calculate exit datetime for each possible exit point.
 
@@ -187,18 +196,12 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
     is_stop = 'stop' in exit_str
 
     # Evaluate if alta ou baixa
-    is_high =  close < exitp
-
-    # Select remaining DataFrame
-    remaining = candles_df.loc[dt:]
+    is_high = close < exitp
 
     # Checks if it is not the last value
-    if remaining.shape[0] < 2:
+    if len(remaining) < 2:
         # Need to return series as this outputs a DataFrame when used in a DF.apply()
         return [np.datetime64('NaT'), 0.0]
-
-    # First row instantiation
-    first_row = remaining.index[0]
 
     # Iter through DataFrame to find exit
 
@@ -207,27 +210,24 @@ def create_exits(dt, double close, double entry_point, double exitp, str exit_st
     cdef double high
     cdef double low
 
-    for index, open, high, low in remaining[0:1].itertuples():
+    index, open, high, low = remaining[0]
 
-        # Routine if high
-        if is_high:
-            if high >= exitp:
-                if index == first_row:
-                    if open >= exitp:
-                        return [np.datetime64('NaT'), -1.0]
+    # Routine if high
+    if is_high:
+        if high >= exitp:
+            if index == dt:
+                if open >= exitp:
+                    return [np.datetime64('NaT'), -1.0]
 
-        # Routine if low
-        else:
-            if low <= exitp:
-                if index == first_row:
-                    if open <= exitp:
-                        return [np.datetime64('NaT'), -1.0]
-
-    # Select all rows but self
-    remaining = remaining.iloc[1:max_candles]
+    # Routine if low
+    else:
+        if low <= exitp:
+            if index == dt:
+                if open <= exitp:
+                    return [np.datetime64('NaT'), -1.0]
 
     # Iter through DataFrame to find exit
-    for index, open, high, low in remaining.itertuples():
+    for index, open, high, low in remaining[1:]:
 
         # Routine if high
         if is_high:
