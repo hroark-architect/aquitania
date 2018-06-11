@@ -89,7 +89,7 @@ cdef class Candle:
         """
         return self.size(up) - self.body(up)
 
-    cpdef bint upper_shadow(self, bint up):
+    cpdef float upper_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
@@ -98,7 +98,7 @@ cdef class Candle:
         """
         return self.high[up] - self.body_max(up)
 
-    cpdef bint lower_shadow(self, bint up):
+    cpdef float lower_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
