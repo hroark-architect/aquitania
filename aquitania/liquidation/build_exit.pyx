@@ -223,21 +223,19 @@ def create_exits(datetime dt, double close, double entry_point, double exitp, st
     cdef double high
     cdef double low
 
-    index, open, high, low = remaining[0]
+    index, open, high, low = remaining[1]
 
     # Routine if high
     if is_high:
-        if high >= exitp:
-            if index == dt:
-                if open >= exitp:
-                    return [np.datetime64('NaT'), -1.0]
+        if open >= exitp:
+            print(-1000)
+            return [np.datetime64('NaT'), -1000.0]
 
     # Routine if low
     else:
-        if low <= exitp:
-            if index == dt:
-                if open <= exitp:
-                    return [np.datetime64('NaT'), -1.0]
+        if open <= exitp:
+            print(-1000)
+            return [np.datetime64('NaT'), -1000.0]
 
     # Iter through DataFrame to find exit
     for index, open, high, low in remaining[1:]:
@@ -333,11 +331,11 @@ cdef tuple juntate_exits(datetime last_trade, tuple df_line, bint is_dentro):
     return dt_min, ['nome da saida', dt_min, saldo_min]
 
 cdef check_if_invalid_entry(df_line):
-    if not any(i == -1 for i in df_line):
+    if not any(i == -1000.0 for i in df_line):
         return False
     else:
         for i, el in enumerate(df_line):
-            if el == -1:
+            if el == -1000.0:
                 if not df_line[i - 1].value > 0:
                     return True
     return False
