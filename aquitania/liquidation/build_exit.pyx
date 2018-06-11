@@ -265,15 +265,21 @@ def create_exits(datetime dt, double close, double entry_point, double exitp, st
     # If no values found returns blank
     return [np.datetime64('NaT'), 0.0]
 
-def consolidate_exits(asset, entry, exits, is_dentro):
+cdef void consolidate_exits(str asset, str entry, object exits, bint is_dentro):
     """
     Run exit consolidation routine and saves it to disk.
     """
     # Sort DataFrame
     exits.sort_index(inplace=True)
 
+    output = []
+    last_trade = None
     # Instantiates DataFrame
-    df = exits.apply(juntate_exits, axis=1, args=(is_dentro,))
+    for row in exits.itertuples():
+        last_trade, tmp = juntate_exits(last_trade, tuple(row), is_dentro)
+        output.append(tmp)
+
+    df = pd.DataFrame(output)
     df.columns = ['exit_reference', 'exit_date', 'exit_saldo']
 
     # Sets filename
@@ -282,7 +288,7 @@ def consolidate_exits(asset, entry, exits, is_dentro):
     # Save liquidation to disk
     save_liquidation_to_disk(filename, df)
 
-def juntate_exits(df_line, is_dentro):
+cdef tuple juntate_exits(datetime last_trade, tuple df_line, bint is_dentro):
     """
     Gets a DataFrame line and evaluate what exit will it be.
 
@@ -293,47 +299,47 @@ def juntate_exits(df_line, is_dentro):
         3. 'exit_saldo' - Float
     :rtype: pandas Series
     """
-    # TODO evaluate last_trade logic
-    last_trade = None
+    #  (Timestamp('2017-01-01 22:00:00'),
+    #  a_doji_profit_dt      2017-01-05 05:19:00
+    #  a_doji_profit_saldo   0.00301459
+    #  a_doji_stop_dt         2017-01-02 09:01:00
+    #  aa_doji_stop_saldo              -0.00329459
+    #  entry                              1.05167
 
     # Dentro Routine
-    if is_dentro and last_trade is not None and last_trade > df_line.name:
-        return pd.Series(['', np.datetime64('NaT'), 0])
+    if is_dentro and last_trade is not None and last_trade > df_line[0]:
+        return last_trade, ['', np.datetime64('NaT'), 0]
 
-    # Creates DataFrame to be able to use select_dtypes function
-    df = pd.DataFrame([df_line])
+    if check_if_invalid_entry(df_line):
+        return last_trade, ['', np.datetime64('NaT'), 0]
 
-    if check_if_invalid_entry(df):
-        return pd.Series(['', np.datetime64('NaT'), 0])
-
+    dt_min = None
     # Select only dates
-    include_dict = {'include': np.datetime64}  # Needed to bypass something in cython
-    df = df.select_dtypes(**include_dict)
-
-    # Select minimum dates
-    selected_column = df.idxmin(axis=1).values[0]
+    for i, dt in enumerate(df_line[1:]):
+        if isinstance(dt, datetime):
+            if dt.value > 0:
+                if dt_min is None:
+                    dt_min = dt
+                    saldo_min = df_line[i + 2]
+                elif dt < dt_min:
+                    dt_min = dt
+                    saldo_min = df_line[i + 2]
 
     # If dates returns empty return empty
-    if isinstance(selected_column, np.float64):
-        return pd.Series(['', np.datetime64('NaT'), 0])
+    if dt_min is None:
+        return last_trade, ['', np.datetime64('NaT'), 0]
 
-    # Get saldo column name
-    selected_saldo = selected_column.replace('dt', 'saldo')
+    # Generates output# TODO use named tuples to get 'nome da saida'
+    return dt_min, ['nome da saida', dt_min, saldo_min]
 
-    last_trade = df_line[selected_column]
-
-    # Generates output
-    return pd.Series([selected_column, df_line[selected_column], df_line[selected_saldo]])
-
-def check_if_invalid_entry(df_line):
-    if not df_line.isin([-1]).values.any():
+cdef check_if_invalid_entry(df_line):
+    if not any(i == -1 for i in df_line):
         return False
     else:
-        selected_columns = df_line.columns[df_line.isin([-1]).values[0]]
-        for column in selected_columns:
-            selected_dt = column.replace('saldo', 'dt')
-            if pd.isnull(df_line[selected_dt].values):
-                return True
+        for i, el in enumerate(df_line):
+            if el == -1:
+                if not df_line[i - 1].value > 0:
+                    return True
     return False
 
 def save_liquidation_to_disk(filename, df):
