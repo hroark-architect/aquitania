@@ -13,15 +13,13 @@
 """
 .. moduleauthor:: H Roark
 """
+import multiprocessing
 import pandas as pd
 import numpy as np
 import os
-import multiprocessing
-
 from aquitania.data_processing.analytics_loader import build_liquidation_dfs
 
-
-cpdef void build_exits(broker_instance, str asset, signal, int max_candles, bint is_dentro=False, bint is_virada=False):
+cpdef build_exits(broker_instance, str asset, signal, int max_candles, bint is_dentro=False, bint is_virada=False):
     """
     Calculates exit DateTime for a list of Exit Points. It will be used in later module that evaluates winning or
     losing positions.
@@ -42,10 +40,13 @@ cpdef void build_exits(broker_instance, str asset, signal, int max_candles, bint
     df, candles_df = build_dfs(broker_instance, asset, exit_points, entry)
     exits = process_exit_points(df, exit_points, candles_df, max_candles, is_virada)
 
-    # Save liquidation to disk
-    save_liquidation_to_disk(asset, entry, exits)
+    # Sets filename
+    filename = 'data/liquidation/' + asset + '_' + entry
 
-    consolidate_exits(asset, entry, exits)
+    # Save liquidation to disk
+    save_liquidation_to_disk(filename, exits)
+
+    consolidate_exits(asset, entry, exits, is_dentro)
 
 cdef build_dfs(broker_instance, asset, exit_points, entry):
     # Load DataFrames
@@ -55,7 +56,7 @@ cdef build_dfs(broker_instance, asset, exit_points, entry):
     # Create Entry Point column
     candles_df['entry_point'] = candles_df['open'].shift(-1)
 
-        # Build entry points and close values into exit DataFrame
+    # Build entry points and close values into exit DataFrame
     df = build_entry_points(df, candles_df)
 
     # Checks if df is empty and raise Warning if so.
@@ -67,31 +68,25 @@ cdef build_dfs(broker_instance, asset, exit_points, entry):
 
     return df, candles_df
 
-cdef process_exit_points(df, set exit_points, candles_df, int max_candles, bint is_virada):
+cdef process_exit_points(df, exit_points, candles_df, max_candles, is_virada):
+    cdef object exits = None
+
     # Create exits for all exit points
     for exit_point in exit_points:
         # Separate Alta and Baixa
         df_alta = df[df[exit_point] > 0].copy()
         df_baixa = df[df[exit_point] < 0].copy()
 
-        print('aa')
-        print(df_alta.shape)
-        print(df_baixa.shape)
-
         # Invert Baixa values
         df_baixa[exit_point] = df_baixa[exit_point] * -1
 
         # Run multiprocessing routine
         exit_point = exit_point
-        exit_baixo = multiprocessing(df_alta, exit_point, candles_df, max_candles)
-        exit_cima = multiprocessing(df_baixa, exit_point, candles_df, max_candles)
+        exit_baixo = mp(df_alta, exit_point, candles_df, max_candles)
+        exit_cima = mp(df_baixa, exit_point, candles_df, max_candles)
 
         # Routine for df_alta
-        # exit_baixo = df_alta.apply(self.create_exits, axis=1)
         exit_baixo.columns = [exit_point + '_dt', exit_point + '_saldo']
-
-        # Routine for df_baixa
-        # exit_cima = df_baixa.apply(self.create_exits, axis=1)
         exit_cima.columns = [exit_point + '_dt', exit_point + '_saldo']
 
         # Concat exits
@@ -113,7 +108,7 @@ cdef process_exit_points(df, set exit_points, candles_df, int max_candles, bint 
 
     return exits
 
-def build_entry_points(df, candles_df):
+cdef build_entry_points(df, candles_df):
     """
     The new feeder routine that was created to deal with the issue that there were outputted candles that were not
     in the right possible timing, which helped remove the .update_method() from indicator logic, need to have a fix
@@ -149,15 +144,15 @@ def build_entry_points(df, candles_df):
     # Returns ordered DataFrame
     return df_inner.sort_index()
 
-
-def multiprocessing(df, exit_point, candles_df, max_candles):
-    cpu = 16 # TODO improve cpu count routine
+cdef mp(df, exit_point, candles_df, max_candles):
+    cpu = multiprocessing.cpu_count()
     dividers = [int(df.shape[0] / cpu * i) for i in range(1, cpu)]
 
     df_list = np.split(df, dividers, axis=0)
 
+    df_list = [(d, exit_point, candles_df, max_candles) for d in df_list]
+
     pool = multiprocessing.Pool()
-    # TODO how to pass args into pool.map()
     results = pool.map(dataframe_apply, df_list)
     pool.close()
     pool.join()
@@ -168,13 +163,9 @@ def multiprocessing(df, exit_point, candles_df, max_candles):
     x = pd.concat(results)[[0, 1]]
     return x
 
-
-def dataframe_apply(df, exit_point, candles_df, max_candles):
-    for x, y, *z in df.itertuples():
-        create_exits(x, exit_point, candles_df, max_candles)
-    # TODO try rewriting with itertuples to verify if it is faster?
+cpdef dataframe_apply(dlist):
+    df, exit_point, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3]
     return df.apply(create_exits, axis=1, args=(exit_point, candles_df, max_candles))
-
 
 def create_exits(df_line, exit_point, candles_df, max_candles):
     """
@@ -184,6 +175,8 @@ def create_exits(df_line, exit_point, candles_df, max_candles):
 
     :return: pd.Series([Hora da Saida, Saldo])
     """
+    print(df_line)
+    print(df_line.index)
     exit_point = exit_point
 
     # Evaluate if it is stop or not
@@ -259,8 +252,7 @@ def create_exits(df_line, exit_point, candles_df, max_candles):
     # If no values found returns blank
     return pd.Series([np.datetime64('NaT'), 0.0])
 
-
-def consolidate_exits(asset, entry, exits):
+def consolidate_exits(asset, entry, exits, is_dentro):
     """
     Run exit consolidation routine and saves it to disk.
     """
@@ -268,7 +260,7 @@ def consolidate_exits(asset, entry, exits):
     exits.sort_index(inplace=True)
 
     # Instantiates DataFrame
-    df = exits.apply(juntate_exits, axis=1)
+    df = exits.apply(juntate_exits, axis=1, args=(is_dentro,))
     df.columns = ['exit_reference', 'exit_date', 'exit_saldo']
 
     # Sets filename
@@ -276,7 +268,6 @@ def consolidate_exits(asset, entry, exits):
 
     # Save liquidation to disk
     save_liquidation_to_disk(filename, df)
-
 
 def juntate_exits(df_line, is_dentro):
     """
@@ -303,7 +294,7 @@ def juntate_exits(df_line, is_dentro):
         return pd.Series(['', np.datetime64('NaT'), 0])
 
     # Select only dates
-    include_dict = {'include' : np.datetime64}  # Needed to bypass something in cython
+    include_dict = {'include': np.datetime64}  # Needed to bypass something in cython
     df = df.select_dtypes(**include_dict)
 
     # Select minimum dates
@@ -321,7 +312,6 @@ def juntate_exits(df_line, is_dentro):
     # Generates output
     return pd.Series([selected_column, df_line[selected_column], df_line[selected_saldo]])
 
-
 def check_if_invalid_entry(df_line):
     if not df_line.isin([-1]).values.any():
         return False
@@ -333,19 +323,13 @@ def check_if_invalid_entry(df_line):
                 return True
     return False
 
-
-def save_liquidation_to_disk(asset, entry, df):
+def save_liquidation_to_disk(filename, df):
     """
     Saves liquidation to disk in HDF5 format.
 
     :param filename: Selects filename to be saved
     :param df: DataFrame to be saved
     """
-
-    # Sets filename
-    filename = 'data/liquidation/' + asset + '_' + entry
-
-
     # Remove liquidation File if exists
     if os.path.isfile(filename):
         os.unlink(filename)
@@ -353,7 +337,6 @@ def save_liquidation_to_disk(asset, entry, df):
     # Save liquidations to disk
     with pd.HDFStore(filename) as hdf:
         hdf.append(key='liquidation', value=df, format='table', data_columns=True)
-
 
 def virada(df):
     # TODO virada is dependent on column order. improve this.
