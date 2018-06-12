@@ -14,11 +14,11 @@
 .. moduleauthor:: H Roark
 
 """
-from aquitania.indicator.workers.rsi import RSI
-from aquitania.indicator.workers.bollinger_bands import BollingerBands
+from aquitania.indicator.rsi import RSI
+from aquitania.indicator.bollinger_bands import BollingerBands
 from aquitania.indicator.signal.doji import Doji
 from aquitania.strategies.strategies_abc import Strategy
-from aquitania.indicator.workers.volume import Volume
+from aquitania.indicator.volume import Volume
 
 
 class ExampleBiggerStrategy(Strategy):
