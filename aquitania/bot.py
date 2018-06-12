@@ -344,6 +344,9 @@ def arg_parser():
     # Selects number of assets
     parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
 
+    # Selects number of assets
+    parser.add_argument('-ao', '--assetsoffset', type=int, metavar='', help='Number of assets offset')
+
     # Selects DataSource name
     parser.add_argument('-s', '--source', type=str, metavar='', help='Data Source name')
 
@@ -489,8 +492,11 @@ if __name__ == '__main__':
     # Gets number of assets
     n_assets = args.assets if args.assets is not None else config.getint('settings', 'n_assets')
 
+    # Gets number of assets
+    asset_offset = args.asset_offset if args.asset_offset is not None else config.getint('settings', 'asset_offset')
+
     # Generates list of assets
-    asset_list = ref.cur_ordered_by_spread[0:n_assets]
+    asset_list = ref.cur_ordered_by_spread[asset_offset:n_assets + asset_offset]
 
     # Sets backtesting start date
     start_date = args.startdate if args.startdate is not None else datetime.datetime(1971, 4, 1)

@@ -29,7 +29,8 @@ def create_config_ini():
         'broker': 'test',
         'database': 'pandas_hdf5',
         'strategy': 'ExampleStrategy',
-        'n_assets': 2
+        'n_assets': 2,
+        'asset_offset': 0
     }
 
     # Saves file to disk
