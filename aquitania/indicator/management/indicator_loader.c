@@ -858,8 +858,8 @@ struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle {
   int (*higher_eclipses)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
   int (*eclipses)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
   int (*is_same_open_time)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int __pyx_skip_dispatch);
-  float (*upper_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
-  float (*lower_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
+  double (*upper_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
+  double (*lower_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *__pyx_vtabptr_9aquitania_9resources_6candle_Candle;
 

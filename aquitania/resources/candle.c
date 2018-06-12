@@ -837,8 +837,8 @@ struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle {
   int (*higher_eclipses)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
   int (*eclipses)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
   int (*is_same_open_time)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int __pyx_skip_dispatch);
-  float (*upper_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
-  float (*lower_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
+  double (*upper_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
+  double (*lower_shadow)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *__pyx_vtabptr_9aquitania_9resources_6candle_Candle;
 
@@ -1205,8 +1205,8 @@ static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class
 /* InitStrings.proto */
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
-static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
-static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
+static double __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
+static double __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
 static int __pyx_f_9aquitania_9resources_6candle_6Candle_lower_than(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_candle, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
 static int __pyx_f_9aquitania_9resources_6candle_6Candle_higher_than(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_candle, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
 static int __pyx_f_9aquitania_9resources_6candle_6Candle_ascending(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_candle, int __pyx_v_up, int __pyx_skip_dispatch); /* proto*/
@@ -1389,7 +1389,7 @@ static PyObject *__pyx_n_s_up;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_upper_shadow;
 static PyObject *__pyx_n_s_volume;
-static int __pyx_pf_9aquitania_9resources_6candle_6Candle___init__(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, unsigned char __pyx_v_ts_i, unsigned char __pyx_v_currency, PyDateTime_DateTime *__pyx_v_dt, PyDateTime_DateTime *__pyx_v_open_time, PyDateTime_DateTime *__pyx_v_close_time, float __pyx_v_open, float __pyx_v_high, float __pyx_v_low, float __pyx_v_close, int __pyx_v_volume, int __pyx_v_complete); /* proto */
+static int __pyx_pf_9aquitania_9resources_6candle_6Candle___init__(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, unsigned char __pyx_v_ts_i, unsigned char __pyx_v_currency, PyDateTime_DateTime *__pyx_v_dt, PyDateTime_DateTime *__pyx_v_open_time, PyDateTime_DateTime *__pyx_v_close_time, double __pyx_v_open, double __pyx_v_high, double __pyx_v_low, double __pyx_v_close, int __pyx_v_volume, int __pyx_v_complete); /* proto */
 static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_2color(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, PyObject *__pyx_v_up); /* proto */
 static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_4size(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, PyObject *__pyx_v_up); /* proto */
 static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_6body(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, PyObject *__pyx_v_up); /* proto */
@@ -1463,7 +1463,7 @@ static PyObject *__pyx_codeobj__4;
 /* "aquitania/resources/candle.pyx":11
  *     in a easy to use fashion.
  *     """
- *     def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, float open, float high, float low, float close, int volume, bint complete):             # <<<<<<<<<<<<<<
+ *     def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, double open, double high, double low, double close, int volume, bint complete):             # <<<<<<<<<<<<<<
  *         """
  *         Initialize Candle object with the naked essentials.
  */
@@ -1480,10 +1480,10 @@ static int __pyx_pw_9aquitania_9resources_6candle_6Candle_1__init__(PyObject *__
   PyDateTime_DateTime *__pyx_v_dt = 0;
   PyDateTime_DateTime *__pyx_v_open_time = 0;
   PyDateTime_DateTime *__pyx_v_close_time = 0;
-  float __pyx_v_open;
-  float __pyx_v_high;
-  float __pyx_v_low;
-  float __pyx_v_close;
+  double __pyx_v_open;
+  double __pyx_v_high;
+  double __pyx_v_low;
+  double __pyx_v_close;
   int __pyx_v_volume;
   int __pyx_v_complete;
   int __pyx_r;
@@ -1610,10 +1610,10 @@ static int __pyx_pw_9aquitania_9resources_6candle_6Candle_1__init__(PyObject *__
     __pyx_v_dt = ((PyDateTime_DateTime *)values[2]);
     __pyx_v_open_time = ((PyDateTime_DateTime *)values[3]);
     __pyx_v_close_time = ((PyDateTime_DateTime *)values[4]);
-    __pyx_v_open = __pyx_PyFloat_AsFloat(values[5]); if (unlikely((__pyx_v_open == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
-    __pyx_v_high = __pyx_PyFloat_AsFloat(values[6]); if (unlikely((__pyx_v_high == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
-    __pyx_v_low = __pyx_PyFloat_AsFloat(values[7]); if (unlikely((__pyx_v_low == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
-    __pyx_v_close = __pyx_PyFloat_AsFloat(values[8]); if (unlikely((__pyx_v_close == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_open = __pyx_PyFloat_AsDouble(values[5]); if (unlikely((__pyx_v_open == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_high = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_high == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_low = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_low == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_close = __pyx_PyFloat_AsDouble(values[8]); if (unlikely((__pyx_v_close == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
     __pyx_v_volume = __Pyx_PyInt_As_int(values[9]); if (unlikely((__pyx_v_volume == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
     __pyx_v_complete = __Pyx_PyObject_IsTrue(values[10]); if (unlikely((__pyx_v_complete == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
   }
@@ -1639,7 +1639,7 @@ static int __pyx_pw_9aquitania_9resources_6candle_6Candle_1__init__(PyObject *__
   return __pyx_r;
 }
 
-static int __pyx_pf_9aquitania_9resources_6candle_6Candle___init__(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, unsigned char __pyx_v_ts_i, unsigned char __pyx_v_currency, PyDateTime_DateTime *__pyx_v_dt, PyDateTime_DateTime *__pyx_v_open_time, PyDateTime_DateTime *__pyx_v_close_time, float __pyx_v_open, float __pyx_v_high, float __pyx_v_low, float __pyx_v_close, int __pyx_v_volume, int __pyx_v_complete) {
+static int __pyx_pf_9aquitania_9resources_6candle_6Candle___init__(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, unsigned char __pyx_v_ts_i, unsigned char __pyx_v_currency, PyDateTime_DateTime *__pyx_v_dt, PyDateTime_DateTime *__pyx_v_open_time, PyDateTime_DateTime *__pyx_v_close_time, double __pyx_v_open, double __pyx_v_high, double __pyx_v_low, double __pyx_v_close, int __pyx_v_volume, int __pyx_v_complete) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1794,7 +1794,7 @@ static int __pyx_pf_9aquitania_9resources_6candle_6Candle___init__(struct __pyx_
   /* "aquitania/resources/candle.pyx":11
  *     in a easy to use fashion.
  *     """
- *     def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, float open, float high, float low, float close, int volume, bint complete):             # <<<<<<<<<<<<<<
+ *     def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, double open, double high, double low, double close, int volume, bint complete):             # <<<<<<<<<<<<<<
  *         """
  *         Initialize Candle object with the naked essentials.
  */
@@ -1986,7 +1986,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_2color(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_5size(PyObject *__pyx_v_self, PyObject *__pyx_v_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_4size[] = "\n        Returns Candle's absolute size.\n\n        :return: Candle size\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_4size[] = "\n        Returns Candle's absolute size.\n\n        :return: Candle size\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_5size(PyObject *__pyx_v_self, PyObject *__pyx_v_up) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2007,7 +2007,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_4size(struct __p
   __Pyx_RefNannySetupContext("size", 0);
 
   /* "aquitania/resources/candle.pyx":54
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return self.high[up] - self.low[up]             # <<<<<<<<<<<<<<
  * 
@@ -2065,7 +2065,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_4size(struct __p
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_7body(PyObject *__pyx_v_self, PyObject *__pyx_v_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_6body[] = "\n        Returns Candle's body size.\n\n        :return: Candle body size\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_6body[] = "\n        Returns Candle's body size.\n\n        :return: Candle body size\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_7body(PyObject *__pyx_v_self, PyObject *__pyx_v_up) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2086,7 +2086,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_6body(struct __p
   __Pyx_RefNannySetupContext("body", 0);
 
   /* "aquitania/resources/candle.pyx":63
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return abs(self.open[up] - self.close[up])             # <<<<<<<<<<<<<<
  * 
@@ -2147,7 +2147,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_6body(struct __p
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_9body_max(PyObject *__pyx_v_self, PyObject *__pyx_v_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_8body_max[] = "\n        Returns Candle's body max value.\n\n        :return: Candle body max value\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_8body_max[] = "\n        Returns Candle's body max value.\n\n        :return: Candle body max value\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_9body_max(PyObject *__pyx_v_self, PyObject *__pyx_v_up) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2170,7 +2170,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_8body_max(struct
   __Pyx_RefNannySetupContext("body_max", 0);
 
   /* "aquitania/resources/candle.pyx":72
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return max(self.close[up], self.open[up])             # <<<<<<<<<<<<<<
  * 
@@ -2238,7 +2238,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_8body_max(struct
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_11body_min(PyObject *__pyx_v_self, PyObject *__pyx_v_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_10body_min[] = "\n        Returns Candle's body min value.\n\n        :return: Candle body min value\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_10body_min[] = "\n        Returns Candle's body min value.\n\n        :return: Candle body min value\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_11body_min(PyObject *__pyx_v_self, PyObject *__pyx_v_up) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2261,7 +2261,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_10body_min(struc
   __Pyx_RefNannySetupContext("body_min", 0);
 
   /* "aquitania/resources/candle.pyx":81
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return min(self.close[up], self.open[up])             # <<<<<<<<<<<<<<
  * 
@@ -2329,7 +2329,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_10body_min(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_13shadow(PyObject *__pyx_v_self, PyObject *__pyx_v_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_12shadow[] = "\n        Returns Candle's shadow size.\n\n        :return: Candle shadow size\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_12shadow[] = "\n        Returns Candle's shadow size.\n\n        :return: Candle shadow size\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_13shadow(PyObject *__pyx_v_self, PyObject *__pyx_v_up) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -2352,11 +2352,11 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_12shadow(struct 
   __Pyx_RefNannySetupContext("shadow", 0);
 
   /* "aquitania/resources/candle.pyx":90
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return self.size(up) - self.body(up)             # <<<<<<<<<<<<<<
  * 
- *     cpdef float upper_shadow(self, bint up):
+ *     cpdef double upper_shadow(self, bint up):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 90, __pyx_L1_error)
@@ -2483,14 +2483,14 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_12shadow(struct 
 /* "aquitania/resources/candle.pyx":92
  *         return self.size(up) - self.body(up)
  * 
- *     cpdef float upper_shadow(self, bint up):             # <<<<<<<<<<<<<<
+ *     cpdef double upper_shadow(self, bint up):             # <<<<<<<<<<<<<<
  *         """
  *         Returns Candle's upper shadow size.
  */
 
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_15upper_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up); /*proto*/
-static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch) {
-  float __pyx_r;
+static double __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch) {
+  double __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2498,7 +2498,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
-  float __pyx_t_7;
+  double __pyx_t_7;
   __Pyx_RefNannySetupContext("upper_shadow", 0);
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
@@ -2556,7 +2556,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
         }
       }
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 92, __pyx_L1_error)
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 92, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_r = __pyx_t_7;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2566,11 +2566,11 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
   }
 
   /* "aquitania/resources/candle.pyx":99
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return self.high[up] - self.body_max(up)             # <<<<<<<<<<<<<<
  * 
- *     cpdef float lower_shadow(self, bint up):
+ *     cpdef double lower_shadow(self, bint up):
  */
   if (unlikely(__pyx_v_self->high == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
@@ -2632,7 +2632,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_7;
   goto __pyx_L0;
@@ -2640,7 +2640,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
   /* "aquitania/resources/candle.pyx":92
  *         return self.size(up) - self.body(up)
  * 
- *     cpdef float upper_shadow(self, bint up):             # <<<<<<<<<<<<<<
+ *     cpdef double upper_shadow(self, bint up):             # <<<<<<<<<<<<<<
  *         """
  *         Returns Candle's upper shadow size.
  */
@@ -2662,7 +2662,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_15upper_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_14upper_shadow[] = "\n        Returns Candle's upper shadow size.\n\n        :return: Candle upper shadow size\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_14upper_shadow[] = "\n        Returns Candle's upper shadow size.\n\n        :return: Candle upper shadow size\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_15upper_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up) {
   int __pyx_v_up;
   PyObject *__pyx_r = 0;
@@ -2710,14 +2710,14 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_14upper_shadow(s
 /* "aquitania/resources/candle.pyx":101
  *         return self.high[up] - self.body_max(up)
  * 
- *     cpdef float lower_shadow(self, bint up):             # <<<<<<<<<<<<<<
+ *     cpdef double lower_shadow(self, bint up):             # <<<<<<<<<<<<<<
  *         """
  *         Returns Candle's upper shadow size.
  */
 
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_17lower_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up); /*proto*/
-static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch) {
-  float __pyx_r;
+static double __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, int __pyx_v_up, int __pyx_skip_dispatch) {
+  double __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -2725,7 +2725,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
-  float __pyx_t_7;
+  double __pyx_t_7;
   __Pyx_RefNannySetupContext("lower_shadow", 0);
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
@@ -2783,7 +2783,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
         }
       }
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
+      __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_r = __pyx_t_7;
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2793,7 +2793,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
   }
 
   /* "aquitania/resources/candle.pyx":108
- *         :rtype: Float
+ *         :rtype: double
  *         """
  *         return self.body_min(up) - self.low[up]             # <<<<<<<<<<<<<<
  * 
@@ -2859,7 +2859,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_7 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_7 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_r = __pyx_t_7;
   goto __pyx_L0;
@@ -2867,7 +2867,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
   /* "aquitania/resources/candle.pyx":101
  *         return self.high[up] - self.body_max(up)
  * 
- *     cpdef float lower_shadow(self, bint up):             # <<<<<<<<<<<<<<
+ *     cpdef double lower_shadow(self, bint up):             # <<<<<<<<<<<<<<
  *         """
  *         Returns Candle's upper shadow size.
  */
@@ -2889,7 +2889,7 @@ static float __pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_17lower_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_16lower_shadow[] = "\n        Returns Candle's upper shadow size.\n\n        :return: Candle upper shadow size\n        :rtype: Float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_16lower_shadow[] = "\n        Returns Candle's upper shadow size.\n\n        :return: Candle upper shadow size\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_17lower_shadow(PyObject *__pyx_v_self, PyObject *__pyx_arg_up) {
   int __pyx_v_up;
   PyObject *__pyx_r = 0;
@@ -5318,8 +5318,8 @@ static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_35japanese_candl
 static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candlestick(struct __pyx_obj_9aquitania_9resources_6candle_Candle *__pyx_v_self, PyObject *__pyx_v_up, PyObject *__pyx_v_jc_up) {
   PyObject *__pyx_v_shadow = NULL;
   PyObject *__pyx_v_body = NULL;
-  PyObject *__pyx_v_upper_shadow = NULL;
-  PyObject *__pyx_v_lower_shadow = NULL;
+  double __pyx_v_upper_shadow;
+  double __pyx_v_lower_shadow;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5448,10 +5448,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candl
  * 
  */
   __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_up); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 232, __pyx_L1_error)
-  __pyx_t_1 = PyFloat_FromDouble(((struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *)__pyx_v_self->__pyx_vtab)->upper_shadow(__pyx_v_self, __pyx_t_5, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_upper_shadow = __pyx_t_1;
-  __pyx_t_1 = 0;
+  __pyx_v_upper_shadow = ((struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *)__pyx_v_self->__pyx_vtab)->upper_shadow(__pyx_v_self, __pyx_t_5, 0);
 
   /* "aquitania/resources/candle.pyx":233
  *         body = self.body(up)
@@ -5461,10 +5458,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candl
  *         # Doji Routine
  */
   __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_v_up); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 233, __pyx_L1_error)
-  __pyx_t_1 = PyFloat_FromDouble(((struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *)__pyx_v_self->__pyx_vtab)->lower_shadow(__pyx_v_self, __pyx_t_5, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_lower_shadow = __pyx_t_1;
-  __pyx_t_1 = 0;
+  __pyx_v_lower_shadow = ((struct __pyx_vtabstruct_9aquitania_9resources_6candle_Candle *)__pyx_v_self->__pyx_vtab)->lower_shadow(__pyx_v_self, __pyx_t_5, 0);
 
   /* "aquitania/resources/candle.pyx":236
  * 
@@ -5530,12 +5524,15 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candl
  *                 return True
  * 
  */
-    __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_v_lower_shadow, __pyx_v_body); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_lower_shadow); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_2, Py_GE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_v_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_2, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (__pyx_t_5) {
 
       /* "aquitania/resources/candle.pyx":242
@@ -5576,8 +5573,11 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candl
  *             return True
  *         return False
  */
-  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_v_upper_shadow, __pyx_v_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_upper_shadow); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyNumber_Divide(__pyx_t_2, __pyx_v_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_2, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 245, __pyx_L1_error)
@@ -5637,8 +5637,6 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_34japanese_candl
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_shadow);
   __Pyx_XDECREF(__pyx_v_body);
-  __Pyx_XDECREF(__pyx_v_upper_shadow);
-  __Pyx_XDECREF(__pyx_v_lower_shadow);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -5852,7 +5850,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_36is_doji(struct
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_39num_profit(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_38num_profit[] = "\n        Add numeric profit to close value.\n\n        :param distance: Distance in absolute price value\n        :param up: True if up\n\n        :return: Value of profit reference\n        :rtype: float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_38num_profit[] = "\n        Add numeric profit to close value.\n\n        :param distance: Distance in absolute price value\n        :param up: True if up\n\n        :return: Value of profit reference\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_39num_profit(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_distance = 0;
   PyObject *__pyx_v_up = 0;
@@ -5920,7 +5918,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_38num_profit(str
   __Pyx_RefNannySetupContext("num_profit", 0);
 
   /* "aquitania/resources/candle.pyx":264
- *         :rtype: float
+ *         :rtype: double
  *         """
  *         return self.close[up] + distance             # <<<<<<<<<<<<<<
  * 
@@ -5970,7 +5968,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_38num_profit(str
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_41num_stop(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9aquitania_9resources_6candle_6Candle_40num_stop[] = "\n        Add numeric stop to close value.\n\n        :param distance: Distance in absolute price value\n        :param up: True if up\n\n        :return: Value of stop reference\n        :rtype: float\n        ";
+static char __pyx_doc_9aquitania_9resources_6candle_6Candle_40num_stop[] = "\n        Add numeric stop to close value.\n\n        :param distance: Distance in absolute price value\n        :param up: True if up\n\n        :return: Value of stop reference\n        :rtype: double\n        ";
 static PyObject *__pyx_pw_9aquitania_9resources_6candle_6Candle_41num_stop(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_distance = 0;
   PyObject *__pyx_v_up = 0;
@@ -6038,7 +6036,7 @@ static PyObject *__pyx_pf_9aquitania_9resources_6candle_6Candle_40num_stop(struc
   __Pyx_RefNannySetupContext("num_stop", 0);
 
   /* "aquitania/resources/candle.pyx":276
- *         :rtype: float
+ *         :rtype: double
  *         """
  *         return self.close[up] - distance             # <<<<<<<<<<<<<<
  * 
@@ -10674,8 +10672,8 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_9aquitania_9resources_6candle_Candle.higher_eclipses = (int (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_higher_eclipses;
   __pyx_vtable_9aquitania_9resources_6candle_Candle.eclipses = (int (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_eclipses;
   __pyx_vtable_9aquitania_9resources_6candle_Candle.is_same_open_time = (int (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_is_same_open_time;
-  __pyx_vtable_9aquitania_9resources_6candle_Candle.upper_shadow = (float (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow;
-  __pyx_vtable_9aquitania_9resources_6candle_Candle.lower_shadow = (float (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow;
+  __pyx_vtable_9aquitania_9resources_6candle_Candle.upper_shadow = (double (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_upper_shadow;
+  __pyx_vtable_9aquitania_9resources_6candle_Candle.lower_shadow = (double (*)(struct __pyx_obj_9aquitania_9resources_6candle_Candle *, int, int __pyx_skip_dispatch))__pyx_f_9aquitania_9resources_6candle_6Candle_lower_shadow;
   if (PyType_Ready(&__pyx_type_9aquitania_9resources_6candle_Candle) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
   __pyx_type_9aquitania_9resources_6candle_Candle.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_9aquitania_9resources_6candle_Candle.tp_dictoffset && __pyx_type_9aquitania_9resources_6candle_Candle.tp_getattro == PyObject_GenericGetAttr)) {

@@ -32,6 +32,6 @@ cdef class Candle:
 
     cpdef bint is_same_open_time(self, Candle candle)
 
-    cpdef float upper_shadow(self, bint up)
+    cpdef double upper_shadow(self, bint up)
 
-    cpdef float lower_shadow(self, bint up)
+    cpdef double lower_shadow(self, bint up)

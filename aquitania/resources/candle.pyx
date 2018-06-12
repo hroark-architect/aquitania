@@ -8,7 +8,7 @@ cdef class Candle:
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-    def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, float open, float high, float low, float close, int volume, bint complete):
+    def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, double open, double high, double low, double close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
 
@@ -49,7 +49,7 @@ cdef class Candle:
         Returns Candle's absolute size.
 
         :return: Candle size
-        :rtype: Float
+        :rtype: double
         """
         return self.high[up] - self.low[up]
 
@@ -58,7 +58,7 @@ cdef class Candle:
         Returns Candle's body size.
 
         :return: Candle body size
-        :rtype: Float
+        :rtype: double
         """
         return abs(self.open[up] - self.close[up])
 
@@ -67,7 +67,7 @@ cdef class Candle:
         Returns Candle's body max value.
 
         :return: Candle body max value
-        :rtype: Float
+        :rtype: double
         """
         return max(self.close[up], self.open[up])
 
@@ -76,7 +76,7 @@ cdef class Candle:
         Returns Candle's body min value.
 
         :return: Candle body min value
-        :rtype: Float
+        :rtype: double
         """
         return min(self.close[up], self.open[up])
 
@@ -85,25 +85,25 @@ cdef class Candle:
         Returns Candle's shadow size.
 
         :return: Candle shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.size(up) - self.body(up)
 
-    cpdef float upper_shadow(self, bint up):
+    cpdef double upper_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
         :return: Candle upper shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.high[up] - self.body_max(up)
 
-    cpdef float lower_shadow(self, bint up):
+    cpdef double lower_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
         :return: Candle upper shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.body_min(up) - self.low[up]
 
@@ -259,7 +259,7 @@ cdef class Candle:
         :param up: True if up
 
         :return: Value of profit reference
-        :rtype: float
+        :rtype: double
         """
         return self.close[up] + distance
 
@@ -271,7 +271,7 @@ cdef class Candle:
         :param up: True if up
 
         :return: Value of stop reference
-        :rtype: float
+        :rtype: double
         """
         return self.close[up] - distance
 
