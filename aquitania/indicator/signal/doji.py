@@ -43,8 +43,8 @@ class Doji(AbstractSignal):
 
         if is_ok:
             # Generate Exit points
-            loss = candle.low[self.up]
-            profit = candle.num_profit(candle.close[self.up] - loss, self.up)
+            loss = candle.close[self.up] * 0.997
+            profit = candle.close[self.up] * 1.003
             entry = candle.close[self.up]
 
         return is_ok, profit, loss, entry
