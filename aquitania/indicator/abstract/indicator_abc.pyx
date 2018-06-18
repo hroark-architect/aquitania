@@ -24,18 +24,12 @@ code but they do other things besides simply attributing a value to a variable.
 just has the bare essential. Elegant design. Deleting some old children such as indicator open output and closed output.
 """
 
-import abc
-import numpy as np
-
-
-class AbstractIndicator:
+cdef class AbstractIndicator:
     """
     This is the AbstractIndicator class. It is used as an abstract base class for every indicator (not always directly).
 
     This is a base class and should not be used directly.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         """
@@ -44,10 +38,10 @@ class AbstractIndicator:
         # Initializes variables
         self.up = True
         self.last_candle = None
-        self.last_output = np.nan
+        self.last_output = None
         self.output_list = []
 
-    def feed(self, candle):
+    cpdef void feed(self, Candle candle):
         """
         Executes indicator through 'self.indicator_logic()' and stores values on 'self.output_list'.
 
@@ -55,7 +49,7 @@ class AbstractIndicator:
         """
         self.set_output(self.indicator_logic(candle))
 
-    def set_output(self, result):
+    cdef void set_output(self, tuple result):
         """
         Append to 'output_list' and set 'last_output'.
 
@@ -63,11 +57,4 @@ class AbstractIndicator:
         """
         self.last_output = result
 
-    @abc.abstractmethod
-    def indicator_logic(self, candle):
-        """
-        Logic of the indicator that will be run candle by candle.
 
-        To be implemented.
-        """
-        pass

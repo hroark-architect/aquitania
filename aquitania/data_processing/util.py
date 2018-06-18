@@ -92,7 +92,7 @@ def save_df(df, df_path):
     """
     # Saves observations to disk
     with pd.HDFStore(df_path) as hdf:
-        hdf.append(key='indicators', value=df, format='table', data_columns=True)
+        hdf.put(key='indicators', value=df, format='fixed')
 
 
 def add_asset_columns_to_df(df, finsec):

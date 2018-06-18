@@ -35,7 +35,7 @@ class RSI(AbstractIndicatorOutput):
         # Initiates variables to instantiate super()
         columns = ['']
         is_open = False
-        last_output = (-1,)
+        last_output = (-1.0,)
 
         # Instantiates super().__init__
         super().__init__(obs_id, columns, is_open, last_output)
@@ -70,7 +70,7 @@ class RSI(AbstractIndicatorOutput):
 
         else:
             # Saves Values for invalid RSI
-            rsi = -1
+            rsi = -1.0
 
         # Sets last close for next loop
         self.last_close = candle.close[1]

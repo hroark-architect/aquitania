@@ -21,7 +21,7 @@ from aquitania.strategies.strategies_abc import Strategy
 from aquitania.indicator.volume import Volume
 
 
-class ExampleStrategy(Strategy):
+class ExampleBiggerStrategy(Strategy):
 
     def __init__(self):
         super().__init__()
@@ -32,8 +32,11 @@ class ExampleStrategy(Strategy):
 
         :return: List of Observers of 'MS' timestamp
         """
+        volume = Volume('h_volume', 25)
+        sma = BollingerBands('h_bb', 25)
+        rsi = RSI('h_rsi', 25)
 
-        return []
+        return [volume, sma, rsi]
 
     def weekly_obs(self):
         """
@@ -42,7 +45,11 @@ class ExampleStrategy(Strategy):
         :return: List of Observers of 'W-SUN' timestamp
         """
 
-        return []
+        volume = Volume('g_volume', 25)
+        sma = BollingerBands('g_bb', 25)
+        rsi = RSI('g_rsi', 25)
+
+        return [volume, sma, rsi]
 
     def daily_obs(self):
         """
@@ -50,9 +57,11 @@ class ExampleStrategy(Strategy):
 
         :return: List of Observers of 'D' timestamp
         """
+        volume = Volume('f_volume', 25)
         sma = BollingerBands('f_bb', 25)
+        rsi = RSI('f_rsi', 25)
 
-        return [sma]
+        return [volume, sma, rsi]
 
     def g60_obs(self):
         """
@@ -62,8 +71,10 @@ class ExampleStrategy(Strategy):
         """
 
         volume = Volume('e_volume', 25)
+        sma = BollingerBands('e_bb', 25)
+        rsi = RSI('e_rsi', 25)
 
-        return [volume]
+        return [volume, sma, rsi]
 
     def g30_obs(self):
         """
@@ -74,9 +85,11 @@ class ExampleStrategy(Strategy):
 
         # Extremist indicator needs to be loaded before anything that uses count_ext
 
-        self.signal = Doji('d_doji')
+        volume = Volume('d_volume', 25)
+        sma = BollingerBands('d_bb', 25)
+        rsi = RSI('d_rsi', 25)
 
-        return [self.signal]
+        return [volume, sma, rsi]
 
     def g15_obs(self):
         """
@@ -85,7 +98,11 @@ class ExampleStrategy(Strategy):
         :return: List of Observers of 'Min15' timestamp
         """
 
-        return []
+        volume = Volume('c_volume', 25)
+        sma = BollingerBands('c_bb', 25)
+        rsi = RSI('c_rsi', 25)
+
+        return [volume, sma, rsi]
 
     def g05_obs(self):
         """
@@ -94,9 +111,11 @@ class ExampleStrategy(Strategy):
         :return: List of Observers of 'Min5' timestamp
         """
 
+        volume = Volume('b_volume', 25)
+        sma = BollingerBands('b_bb', 25)
         rsi = RSI('b_rsi', 25)
 
-        return [rsi]
+        return [volume, sma, rsi]
 
     def g01_obs(self):
         """
@@ -105,4 +124,9 @@ class ExampleStrategy(Strategy):
         :return: List of Observers of 'Min1' timestamp
         """
 
-        return []
+        volume = Volume('a_volume', 25)
+        sma = BollingerBands('a_bb', 25)
+        rsi = RSI('a_rsi', 25)
+        self.signal = Doji('a_doji')
+
+        return [volume, sma, rsi, self.signal]

@@ -40,7 +40,7 @@ class Volume(AbstractIndicatorOutput):
         :param period: (int) Number of periods to be observed
         """
         # Instantiates AbstractIndicatorOutput
-        super().__init__(obs_id, ['abs_len', 'rel'], False, (0, -1))
+        super().__init__(obs_id, ['abs_len', 'rel'], False, (0, -1.0))
 
         # Instantiates necessary variables
         self.mm = deque(maxlen=period)  # maxlen is a trick to adjust len automatically
@@ -54,7 +54,7 @@ class Volume(AbstractIndicatorOutput):
         abs_vol = int(candle.volume)
 
         # Instantiates a relative value for volume, -1 means it is not instantiated
-        rel_vol = -1
+        rel_vol = -1.0
 
         # Appends volume to deque
         self.mm.append(candle.volume)

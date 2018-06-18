@@ -46,7 +46,7 @@ from aquitania.data_processing.util import generate_folder, clean_indicator_data
 from aquitania.data_source.broker.broker_selection import select_broker
 from aquitania.execution.live_management.live_environment import LiveEnvironment
 from aquitania.indicator.management.indicator_manager import *
-from aquitania.liquidation.build_exit import BuildExit
+from aquitania.liquidation.build_exit import build_exits
 from aquitania.resources.no_deamon_pool import MyPool
 from aquitania.strategies.example_strategy import ExampleStrategy
 
@@ -249,6 +249,8 @@ class Bot:
 
         Saves exits on 'data/exits'
         """
+        # Initializes time counter
+        time_a = time.time()
 
         for asset_id in self.asset_ids:
             # Build Exit for a specific asset
@@ -259,10 +261,12 @@ class Bot:
             signal = self.strategy.signal
 
             # Generate all possible exits according to possible Exit points
-            be = BuildExit(self._broker_instance, asset_id, signal, 14400)
+            build_exits(self._broker_instance, asset_id, signal, 14400)
 
-            # Consolidate Exists Routine (it gets all possible exits and finds the earliest one)
-            be.consolidate_exits()
+        # Prints time it took to generate and evaluate Exits
+        print('\n\n----------------------------------------------------------------')
+        print('Exit generation took: {} seconds'.format(time.time() - time_a))
+        print('----------------------------------------------------------------')
 
     def run_brains(self, save_to_disk=False):
         """
@@ -335,9 +339,13 @@ def arg_parser():
     mode.add_argument('-ei', '--exitsai', action='store_true', help='Build Exits and Artificial Intelligence only')
     mode.add_argument('-d', '--debug', action='store_true', help='Debug mode (Single Process)')
     mode.add_argument('-cp', '--cprofile', action='store_true', help='CProfile Code (Evaluate Performance)')
+    mode.add_argument('-cpe', '--cprofileexit', action='store_true', help='CProfile Exits Code (Evaluate Performance)')
 
     # Selects number of assets
     parser.add_argument('-a', '--assets', type=int, metavar='', help='Number of assets')
+
+    # Selects number of assets
+    parser.add_argument('-ao', '--assetoffset', type=int, metavar='', help='Number of assets offset')
 
     # Selects DataSource name
     parser.add_argument('-s', '--source', type=str, metavar='', help='Data Source name')
@@ -378,45 +386,48 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 
-def select_execution_mode(gm, args):
+def select_execution_mode(bot, args):
     """
     Executes the GeneralManager accordingly to what was set in the ArgumentParser.
 
-    :param gm: (GeneralManager) instantiated GeneralManager object
+    :param bot: (GeneralManager) instantiated GeneralManager object
     :param args: (ArgumentParser) instantiated ArgumentParser
     """
     # Backtest mode (runs exits and brains)
     if args.backtest:
-        gm.run(is_complete=True, is_live=False)
+        bot.run(is_complete=True, is_live=False)
 
     # Backtest mode (does NOT run exits and brains)
     elif args.backtestonly:
-        gm.run(is_complete=False, is_live=False)
+        bot.run(is_complete=False, is_live=False)
 
     # Exits only mode
     elif args.exits:
-        gm.run_liquidation()
+        bot.run_liquidation()
 
     # Brains only mode
     elif args.ai:
-        gm.run_brains(save_to_disk=True)
+        bot.run_brains(save_to_disk=True)
 
     # Exits and brains only mode
     elif args.exitsai:
-        gm.run_liquidation()
-        gm.run_brains(save_to_disk=True)
+        bot.run_liquidation()
+        bot.run_brains(save_to_disk=True)
 
     # Debug mode (single process and it doesn't run exits and brains)
     elif args.debug:
-        gm.debug_single_process()
+        bot.debug_single_process()
 
     # Performance evaluator mode (single process and it doesn't run exits and brains)
     elif args.cprofile:
-        cProfile.run('gm.debug_single_process()')
+        cProfile.run('bot.debug_single_process()')
+
+    elif args.cprofileexit:
+        cProfile.run('bot.run_liquidation()')
 
     # Live Environment mode, it runs all the backtests, generate exits and an artificial intelligence strategy.
     else:
-        gm.run(is_complete=True, is_live=True)
+        bot.run(is_complete=True, is_live=True)
 
 
 def get_strategy(strategy_name):
@@ -481,8 +492,11 @@ if __name__ == '__main__':
     # Gets number of assets
     n_assets = args.assets if args.assets is not None else config.getint('settings', 'n_assets')
 
+    # Gets number of assets
+    asset_offset = args.asset_offset if args.assetoffset is not None else config.getint('settings', 'asset_offset')
+
     # Generates list of assets
-    asset_list = ref.cur_ordered_by_spread[0:n_assets]
+    asset_list = ref.cur_ordered_by_spread[asset_offset:n_assets + asset_offset]
 
     # Sets backtesting start date
     start_date = args.startdate if args.startdate is not None else datetime.datetime(1971, 4, 1)
@@ -491,7 +505,7 @@ if __name__ == '__main__':
     clean_data = args.clean
 
     # Initialize General Manager
-    gm = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
+    bot = Bot(broker_, storage_, asset_list, strategy_, clean_data, start_date)
 
     # Selects execution mode accordingly to the ArgumentParser
-    select_execution_mode(gm, args)
+    select_execution_mode(bot, args)

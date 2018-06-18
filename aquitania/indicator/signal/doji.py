@@ -36,15 +36,15 @@ class Doji(AbstractSignal):
         """
         profit, loss, entry = 0.0, 0.0, 0.0
 
-        self.up = candle.upper_shadow(up=True) < candle.lower_shadow(up=True)
+        self.up = candle.upper_shadow(True) < candle.lower_shadow(True)
 
         # Check if it is a Doji
         is_ok = candle.is_doji(self.up)
 
         if is_ok:
             # Generate Exit points
-            loss = candle.low[self.up]
-            profit = candle.num_profit(candle.close[self.up] - loss, self.up)
+            loss = candle.close[self.up] * 0.997
+            profit = candle.close[self.up] * 1.003
             entry = candle.close[self.up]
 
         return is_ok, profit, loss, entry

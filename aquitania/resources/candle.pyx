@@ -1,49 +1,14 @@
-########################################################################################################################
-# |||||||||||||||||||||||||||||||||||||||||||||||||| AQUITANIA ||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
-# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
-# |||| To be a thinker means to go by the factual evidence of a case, not by the judgment of others |||||||||||||||||| #
-# |||| As there is no group stomach to digest collectively, there is no group mind to think collectively. |||||||||||| #
-# |||| Each man must accept responsibility for his own life, each must be sovereign by his own judgment. ||||||||||||| #
-# |||| If a man believes a claim to be true, then he must hold to this belief even though society opposes him. ||||||| #
-# |||| Not only know what you want, but be willing to break all established conventions to accomplish it. |||||||||||| #
-# |||| The merit of a design is the only credential that you require. |||||||||||||||||||||||||||||||||||||||||||||||| #
-# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| #
-########################################################################################################################
-
-"""
-.. moduleauthor:: H Roark
-
-This file contains one of the most basic classes of Aquitania.
-
-This was one of the first files that I had worked on, and it still contains much of the original code
-
-It has had some changes that were later reverted when I was still deciding on how to implement the classes and was
-considering the option of using a 'list_of_candles' class. This was later solved by using states and pandas DataFrames
-to store and process larger chunks of data.
-
-28/11/2017 - I did some big refactoring on this class and deleted all the getters and setters that were originally used,
-apparently getters and setters in Python is a bad implementation.
-
-15/03/2018 - Did a big refactor a couple weeks ago and changed the whole internal mechanisms of this class, made a
-pretty ingenious solution to store already inverted high and low values into tuples that will be accessed according to
-indicator movement.
-
-16/04/2018 - Added .close_time and .open_time attributes and refactor methods to generate these data.
-"""
-
-import datetime
-
+import datetime as dtm
 import aquitania.resources.datetimefx as dtfx
 from copy import copy
+import pandas as pd
 
-
-class Candle:
+cdef class Candle:
     """
     Candle class store the naked essentials of the element Candle, and provides methods which are recurrent calculations
     in a easy to use fashion.
     """
-
-    def __init__(self, ts, currency, dt, open_, high, low, close, volume, complete):
+    def __init__(self, unsigned char ts_i, unsigned char currency, datetime dt, datetime open_time, datetime close_time, double open, double high, double low, double close, int volume, bint complete):
         """
         Initialize Candle object with the naked essentials.
 
@@ -57,13 +22,11 @@ class Candle:
         :param volume: Volume
         :param complete: Complete (Boolean)
         """
-
         # Initializes variables
-        self.ts = ts
+        self.ts = ts_i
         self.currency = currency
-        self.datetime = dt
-        self.open_time, self.close_time = self.init_open_close_times()
-        self.open, self.high, self.low, self.close = (-open_, open_), (-low, high), (-high, low), (-close, close)
+        self.datetime, self.open_time, self.close_time = dt, open_time, close_time
+        self.open, self.high, self.low, self.close = (-open, open), (-low, high), (-high, low), (-close, close)
         self.volume = volume
         self.complete = complete
 
@@ -86,7 +49,7 @@ class Candle:
         Returns Candle's absolute size.
 
         :return: Candle size
-        :rtype: Float
+        :rtype: double
         """
         return self.high[up] - self.low[up]
 
@@ -95,7 +58,7 @@ class Candle:
         Returns Candle's body size.
 
         :return: Candle body size
-        :rtype: Float
+        :rtype: double
         """
         return abs(self.open[up] - self.close[up])
 
@@ -104,7 +67,7 @@ class Candle:
         Returns Candle's body max value.
 
         :return: Candle body max value
-        :rtype: Float
+        :rtype: double
         """
         return max(self.close[up], self.open[up])
 
@@ -113,7 +76,7 @@ class Candle:
         Returns Candle's body min value.
 
         :return: Candle body min value
-        :rtype: Float
+        :rtype: double
         """
         return min(self.close[up], self.open[up])
 
@@ -122,29 +85,29 @@ class Candle:
         Returns Candle's shadow size.
 
         :return: Candle shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.size(up) - self.body(up)
 
-    def upper_shadow(self, up):
+    cpdef double upper_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
         :return: Candle upper shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.high[up] - self.body_max(up)
 
-    def lower_shadow(self, up):
+    cpdef double lower_shadow(self, bint up):
         """
         Returns Candle's upper shadow size.
 
         :return: Candle upper shadow size
-        :rtype: Float
+        :rtype: double
         """
         return self.body_min(up) - self.low[up]
 
-    def lower_than(self, candle, up):
+    cpdef bint lower_than(self, Candle candle, bint up):
         """
         Checks if given Candle is lower than current Candle.
 
@@ -154,12 +117,9 @@ class Candle:
         :return: True if given Candle is lower.
         :rtype: Boolean
         """
-        if self.low[up] < candle.low[up]:
-            return True
-        else:
-            return False
+        return self.low[up] < candle.low[up]
 
-    def higher_than(self, candle, up):
+    cpdef bint higher_than(self, Candle candle, bint up):
         """
         Checks if given Candle is higher than current Candle.
 
@@ -169,12 +129,9 @@ class Candle:
         :return: True if given Candle is higher.
         :rtype: Boolean
         """
-        if self.high[up] > candle.high[up]:
-            return True
-        else:
-            return False
+        return self.high[up] > candle.high[up]
 
-    def ascending(self, candle, up):
+    cpdef bint ascending(self, Candle candle, bint up):
         """
         Checks if given Candle is ascending to current Candle (has both higher low and high values)
 
@@ -184,34 +141,33 @@ class Candle:
         :return: True if it is ascending
         :rtype: Boolean
         """
-        if self.low[up] > candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
-        else:
-            return False
+        return self.low[up] > candle.low[up] and self.high[up] > candle.high[up]
 
-    def new_ts(self, ts):
+    cpdef Candle new_ts(self, int ts):
         """
         Creates an identical copy of current the Candle object.
 
         :return: Identical copy of the current Candle object
         :rtype: Candle
         """
-        return Candle(ts, self.currency, self.datetime, self.open[1], self.high[1], self.low[1], self.close[1],
-                      self.volume, ts == 0)
+        cdef:
+            datetime open_time
+            datetime close_time
+        open_time, close_time = dtfx.init_open_close_times(self.datetime, ts)
+        return Candle(ts, self.currency, self.datetime, open_time, close_time, self.open[1],
+        self.high[1], self.low[1], self.close[1], self.volume, ts == 0)
 
-    def copy(self):
+    cpdef Candle copy(self):
         """
         Creates an identical copy of current the Candle object.
 
         :return: Identical copy of the current Candle object
         :rtype: Candle
         """
-        return copy(self)
+        return Candle(self.ts, self.currency, self.datetime, self.open_time, self.close_time, self.open[1],
+        self.high[1], self.low[1], self.close[1], self.volume, self.ts == 0)
 
-    def lower_eclipses(self, candle, up):
+    cpdef bint lower_eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle is lower than current Candle.
 
@@ -223,15 +179,12 @@ class Candle:
         """
         if self.low[up] < candle.low[up]:
             return True
-        elif self.low[up] == candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
+        elif self.low[up] == candle.low[up] and self.high[up] > candle.high[up]:
+            return True
         else:
             return False
 
-    def higher_eclipses(self, candle, up):
+    cpdef bint higher_eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle is higher than current Candle.
 
@@ -243,15 +196,12 @@ class Candle:
         """
         if self.high[up] > candle.high[up]:
             return True
-        elif self.high[up] == candle.high[up]:
-            if self.low[up] < candle.low[up]:
-                return True
-            else:
-                return False
+        elif self.high[up] == candle.high[up] and self.low[up] < candle.low[up]:
+            return True
         else:
             return False
 
-    def eclipses(self, candle, up):
+    cpdef bint eclipses(self, Candle candle, bint up):
         """
         Checks if given Candle eclipses (higher high and lower low) current Candle.
 
@@ -261,16 +211,10 @@ class Candle:
         :return: True if given Candle eclipses current Candle
         :rtype: Boolean
         """
-        if self.low[up] < candle.low[up]:
-            if self.high[up] >= candle.high[up]:
-                return True
-            else:
-                return False
-        elif self.low[up] == candle.low[up]:
-            if self.high[up] > candle.high[up]:
-                return True
-            else:
-                return False
+        if self.low[up] < candle.low[up] and self.high[up] >= candle.high[up]:
+            return True
+        elif self.low[up] == candle.low[up] and self.high[up] > candle.high[up]:
+            return True
         else:
             return False
 
@@ -315,7 +259,7 @@ class Candle:
         :param up: True if up
 
         :return: Value of profit reference
-        :rtype: float
+        :rtype: double
         """
         return self.close[up] + distance
 
@@ -327,7 +271,7 @@ class Candle:
         :param up: True if up
 
         :return: Value of stop reference
-        :rtype: float
+        :rtype: double
         """
         return self.close[up] - distance
 
@@ -350,91 +294,7 @@ class Candle:
         else:
             return False
 
-    def init_open_close_times(self, ts=None):
-        """
-        Initializes Candle with open and close time values.
-
-        :return: Candle open time, Candle close time
-        :rtype: tuple of 2 datetime elements
-        """
-        if ts is None:
-            ts = self.ts
-        # This if elif structure looks ridiculous but it is really fast.
-        if ts == 0:
-            return self.datetime, self.datetime
-        elif ts == 1:
-            return self.div_by_sec(300)
-        elif ts == 2:
-            return self.div_by_sec(900)
-        elif ts == 3:
-            return self.div_by_sec(1800)
-        elif ts == 4:
-            return self.div_by_sec(3600)
-        elif ts == 5:
-            return self.daily_criteria()
-        elif ts == 6:
-            return self.weekly_criteria()
-        elif ts == 7:
-            return self.monthly_criteria()
-        else:
-            raise ValueError('Invalid Candle TimeStamp')
-
-    def div_by_sec(self, seconds):
-        open_time = (self.datetime.timestamp() // seconds) * seconds
-        close_time = open_time + seconds - 60
-
-        return dtfx.dt_from_ts(open_time), dtfx.dt_from_ts(close_time)
-
-    def daily_criteria(self):
-        open_time = (self.datetime.timestamp() // 86400) * 86400
-        close_time = open_time + 86400 - 60
-
-        # Puts Monday together with Sunday
-        if self.datetime.weekday() == 0:
-            open_time -= 86400
-            open_time = dtfx.dt_from_ts(open_time)
-        else:
-            open_time = dtfx.dt_from_ts(open_time)
-
-        if self.datetime.weekday() == 6:
-            close_time += 86400
-            close_time = dtfx.dt_from_ts(close_time)
-        elif self.datetime.weekday() == 4:
-            close_time = dtfx.next_market_close(self.datetime)
-        else:
-            close_time = dtfx.dt_from_ts(close_time)
-
-        return open_time, close_time
-
-    def weekly_criteria(self):
-        # Need to divide in to groups:
-        #  1. 3-5 Thursday to Saturday
-        if 3 <= self.datetime.weekday() <= 5:
-            open_time = (self.datetime.timestamp() // 604800) * 604800 - 345600
-        # 2. Other weekdays
-        else:
-            open_time = (self.datetime.timestamp() // 604800) * 604800 + 259200
-
-        close_time = dtfx.dt_from_ts(open_time + 604800 - 60)
-        if 5 >= close_time.weekday() >= 4:
-            close_time = dtfx.next_market_close(self.datetime)
-
-        return dtfx.dt_from_ts(open_time), close_time
-
-    def monthly_criteria(self):
-        open_time = datetime.datetime(self.datetime.year, self.datetime.month, 1)
-
-        if self.datetime.month == 12:
-            close_time = dtfx.previous_candle(datetime.datetime(self.datetime.year + 1, 1, 1), 1)
-        else:
-            close_time = dtfx.previous_candle(datetime.datetime(self.datetime.year, self.datetime.month + 1, 1), 1)
-
-        if 5 >= close_time.weekday() >= 4:
-            close_time = dtfx.last_market_close(close_time)
-
-        return open_time, close_time
-
-    def is_same_open_time(self, candle):
+    cpdef bint is_same_open_time(self, Candle candle):
         return isinstance(self, candle.__class__) and self.open_time == candle.open_time
 
     def __eq__(self, other):
@@ -477,6 +337,6 @@ class Candle:
         :return: Returns string object consisting of print logic
         :rtype: String
         """
-        return str(self.datetime) + ' O: ' + str(self.open[1]) + ' H: ' + str(self.high[1]) + ' L: ' + str(
-            self.low[1]) + ' C: ' + str(self.close[1]) + ' V: ' + str(self.volume) + ' Ts: ' + str(
-            self.ts) + ' Cur: ' + self.currency
+        return '{}: O: {} H: {} L: {} C: {} V: {} Ts: {} Cur: {}'.format(self.datetime, self.open[1], self.high[1],
+                                                                         self.low[1], self.close[1], self.volume,
+                                                                         self.ts, '')

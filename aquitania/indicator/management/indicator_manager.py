@@ -42,9 +42,9 @@ class IndicatorManager:
     """
     One of the pillars of the Aquitania project, this class is the architect of how a single process in Aquitania should
     work. Each Financial Security (asset) should run contained in a IndicatorManager object.
-s   """
+    """
 
-    def __init__(self, broker_instance, asset, strategy, start_date):
+    def __init__(self, broker_instance, asset, strategy, start_date=None, end_date=None):
         """
         Initializes IndicatorManager.
 
@@ -55,6 +55,7 @@ s   """
         self.broker_instance = broker_instance
         self.asset = asset
         self.start_date = start_date
+        self.end_date = end_date
         self.strategy = strategy
         self.output = None
 
@@ -65,7 +66,7 @@ s   """
         self.hdm = HistoricDataManager(broker_instance, asset, True)
 
         # Instantiate Feeder
-        self.feeder = Feeder(self.list_of_loaders, asset)
+        self.feeder = Feeder(self.list_of_loaders, ref.currencies_dict[asset])
 
     def update_load_run_data(self):
         """
@@ -87,23 +88,15 @@ s   """
         """
         This method loads all the historic data and then run all the indicators through it.
         """
+        # Load generator of DataFrame
+        df_chunks = self.broker_instance.load_data_in_chunks(self.asset, chunksize=25000)
 
-        # TODO implement a select here (will work on HDF5, but might not work on other storage methods)
-        df = self.hdm.load_data()
-
-        # Guarantees that 'self.start_date' is instantiated.
-        if self.start_date is None:
-            self.start_date = df.index[0]
-
-        # TODO implement end_date slice as well
         # Gets Usable DataFrame
-        df = df[self.start_date:]
-
-        # Executes DataFrame in batches to be able to save the current state of the IndicatorManager
-        for dt in self.feeder.exec_df(df[self.start_date:]):
-            print('{}Saving a batch into disk on {}. Last Candle analyzed: {}.'.format(dtfx.now(), self.asset, dt))
-            self.start_date = dtfx.next_candle_datetime(dt, 1)  # Order is important here
-            self.save()
+        for df in df_chunks:
+            df = df.loc[slice(self.start_date, self.end_date)]
+            if df.shape[0] > 0:
+                datetime = self.feeder.exec_df(df)
+                self.save_state(datetime)
 
     def live_feed(self):
         """
@@ -136,7 +129,8 @@ s   """
             asset = ref.currencies_list[candle[1]]
 
             # Converts processed candle to Candle object
-            candle = Candle(0, asset, candle[0], candle[3], candle[4], candle[5], candle[6], candle[7], True)
+            candle = Candle(0, asset, candle[0], candle[0], candle[0], candle[3], candle[4], candle[5], candle[6],
+                            candle[7], True)
 
             # Feeds Candle object to Indicators
             self.feeder.feed(candle)
@@ -188,7 +182,7 @@ s   """
         """
 
         # Initializes Variables
-        fi = self.asset
+        fi = ref.currencies_dict[self.asset]
         il = self.strategy.indicator_list
 
         # TODO correct rest of code base to work well with variable timestamps (specially feeder.py)
@@ -198,7 +192,12 @@ s   """
         # Returns IndicatorLoaders in a list
         return loader_list
 
-    def save(self):
+    def save_state(self, dt):
+        print('{}Saving a batch into disk on {}. Last Candle analyzed: {}.'.format(dtfx.now(), self.asset, dt))
+        self.start_date = dtfx.next_candle_datetime(dt, 1)  # Order is important here
+        self.pickle_state()
+
+    def pickle_state(self):
         """
         Save IndicatorManager into disk.
 

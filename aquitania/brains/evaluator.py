@@ -126,13 +126,13 @@ class Evaluator:
         k_df.apply(self.info_by_strategy, axis=1, args=(False, is_test))
         ki_df.apply(self.info_by_strategy, axis=1, args=(True, is_test))
 
+        # Gets out of the loop if it is train set
+        if not is_test:
+            return
+
         # Gets out of the loop if there is no Trade-Able strategy
         if len(self.strategy_dicts) == 0:
             no_tradable_strategies_message()
-            return
-
-        # Gets out of the loop if it is train set
-        if not is_test:
             return
 
         # Save all trades DataFrame into disk
@@ -427,6 +427,22 @@ class Evaluator:
         # Initializes DataFrame with data from the accuracy metrics calculations
         df2 = pd.DataFrame(self.accuracy_metrics, index=[False, True])
 
+        # Gets the Transposed DataFrame
+        df2 = df2.T
+
+        df_list = []
+        for c in df2.columns:
+            df_list.append(pd.DataFrame(df2[c].tolist()))
+
+        ndf = pd.concat(df_list, 1, ignore_index=True).add_prefix('col_')
+        ndf.index = df2.index
+
+        df2 = ndf
+        del ndf
+
+        # Get column names
+        df2.columns = ['Train Set Score', 'Train Set Count', 'Test Set Score', 'Test Set Count']
+
         # Routine for when there is a valid train or test strategy
         try:
             # Creates a new DataFrame grouped by Train and Test sets
@@ -436,24 +452,21 @@ class Evaluator:
             gdf.columns = ['n_trades', 'n_win_trades', 'n_strategies']
 
             # Creates a new concatenated and transposed DataFrame
-            ndf = pd.concat([gdf, df2], axis=1).T
+            gdf = gdf.T
 
             # Sets Column Names
-            ndf.columns = ['Train Set', 'Test Set']
+            gdf.columns = ['Train Set', 'Test Set']
 
             # Runs routine to print overfitting metrics
-            print_overfit_metrics(ndf)
+            print_overfit_metrics(gdf)
+
+            # Prints data not related to strategies
+            print(df2)
 
         # Routine for when no valid strategy was found
         except:
             # Messages about the fact that no profitable strategies where found
             print('No Profitable Strategies Were Found in Train or Test Sets')
-
-            # Gets the Transposed DataFrame
-            df2 = df2.T
-
-            # Get column names
-            df2.columns = ['Train Set', 'Test Set']
 
             # Prints data not related to strategies
             print(df2)
@@ -470,7 +483,8 @@ class Evaluator:
         """
         pred = df['raw_predict']
         y = df['results']
-        acc_dict = {'acc_proba': accuracy_proba(pred, y), 'acc_clf': accuracy_classifier(pred, y),
+        acc_dict = {'baseline': (y.mean(), y.count()), 'acc_proba': accuracy_proba(pred, y),
+                    'acc_clf': accuracy_classifier(pred, y),
                     'prec_20': precision_metric(pred, y, 0.2, True), 'prec_25': precision_metric(pred, y, 0.25, True),
                     'prec_30': precision_metric(pred, y, 0.3, True), 'prec_35': precision_metric(pred, y, 0.35, True),
                     'prec_40': precision_metric(pred, y, 0.4, True), 'prec_45': precision_metric(pred, y, 0.45, True),
@@ -478,8 +492,7 @@ class Evaluator:
                     'prec_55': precision_metric(pred, y, 0.55, False), 'prec_60': precision_metric(pred, y, 0.6, False),
                     'prec_65': precision_metric(pred, y, 0.65, False), 'prec_70': precision_metric(pred, y, 0.7, False),
                     'prec_75': precision_metric(pred, y, 0.75, False), 'prec_80': precision_metric(pred, y, 0.8, False)}
-        self.accuracy_metrics[
-            is_test] = acc_dict
+        self.accuracy_metrics[is_test] = acc_dict
 
 
 def coherent_truth_table(matrix_kelly):
@@ -638,7 +651,7 @@ def accuracy_proba(predictions, y):
     :rtype: float
     """
     # TODO this metric might be better evaluated putting values together into brackets
-    return 1 - (y - predictions).abs().mean()
+    return 1 - (y - predictions).abs().mean(), y.count()
 
 
 def accuracy_classifier(predictions, y):
@@ -674,9 +687,9 @@ def precision_metric(predictions, y, threshold, inverted):
     """
     # TODO add .count() to output
     if inverted:
-        return 1 - y[predictions < threshold].mean()
+        return 1 - y[predictions < threshold].mean(), y[predictions < threshold].count()
     else:
-        return y[predictions > threshold].mean()
+        return y[predictions > threshold].mean(), y[predictions > threshold].count()
 
 
 def print_overfit_metrics(df):
