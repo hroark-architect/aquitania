@@ -86,7 +86,7 @@ cdef process_exit_points(df, exit_points, candles_df, max_candles, is_virada):
     # Create exits for all exit points
     for exit_point in exit_points:
         # Run multiprocessing routine
-        temp_exit = mp(df[['close', 'entry_point', exit_point]], exit_point, candles_df, max_candles)
+        temp_exit = manage_exit_creation(df[['close', 'entry_point', exit_point]], exit_point, candles_df, max_candles)
 
         # Routine for df_alta
         temp_exit.columns = [exit_point + '_dt', exit_point + '_saldo']
@@ -147,37 +147,9 @@ cdef build_entry_points(df, candles_df):
     # Returns ordered DataFrame
     return df_inner.sort_index()
 
-cdef mp(df, exit_point, candles_df_pd, max_candles):
+cdef manage_exit_creation(df, ep_str, candles_df_pd, max_candles):
     cdef tuple candles_index = tuple(candles_df_pd.index)
     cdef tuple candles_df = tuple(tuple(x) for x in candles_df_pd.itertuples())
-
-    cpu = multiprocessing.cpu_count()
-    dividers = [int(df.shape[0] / cpu * i) for i in range(1, cpu)]
-
-    df_list = np.split(df, dividers, axis=0)
-
-    index_start = [bisect.bisect_left(candles_index, df.index[0])] + [
-        bisect.bisect_left(candles_index, df.index[divider]) for divider in dividers]
-    index_end = [bisect.bisect_left(candles_index, df.index[divider - 1]) for divider in dividers] + [
-        bisect.bisect_left(candles_index, df.index[-1])]
-
-    df_list = [(tuple(tuple(x) for x in d.itertuples()), exit_point, candles_index[index_start[i]:index_end[i]],
-                candles_df[index_start[i]:index_end[i] + max_candles], max_candles) for i, d in enumerate(df_list)]
-
-    pool = multiprocessing.Pool()
-    results = pool.map(dataframe_apply, df_list)
-    pool.close()
-    pool.join()
-
-    # Filter to remove df with zero rows
-    results = [df for df in results if df.shape[0] > 0]
-
-    x = pd.concat(results)[[0, 1]]
-    return x
-
-cpdef dataframe_apply(dlist):
-    df, ep_str, candles_index, candles_df, max_candles = dlist[0], dlist[1], dlist[2], dlist[3], dlist[4]
-
     cdef list raw_df = []
     cdef list index = []
     cdef datetime dt
@@ -185,9 +157,10 @@ cpdef dataframe_apply(dlist):
     cdef double entry_point
     cdef double exit_point
 
-    for dt, close, entry_point, exit_point in df:
+    for dt, close, entry_point, exit_point in (tuple(x) for x in df.itertuples()):
         pos = bisect.bisect_left(candles_index, dt)
-        x = candles_df[pos:max_candles]
+        x = candles_df[pos:pos+max_candles]
+        print(len(x))
         raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, x))
         index.append(dt)
 
