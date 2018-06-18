@@ -14,7 +14,6 @@
 .. moduleauthor:: H Roark
 """
 import bisect
-import multiprocessing
 import pandas as pd
 import numpy as np
 import os

@@ -17,6 +17,7 @@
 
 import pandas as pd
 import aquitania.resources.references as ref
+import gc
 from aquitania.resources.candle cimport Candle
 
 cdef class IndicatorLoader:
@@ -79,6 +80,8 @@ cdef class IndicatorLoader:
 
         # Saves observations to disk
         self._broker_instance.save_indicators(df, ref.currencies_list[self._asset], ts)
+
+        gc.collect()
 
     cdef object generate_df(self):
         # Initialize Variables
