@@ -159,7 +159,6 @@ cdef manage_exit_creation(df, ep_str, candles_df_pd, max_candles):
     for dt, close, entry_point, exit_point in (tuple(x) for x in df.itertuples()):
         pos = bisect.bisect_left(candles_index, dt)
         x = candles_df[pos:pos+max_candles]
-        print(len(x))
         raw_df.append(create_exits(dt, close, entry_point, exit_point, ep_str, x))
         index.append(dt)
 
