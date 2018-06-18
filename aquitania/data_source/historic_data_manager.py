@@ -23,6 +23,7 @@ HistoricDataManager creates databases of candles mainly to do historic tests and
 on live trading.
 """
 import time
+import gc
 import multiprocessing as mp
 import pandas as pd
 import aquitania.resources.datetimefx as dtfx
@@ -134,6 +135,7 @@ class HistoricDataManager:
         """
         self._broker_instance.candle_downloader(start_date, self.asset, q1)
         step1.value = 0
+        gc.collect()
 
     def process_data(self, step1, step2, q1, q2, q3):
         """
@@ -144,6 +146,7 @@ class HistoricDataManager:
         :q2 Queue 2 is the one that will transport processed data to be stored on the computer.
         """
         while bool(step1.value) or not q1.empty():
+            gc.collect()
             time.sleep(1)
             while not q1.empty():
                 data_package = q1.get()
@@ -171,6 +174,7 @@ class HistoricDataManager:
         size = 0
 
         while bool(step2.value) or not q2.empty():
+            gc.collect()
             time.sleep(1)
             while q2.empty() is False:
                 list_candles = q2.get()
